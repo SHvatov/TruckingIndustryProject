@@ -6,9 +6,9 @@ import java.util.List;
  * Basic service interface.
  *
  * @param <T>  DTO type.
- * @param <UK> type of the unique key.
+ * @param <U> type of the unique key.
  */
-public interface BaseService<UK, T> {
+public interface BaseService<U, T> {
 
     /**
      * Finds entity by it's id in the DB.
@@ -52,14 +52,14 @@ public interface BaseService<UK, T> {
      * @param key unique key of the id.
      * @return Unique entity with this entity.
      */
-    T findByUniqueKey(UK key);
+    T findByUniqueKey(U key);
 
     /**
      * Deletes entity by it's unique id.
      *
      * @param key unique key of the entity.
      */
-    void deleteByUniqueKey(UK key);
+    void deleteByUniqueKey(U key);
 
     /**
      * Checks if the input key is unique or not.
@@ -67,5 +67,5 @@ public interface BaseService<UK, T> {
      * @param key key to check.
      * @return true, if this key is unique in the DB, false otherwise.
      */
-    boolean isUniqueKey(UK key);
+    boolean isUniqueKey(U key);
 }

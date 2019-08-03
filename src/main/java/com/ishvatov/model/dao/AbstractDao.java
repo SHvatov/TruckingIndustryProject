@@ -1,5 +1,6 @@
 package com.ishvatov.model.dao;
 
+import com.ishvatov.model.entity.AbstractEntity;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -12,10 +13,10 @@ import java.util.List;
 /**
  * Abstract DAO class with default methods implementations.
  *
- * @param <UK> type of the unique key.
+ * @param <U> type of the unique key.
  * @param <T>  entity type.
  */
-public abstract class AbstractDao<UK, T> implements BaseDaoInterface<UK, T> {
+public abstract class AbstractDao<U, T> implements BaseDaoInterface<U, T> {
 
     /**
      * Current session factory object
@@ -38,6 +39,27 @@ public abstract class AbstractDao<UK, T> implements BaseDaoInterface<UK, T> {
     @SuppressWarnings("unchecked")
     protected AbstractDao() {
         this.persistentClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+    }
+
+    /**
+     * Finds entity by it's unique id.
+     *
+     * @param key unique key of the id.
+     * @return Unique entity with this id.
+     */
+    @Override
+    public T findByUniqueKey(U key) {
+        // generate criteria
+        CriteriaBuilder criteriaBuilder = getSession().getCriteriaBuilder();
+        CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(persistentClass);
+        Root<T> root = criteriaQuery.from(persistentClass);
+
+        // form predicate and retrieve entities from data base
+        Predicate predicate = criteriaBuilder.equal(root.get(AbstractEntity.UNIQUE_KEY_COLUMN_NAME), key);
+        List<T> entities = findEntities(predicate, criteriaQuery, root);
+
+        // return result
+        return entities.isEmpty() ? null : entities.get(0);
     }
 
     /**

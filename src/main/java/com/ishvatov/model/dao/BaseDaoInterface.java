@@ -9,10 +9,10 @@ import java.util.List;
 /**
  * Base DAO interface.
  *
- * @param <UK> type of the unique key.
+ * @param <U> type of the unique key.
  * @param <T>  type of the entity.
  */
-public interface BaseDaoInterface<UK, T> {
+public interface BaseDaoInterface<U, T> {
 
     /**
      * Finds entity by it's id in the DB.
@@ -49,7 +49,7 @@ public interface BaseDaoInterface<UK, T> {
      * @param key unique key of the id.
      * @return Unique entity with this id.
      */
-    T findByUniqueKey(UK key);
+    T findByUniqueKey(U key);
 
     /**
      * Finds the entities that suit this predicate.

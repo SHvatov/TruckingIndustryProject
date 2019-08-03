@@ -1,5 +1,8 @@
-package com.ishvatov.configuration;
+package com.ishvatov.init;
 
+import com.ishvatov.configuration.HibernateConfig;
+import com.ishvatov.configuration.SecurityConfig;
+import com.ishvatov.configuration.WebAppConfig;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
@@ -32,7 +35,7 @@ public class WebAppInit extends AbstractAnnotationConfigDispatcherServletInitial
      */
     @Override
     protected Class<?>[] getRootConfigClasses() {
-        return new Class[]{HibernateConfig.class};
+        return new Class[]{HibernateConfig.class, SecurityConfig.class};
     }
 
     /**
