@@ -2,11 +2,9 @@ package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.enum_types.TruckConditionType;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -16,8 +14,10 @@ import java.util.Set;
  */
 @Entity
 @Table(name = "truck")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class TruckEntity extends AbstractEntity {
 
     /**
@@ -28,7 +28,7 @@ public class TruckEntity extends AbstractEntity {
     /**
      * Name of the condition column in the DB.
      */
-    public static final String CONDITION = "state";
+    public static final String CONDITION = "truck_status";
 
     /**
      * Name of the driver shift size column in the DB.
@@ -36,16 +36,28 @@ public class TruckEntity extends AbstractEntity {
     public static final String SHIFT = "shift_size";
 
     /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String CITY_ID = "city_id";
+
+    /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String ORDER_ID = "order_id";
+
+    /**
      * Truck's capacity in tons.
      */
     @Column(name = CAPACITY)
-    private double truckCapacity;
+    private Double truckCapacity;
 
     /**
      * DriverEntity shift size in hours.
      */
     @Column(name = SHIFT)
-    private int driverShiftSize;
+    private Integer truckDriverShiftSize;
 
     /**
      * Truck status.
@@ -55,21 +67,61 @@ public class TruckEntity extends AbstractEntity {
     private TruckConditionType truckCondition;
 
     /**
-     * City, where truck is located.
-     */
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "city_id")
-    private CityEntity truckCityEntity;
-
-    /**
-     * Drivers, who are using this truck.
+     * Set of drivers, who are assigned to this truck.
      */
     @OneToMany(mappedBy = "driverTruckEntity", fetch = FetchType.LAZY)
-    private Set<DriverEntity> truckDriverEntitySet;
+    private Set<DriverEntity> truckDriversSet;
 
     /**
-     * Orders, that are assigned to this truck.
+     * City, where this truck is located.
      */
-    @ManyToMany(mappedBy = "orderTruckEntityList")
-    private List<OrderEntity> truckOrderEntityList;
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
+        CascadeType.REMOVE, CascadeType.MERGE})
+    @JoinColumn(name = CITY_ID)
+    private CityEntity truckCity;
+
+    /**
+     * Order, assigned to this truck.
+     */
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
+        CascadeType.REMOVE, CascadeType.MERGE})
+    @JoinColumn(name = ORDER_ID)
+    private OrderEntity truckOrder;
+
+    /**
+     * Equals method override.
+     *
+     * @param obj another object.
+     * @return false, if other object is null, of other type or does not equal
+     * to this, true otherwise.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DriverEntity)) {
+            return false;
+        } else {
+            DriverEntity entity = (DriverEntity) obj;
+            return getId().equals(entity.getId()) && getUniqueIdentificator().equals(entity.getUniqueIdentificator());
+        }
+    }
+
+    /**
+     * HashCode method implementation.
+     *
+     * @return hash code of the object.
+     */
+    @Override
+    public int hashCode() {
+        return getId().hashCode() + getUniqueIdentificator().hashCode();
+    }
+
+    /**
+     * To string method implementation.
+     *
+     * @return string representation of the entity.
+     */
+    @Override
+    public String toString() {
+        return getClass().getName() + "{id=" + getId() + "; UID=" + getUniqueIdentificator();
+    }
 }

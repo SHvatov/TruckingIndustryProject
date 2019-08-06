@@ -1,9 +1,8 @@
-package com.ishvatov.model.entity.security;
+package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.enum_types.UserRoleType;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -14,32 +13,34 @@ import javax.persistence.*;
  */
 @Entity
 @Table(name = "users")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity extends AbstractEntity {
 
     /**
      * String representation of the 'password'
      * column name in the table.
      */
-    public static final String PASSWORD = "password";
+    public static final String PASSWORD_FIELD = "password";
 
     /**
      * String representation of the 'authority'
      * column name in the table.
      */
-    public static final String AUTHORITY = "authority";
+    public static final String AUTHORITY_FIELD = "authority";
 
     /**
-     * UserEntity login password.
+     * UserEntity login userPassword.
      */
-    @Column(name = PASSWORD)
-    private String userPassword;
+    @Column(name = PASSWORD_FIELD)
+    private String password;
 
     /**
      * User authority.
      */
-    @Column(name = AUTHORITY)
+    @Column(name = AUTHORITY_FIELD)
     @Enumerated(EnumType.STRING)
-    private UserRoleType userAuthority;
+    private UserRoleType authority;
 }

@@ -2,6 +2,7 @@ package com.ishvatov.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * This controller is designed to process login requests.
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author Sergey Khvatov
  */
 @Controller
+@RequestMapping("/login")
 public class LoginController {
 
     /**
@@ -16,9 +18,9 @@ public class LoginController {
      *
      * @return String representation of the source.
      */
-    @RequestMapping("/login/login")
-    public String loginPage() {
-        return "login/login_page";
+    @RequestMapping("/login")
+    public ModelAndView loginPage() {
+        return new ModelAndView("login/login_page");
     }
 
     /**
@@ -26,38 +28,8 @@ public class LoginController {
      *
      * @return String representation of the source.
      */
-    @RequestMapping("login/login_failed")
-    public String loginFailure() {
-        return "login/login_failed";
-    }
-
-    /**
-     * Redirects employee to the employee homepage.
-     *
-     * @return String representation of the source.
-     */
-    @RequestMapping("/employee/homepage")
-    public String adminHomepage() {
-        return "employee/homepage";
-    }
-
-    /**
-     * Redirects admin to the admin homepage.
-     *
-     * @return String representation of the source.
-     */
-    @RequestMapping("/admin/homepage")
-    public String userHomepage() {
-        return "admin/homepage";
-    }
-
-    /**
-     * Redirects driver to the driver homepage.
-     *
-     * @return String representation of the source.
-     */
-    @RequestMapping("/driver/homepage")
-    public String driverHomepage() {
-        return "driver/homepage";
+    @RequestMapping("/login_failed")
+    public ModelAndView loginFailure() {
+        return new ModelAndView("login/login_failed");
     }
 }

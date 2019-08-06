@@ -2,11 +2,9 @@ package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.enum_types.DriverStatusType;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
 
 /**
  * Defines basic driver entity in the database.
@@ -15,8 +13,10 @@ import java.util.List;
  */
 @Entity
 @Table(name = "driver")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class DriverEntity extends AbstractEntity {
 
     /**
@@ -41,7 +41,25 @@ public class DriverEntity extends AbstractEntity {
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String STATE = "status";
+    public static final String STATE = "driver_status";
+
+    /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String TRUCK_ID = "truck_id";
+
+    /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String CITY_ID = "city_id";
+
+    /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String ORDER_ID = "order_id";
 
     /**
      * Name of the driver.
@@ -70,22 +88,64 @@ public class DriverEntity extends AbstractEntity {
     private DriverStatusType driverStatus;
 
     /**
-     * This driver's truck.
+     * Truck, this driver is assigned to.
      */
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "truck_id")
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
+        CascadeType.REMOVE, CascadeType.MERGE})
+    @JoinColumn(name = TRUCK_ID)
     private TruckEntity driverTruckEntity;
 
     /**
-     * This driver's truck.
+     * City, where this driver is located.
      */
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "city_id")
-    private CityEntity driverCityEntity;
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
+        CascadeType.REMOVE, CascadeType.MERGE})
+    @JoinColumn(name = CITY_ID)
+    private CityEntity driverCurrentCity;
 
     /**
-     * Orders, that are assigned to this driver.
+     * Order, this driver is assigned to.
      */
-    @ManyToMany(mappedBy = "orderDriverEntityList")
-    private List<OrderEntity> truckOrderEntityList;
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
+        CascadeType.REMOVE, CascadeType.MERGE})
+    @JoinColumn(name = ORDER_ID)
+    private OrderEntity driverOrder;
+
+
+    /**
+     * Equals method override.
+     *
+     * @param obj another object.
+     * @return false, if other object is null, of other type or does not equal
+     * to this, true otherwise.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DriverEntity)) {
+            return false;
+        } else {
+            DriverEntity entity = (DriverEntity) obj;
+            return getId().equals(entity.getId()) && getUniqueIdentificator().equals(entity.getUniqueIdentificator());
+        }
+    }
+
+    /**
+     * HashCode method implementation.
+     *
+     * @return hash code of the object.
+     */
+    @Override
+    public int hashCode() {
+        return getId().hashCode() + getUniqueIdentificator().hashCode();
+    }
+
+    /**
+     * To string method implementation.
+     *
+     * @return string representation of the entity.
+     */
+    @Override
+    public String toString() {
+        return getClass().getName() + "{id=" + getId() + "; UID=" + getUniqueIdentificator();
+    }
 }

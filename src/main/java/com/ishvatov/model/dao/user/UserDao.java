@@ -1,13 +1,12 @@
 package com.ishvatov.model.dao.user;
 
 import com.ishvatov.model.dao.BaseDaoInterface;
-import com.ishvatov.model.entity.security.UserEntity;
+import com.ishvatov.model.entity.buisness.UserEntity;
 
 /**
- * Basic interface, which is used to retrieve user data
- * from the data base.
+ * Defines basic interface to work with user entities in the database.
  *
- * @author Sergey Khvatov
+ * @author Sergey Khvatov.
  */
 public interface UserDao extends BaseDaoInterface<String, UserEntity> {
     // empty interface

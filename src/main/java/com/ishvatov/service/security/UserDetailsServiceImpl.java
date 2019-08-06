@@ -1,7 +1,7 @@
 package com.ishvatov.service.security;
 
 import com.ishvatov.model.dao.user.UserDao;
-import com.ishvatov.model.entity.security.UserEntity;
+import com.ishvatov.model.entity.buisness.UserEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

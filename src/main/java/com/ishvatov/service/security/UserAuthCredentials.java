@@ -1,6 +1,6 @@
 package com.ishvatov.service.security;
 
-import com.ishvatov.model.entity.security.UserEntity;
+import com.ishvatov.model.entity.buisness.UserEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.springframework.security.core.GrantedAuthority;
@@ -43,7 +43,7 @@ public class UserAuthCredentials implements UserDetails {
      * @param dbUserEntity database entity with user's credentials.
      */
     public UserAuthCredentials(UserEntity dbUserEntity) {
-        this(dbUserEntity.getUniqueIdentificator(), dbUserEntity.getUserAuthority().getName(), dbUserEntity.getUserPassword());
+        this(dbUserEntity.getUniqueIdentificator(), dbUserEntity.getAuthority().getName(), dbUserEntity.getPassword());
     }
 
     /**

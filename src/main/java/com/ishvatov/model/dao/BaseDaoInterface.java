@@ -10,7 +10,7 @@ import java.util.List;
  * Base DAO interface.
  *
  * @param <U> type of the unique key.
- * @param <T>  type of the entity.
+ * @param <T> type of the entity.
  */
 public interface BaseDaoInterface<U, T> {
 
@@ -35,6 +35,13 @@ public interface BaseDaoInterface<U, T> {
      * @param entity entity to delete.
      */
     void delete(T entity);
+
+    /**
+     * Deletes entity by it's id.
+     *
+     * @param id id of the entity.
+     */
+    void deleteById(int id);
 
     /**
      * Finds all the entities in the DB.
@@ -71,4 +78,12 @@ public interface BaseDaoInterface<U, T> {
      * @param root           instance of the {@link Root}.
      */
     void deleteEntities(Predicate predicate, CriteriaDelete<T> criteriaDelete, Root<T> root);
+
+    /**
+     * Checks if entity with such key exists in teh database.
+     *
+     * @param key unique key of the id.
+     * @return true, if exists, false otherwise.
+     */
+    boolean exists(U key);
 }

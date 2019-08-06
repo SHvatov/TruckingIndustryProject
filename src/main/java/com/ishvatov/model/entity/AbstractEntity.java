@@ -1,6 +1,9 @@
 package com.ishvatov.model.entity;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -10,7 +13,10 @@ import javax.persistence.*;
  * @author Sergey Khvatov
  */
 @MappedSuperclass
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public abstract class AbstractEntity {
 
     /**
@@ -26,7 +32,7 @@ public abstract class AbstractEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true)
-    private int id;
+    private Integer id;
 
     /**
      * Unique identificator of the object.

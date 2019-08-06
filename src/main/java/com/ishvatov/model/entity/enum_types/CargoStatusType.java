@@ -7,6 +7,6 @@ package com.ishvatov.model.entity.enum_types;
  */
 public enum CargoStatusType {
     READY,
-    SHIPPED,
+    SHIPPING,
     DELIVERED
 }

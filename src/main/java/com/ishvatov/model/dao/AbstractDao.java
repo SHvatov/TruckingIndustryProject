@@ -14,7 +14,8 @@ import java.util.List;
  * Abstract DAO class with default methods implementations.
  *
  * @param <U> type of the unique key.
- * @param <T>  entity type.
+ * @param <T> entity type.
+ * @author Sergey Khvatov
  */
 public abstract class AbstractDao<U, T> implements BaseDaoInterface<U, T> {
 
@@ -91,12 +92,33 @@ public abstract class AbstractDao<U, T> implements BaseDaoInterface<U, T> {
     }
 
     /**
+     * Deletes entity by it's id.
+     *
+     * @param id id of the entity.
+     */
+    public void deleteById(int id) {
+        T entity = getSession().load(persistentClass, id);
+        deleteEntity(entity);
+    }
+
+    /**
      * Finds all the entities in the DB.
      *
      * @return list with all the entities.
      */
     public List<T> findAll() {
         return findAllEntities();
+    }
+
+    /**
+     * Checks if entity with such key exists in teh database.
+     *
+     * @param key unique key of the id.
+     * @return true, if exists, false otherwise.
+     */
+    @Override
+    public boolean exists(U key) {
+        return findByUniqueKey(key) != null;
     }
 
     /**

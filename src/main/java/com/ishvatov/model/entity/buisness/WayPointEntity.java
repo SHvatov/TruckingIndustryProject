@@ -1,7 +1,7 @@
 package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.enum_types.CargoActionType;
-import lombok.Data;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -12,8 +12,11 @@ import javax.persistence.*;
  * @author Sergey Khvatov
  */
 @Entity
-@Table(name = "order_waypoints")
-@Data
+@Table(name = "waypoint")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class WayPointEntity {
 
     /**
@@ -29,12 +32,24 @@ public class WayPointEntity {
     public static final String ORDER_ID = "order_id";
 
     /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String CITY_ID = "city_id";
+
+    /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String CARGO_ID = "cargo_id";
+
+    /**
      * Unique id of the truck in the DB.
      */
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", unique = true)
-    private int id;
+    private Integer id;
 
     /**
      * Defines whether cargo is being loaded or
@@ -44,23 +59,60 @@ public class WayPointEntity {
     private CargoActionType cargoAction;
 
     /**
-     * Defines the order entity.
+     * Order, this waypoint is assigned to.
      */
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "order_id")
-    private OrderEntity wayPointOrderEntity;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = ORDER_ID)
+    private OrderEntity waypointOrderEntity;
 
     /**
-     * Way point location.
+     * Cargo, that is assigned to this waypoint.
      */
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "city_id")
-    private CityEntity wayPointCityEntity;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = CARGO_ID)
+    private CargoEntity waypointCargoEntity;
 
     /**
-     * Way point cargo.
+     * City, that is assigned to this waypoint.
      */
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
-    @JoinColumn(name = "cargo_id")
-    private CargoEntity wayPointCargoEntity;
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = CITY_ID)
+    private CityEntity waypointCityEntity;
+
+    /**
+     * Equals method override.
+     *
+     * @param obj another object.
+     * @return false, if other object is null, of other type or does not equal
+     * to this, true otherwise.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DriverEntity)) {
+            return false;
+        } else {
+            DriverEntity entity = (DriverEntity) obj;
+            return getId().equals(entity.getId());
+        }
+    }
+
+    /**
+     * HashCode method implementation.
+     *
+     * @return hash code of the object.
+     */
+    @Override
+    public int hashCode() {
+        return getId().hashCode();
+    }
+
+    /**
+     * To string method implementation.
+     *
+     * @return string representation of the entity.
+     */
+    @Override
+    public String toString() {
+        return getClass().getName() + "{id=" + getId();
+    }
 }

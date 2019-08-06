@@ -84,7 +84,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()
-            // map user permissions
+            // mapToDto user permissions
             .antMatchers("/login/**").permitAll()
             .antMatchers("/error/**").permitAll()
             .antMatchers("/employee/**").hasRole("USER")

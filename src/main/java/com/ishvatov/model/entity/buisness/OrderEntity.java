@@ -2,11 +2,10 @@ package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.enum_types.OrderStatusType;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import javax.persistence.*;
-import java.util.List;
+import java.util.Set;
 
 /**
  * Defines a basic order in the system.
@@ -14,16 +13,18 @@ import java.util.List;
  * @author Sergey Khvatov
  */
 @Entity
-@Table(name = "order")
-@Data
-@EqualsAndHashCode(callSuper = true)
+@Table(name = "orders")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class OrderEntity extends AbstractEntity {
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String STATUS = "status";
+    public static final String STATUS = "order_status";
 
     /**
      * Status of the order.
@@ -33,28 +34,57 @@ public class OrderEntity extends AbstractEntity {
     private OrderStatusType orderStatus;
 
     /**
-     * List of trucks, that are assigned to this order.
+     * Truck, that is assigned to this order.
      */
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "orders_trucks",
-        joinColumns = @JoinColumn(name = "order_id"),
-        inverseJoinColumns = @JoinColumn(name = "truck_id")
-    )
-    private List<TruckEntity> orderTruckEntityList;
+    @OneToMany(mappedBy = "truckOrder", fetch = FetchType.LAZY)
+    private Set<TruckEntity> truckEntitySet;
 
     /**
-     * List of drivers, that are assigned to this order.
+     * Set of drivers, who are assigned to this order.
      */
-    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinTable(name = "orders_drivers",
-        joinColumns = @JoinColumn(name = "order_id"),
-        inverseJoinColumns = @JoinColumn(name = "driver_id")
-    )
-    private List<DriverEntity> orderDriverEntityList;
+    @OneToMany(mappedBy = "driverOrder", fetch = FetchType.LAZY)
+    private Set<DriverEntity> driverEntitySet;
 
     /**
-     * List of way points, that form the order.
+     * Set of waypoints, that are located in the city.
      */
-    @OneToMany(mappedBy = "wayPointOrderEntity", fetch = FetchType.LAZY)
-    private List<WayPointEntity> wayPointEntityList;
+    @OneToMany(mappedBy = "waypointOrderEntity", fetch = FetchType.LAZY)
+    private Set<WayPointEntity> assignedWaypoints;
+
+    /**
+     * Equals method override.
+     *
+     * @param obj another object.
+     * @return false, if other object is null, of other type or does not equal
+     * to this, true otherwise.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof DriverEntity)) {
+            return false;
+        } else {
+            DriverEntity entity = (DriverEntity) obj;
+            return getId().equals(entity.getId()) && getUniqueIdentificator().equals(entity.getUniqueIdentificator());
+        }
+    }
+
+    /**
+     * HashCode method implementation.
+     *
+     * @return hash code of the object.
+     */
+    @Override
+    public int hashCode() {
+        return getId().hashCode() + getUniqueIdentificator().hashCode();
+    }
+
+    /**
+     * To string method implementation.
+     *
+     * @return string representation of the entity.
+     */
+    @Override
+    public String toString() {
+        return getClass().getName() + "{id=" + getId() + "; UID=" + getUniqueIdentificator();
+    }
 }

@@ -1,18 +1,15 @@
-<%--
-  Created by IntelliJ IDEA.
-  User: Sergey Khvatov
-  Date: 01.08.2019
-  Time: 11:23
-  To change this template use File | Settings | File Templates.
---%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
-<head>
-    <title>Login failed!</title>
-</head>
-<body>
-<h1>
-    Login failed!
-</h1>
-</body>
+    <head>
+        <title>Login failed!</title>
+    </head>
+    <body>
+        <h1>
+            Login failed!
+        </h1>
+        <h2>
+            <a href="<c:url value="/login/login"/>"><- Back to login page.</a>
+        </h2>
+    </body>
 </html>

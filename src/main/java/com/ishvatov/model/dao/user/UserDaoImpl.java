@@ -1,7 +1,7 @@
 package com.ishvatov.model.dao.user;
 
 import com.ishvatov.model.dao.AbstractDao;
-import com.ishvatov.model.entity.security.UserEntity;
+import com.ishvatov.model.entity.buisness.UserEntity;
 import org.springframework.stereotype.Repository;
 
 /**
