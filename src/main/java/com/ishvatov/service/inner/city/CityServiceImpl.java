@@ -1,13 +1,15 @@
 package com.ishvatov.service.inner.city;
 
+import com.ishvatov.exception.CustomProjectException;
 import com.ishvatov.exception.DAOException;
 import com.ishvatov.mapper.Mapper;
 import com.ishvatov.model.dao.city.CityDao;
 import com.ishvatov.model.dto.CityDto;
 import com.ishvatov.model.entity.buisness.CityEntity;
-import com.ishvatov.service.AbstractService;
+import com.ishvatov.service.inner.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Basic {@link CityService} interface implementation.
@@ -15,6 +17,7 @@ import org.springframework.stereotype.Service;
  * @author Sergey Khvatov
  */
 @Service("cityService")
+@Transactional
 public class CityServiceImpl extends AbstractService<String, CityEntity, CityDto> implements CityService {
 
     /**
@@ -44,17 +47,28 @@ public class CityServiceImpl extends AbstractService<String, CityEntity, CityDto
      */
     @Override
     public void save(CityDto dtoObj) {
-        if (cityDao.exists(dtoObj.getUniqueIdentificator())) {
+        if (exists(dtoObj.getUniqueIdentificator())) {
             throw new DAOException(getClass(), "save", "Entity with such UID already exists");
         } else {
             // create new instance
             CityEntity entity = new CityEntity();
-
             // set UID
             entity.setUniqueIdentificator(dtoObj.getUniqueIdentificator());
-
             // save entity
             cityDao.save(entity);
         }
+    }
+
+    /**
+     * Updates data in the database. Updates
+     * entity fields using all not-null fields from the
+     * DTO object.
+     *
+     * @param dtoObj values to update in the entity.
+     * @throws DAOException if entity with this UID already exists
+     */
+    @Override
+    public void update(CityDto dtoObj) {
+        throw new CustomProjectException(getClass(), "update", "Update method is not supported");
     }
 }

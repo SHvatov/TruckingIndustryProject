@@ -2,7 +2,10 @@ package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.enum_types.TruckConditionType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -87,6 +90,26 @@ public class TruckEntity extends AbstractEntity {
         CascadeType.REMOVE, CascadeType.MERGE})
     @JoinColumn(name = ORDER_ID)
     private OrderEntity truckOrder;
+
+    /**
+     * Adds driver to the set of the assigned to this truck ones.
+     *
+     * @param driverEntity {@link DriverEntity} entity.
+     */
+    public void addDriver(DriverEntity driverEntity) {
+        truckDriversSet.add(driverEntity);
+        driverEntity.setDriverTruckEntity(this);
+    }
+
+    /**
+     * Removes driver from the set of the the assigned to this truck ones.
+     *
+     * @param driverEntity {@link DriverEntity} entity.
+     */
+    public void removeDriver(DriverEntity driverEntity) {
+        truckDriversSet.remove(driverEntity);
+        driverEntity.setDriverTruckEntity(null);
+    }
 
     /**
      * Equals method override.

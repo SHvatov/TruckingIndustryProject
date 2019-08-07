@@ -1,0 +1,24 @@
+/* Style the header with a grey background and some padding */
+.header {
+    overflow: hidden;
+    background-color: #f1f1f1;
+    padding: 20px 10px;
+}
+
+/* Float the link section to the right */
+.header-right {
+    float: right;
+}
+
+/* Float the link section to the right */
+.header-left {
+    float: left;
+}
+
+table, th, td {
+    border: 2px solid black;
+    font-size: 16pt;
+    border-collapse: collapse;
+    padding: 5px;
+    text-align: center;
+}

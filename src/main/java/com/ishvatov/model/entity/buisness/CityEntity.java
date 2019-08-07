@@ -1,12 +1,16 @@
 package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.AbstractEntity;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -39,6 +43,66 @@ public class CityEntity extends AbstractEntity {
      */
     @OneToMany(mappedBy = "waypointCityEntity", fetch = FetchType.LAZY)
     private Set<WayPointEntity> assignedWaypoints;
+
+    /**
+     * Adds truck to the set of the located in this city ones.
+     *
+     * @param truckEntity {@link TruckEntity} entity.
+     */
+    public void addTruck(TruckEntity truckEntity) {
+        locatedTrucks.add(truckEntity);
+        truckEntity.setTruckCity(this);
+    }
+
+    /**
+     * Removes truck from the set of the located in this city ones.
+     *
+     * @param truckEntity {@link TruckEntity} entity.
+     */
+    public void removeTruck(TruckEntity truckEntity) {
+        locatedTrucks.remove(truckEntity);
+        truckEntity.setTruckCity(null);
+    }
+
+    /**
+     * Adds driver to the set of the located in this city ones.
+     *
+     * @param driverEntity {@link DriverEntity} entity.
+     */
+    public void addDriver(DriverEntity driverEntity) {
+        locatedDrivers.add(driverEntity);
+        driverEntity.setDriverCurrentCity(this);
+    }
+
+    /**
+     * Removes driver from the set of the located in this city ones.
+     *
+     * @param driverEntity {@link DriverEntity} entity.
+     */
+    public void removeDriver(DriverEntity driverEntity) {
+        locatedDrivers.remove(driverEntity);
+        driverEntity.setDriverCurrentCity(null);
+    }
+
+    /**
+     * Adds waypoint to the set of the located in this city ones.
+     *
+     * @param wayPointEntity {@link WayPointEntity} entity.
+     */
+    public void addWayPoint(WayPointEntity wayPointEntity) {
+        assignedWaypoints.add(wayPointEntity);
+        wayPointEntity.setWaypointCityEntity(this);
+    }
+
+    /**
+     * Removes waypoint from the set of the located in this city ones.
+     *
+     * @param wayPointEntity {@link WayPointEntity} entity.
+     */
+    public void removeWayPoint(WayPointEntity wayPointEntity) {
+        assignedWaypoints.remove(wayPointEntity);
+        wayPointEntity.setWaypointCityEntity(null);
+    }
 
     /**
      * Equals method override.

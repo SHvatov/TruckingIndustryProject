@@ -8,6 +8,6 @@ import com.ishvatov.model.entity.buisness.CargoEntity;
  *
  * @author Sergey Khvatov.
  */
-public interface CargoDao extends BaseDaoInterface<String, CargoEntity> {
+public interface CargoDao extends BaseDaoInterface<Integer, CargoEntity> {
     // empty
 }

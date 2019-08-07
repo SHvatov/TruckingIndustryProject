@@ -2,7 +2,10 @@ package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.enum_types.OrderStatusType;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.Set;
@@ -46,10 +49,70 @@ public class OrderEntity extends AbstractEntity {
     private Set<DriverEntity> driverEntitySet;
 
     /**
-     * Set of waypoints, that are located in the city.
+     * Set of waypoints, that are located in the order.
      */
     @OneToMany(mappedBy = "waypointOrderEntity", fetch = FetchType.LAZY)
     private Set<WayPointEntity> assignedWaypoints;
+
+    /**
+     * Adds truck to the set of the assigned to this order ones.
+     *
+     * @param truckEntity {@link TruckEntity} entity.
+     */
+    public void addTruck(TruckEntity truckEntity) {
+        truckEntitySet.add(truckEntity);
+        truckEntity.setTruckOrder(this);
+    }
+
+    /**
+     * Removes truck from the set of the located in this order ones.
+     *
+     * @param truckEntity {@link TruckEntity} entity.
+     */
+    public void removeTruck(TruckEntity truckEntity) {
+        truckEntitySet.remove(truckEntity);
+        truckEntity.setTruckOrder(null);
+    }
+
+    /**
+     * Adds driver to the set of the assigned to this order ones.
+     *
+     * @param driverEntity {@link DriverEntity} entity.
+     */
+    public void addDriver(DriverEntity driverEntity) {
+        driverEntitySet.add(driverEntity);
+        driverEntity.setDriverOrder(this);
+    }
+
+    /**
+     * Removes driver from the set of the the assigned to this order ones.
+     *
+     * @param driverEntity {@link DriverEntity} entity.
+     */
+    public void removeDriver(DriverEntity driverEntity) {
+        driverEntitySet.remove(driverEntity);
+        driverEntity.setDriverOrder(null);
+    }
+
+    /**
+     * Adds waypoint to the set of the assigned to this order ones.
+     *
+     * @param wayPointEntity {@link WayPointEntity} entity.
+     */
+    public void addWayPoint(WayPointEntity wayPointEntity) {
+        assignedWaypoints.add(wayPointEntity);
+        wayPointEntity.setWaypointOrderEntity(this);
+    }
+
+    /**
+     * Removes waypoint from the set of the located in this order ones.
+     *
+     * @param wayPointEntity {@link WayPointEntity} entity.
+     */
+    public void removeWayPoint(WayPointEntity wayPointEntity) {
+        assignedWaypoints.remove(wayPointEntity);
+        wayPointEntity.setWaypointOrderEntity(null);
+    }
 
     /**
      * Equals method override.

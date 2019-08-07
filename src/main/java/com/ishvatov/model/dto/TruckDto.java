@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import java.util.Set;
 
 /**
- * Basic country update DTO implementation.
+ * Basic truck DTO implementation.
  *
  * @author Sergey Khvatov
  */

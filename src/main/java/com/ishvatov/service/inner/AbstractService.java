@@ -1,4 +1,4 @@
-package com.ishvatov.service;
+package com.ishvatov.service.inner;
 
 import com.ishvatov.exception.DAOException;
 import com.ishvatov.mapper.Mapper;
@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
  * @param <T2> dto type.
  * @author Sergey Khvatov
  */
+@Transactional
 public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> implements BaseService<U, T2> {
 
     /**
@@ -35,7 +36,6 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      * Default class constructor, which
      * is used to init the criteria building system..
      */
-    @SuppressWarnings("unchecked")
     protected AbstractService(BaseDaoInterface<U, T1> daoInterface, Mapper<T1, T2> mapper) {
         this.daoInterface = daoInterface;
         this.mapper = mapper;
@@ -46,7 +46,6 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      *
      * @param dtoObj entity to delete.
      */
-    @Transactional
     @Override
     public void delete(T2 dtoObj) {
         if (daoInterface.exists(dtoObj.getUniqueIdentificator())) {
@@ -62,7 +61,7 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      * @return T2 object with this unique id.
      * @throws DAOException if no entity with such id exists.
      */
-    @Transactional
+    @Override
     public T2 findById(int id) {
         T1 entity = daoInterface.findById(id);
         if (entity == null) {
@@ -77,7 +76,7 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      *
      * @return list with all the entities, empty list if nothing found.
      */
-    @Transactional
+    @Override
     public List<T2> findAll() {
         return daoInterface.findAll().stream().map(mapper::map).collect(Collectors.toList());
     }
@@ -89,7 +88,7 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      * @return Unique entity with this entity.
      * @throws DAOException if no entity with such unique key exists.
      */
-    @Transactional
+    @Override
     public T2 findByUniqueKey(U key) {
         T1 entity = daoInterface.findByUniqueKey(key);
         if (entity == null) {
@@ -104,7 +103,7 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      *
      * @param key unique key of the entity.
      */
-    @Transactional
+    @Override
     public void deleteByUniqueKey(U key) {
         T1 entity = daoInterface.findByUniqueKey(key);
         if (entity != null) {
@@ -118,8 +117,8 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      * @param key key to check.
      * @return true, if this key is unique in the DB, false otherwise.
      */
-    @Transactional
-    public boolean isUniqueKey(U key) {
-        return !daoInterface.exists(key);
+    @Override
+    public boolean exists(U key) {
+        return daoInterface.exists(key);
     }
 }

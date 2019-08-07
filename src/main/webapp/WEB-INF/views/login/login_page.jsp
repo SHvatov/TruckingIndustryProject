@@ -6,20 +6,12 @@
         <title>Login</title>
     </head>
 <body>
-    <h4>Login Form</h4>
+    <h2>Login Form</h2>
     <form action='<spring:url value="/login/perform_login"/>' method="post">
         <table>
-            <tr>
-                <td>Username</td>
-                <td><input type="text" name="username"></td>
-            </tr>
-            <tr>
-                <td>Password</td>
-                <td><input type="password" name="password"></td>
-            </tr>
-            <tr>
-                <td><button type="submit">Log in</button></td>
-            </tr>
+            <tr><td>Username</td><td><input type="text" name="username"></td></tr>
+            <tr><td>Password</td><td><input type="password" name="password"></td></tr>
+            <tr><td><button type="submit">Log in</button></td></tr>
         </table>
     </form>
 </body>

@@ -1,6 +1,5 @@
 package com.ishvatov.model.entity.buisness;
 
-import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.enum_types.CargoStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,7 +21,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CargoEntity extends AbstractEntity {
+public class CargoEntity {
 
     /**
      * String representation of the 'mass'
@@ -35,6 +34,26 @@ public class CargoEntity extends AbstractEntity {
      * column name in the table.
      */
     public static final String STATE = "cargo_status";
+
+    /**
+     * String representation of the 'name'
+     * column name in the table.
+     */
+    public static final String NAME = "name";
+
+    /**
+     * Unique id of the truck in the DB.
+     */
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", unique = true)
+    private Integer id;
+
+    /**
+     * Name of the cargo.
+     */
+    @Column(name = NAME)
+    private String cargoName;
 
     /**
      * Mass of the cargo.
@@ -56,6 +75,26 @@ public class CargoEntity extends AbstractEntity {
     private Set<WayPointEntity> assignedWaypoints;
 
     /**
+     * Adds a waypoint to the set of the waypoints assigned to this cargo.
+     *
+     * @param wayPointEntity {@link WayPointEntity} entity.
+     */
+    public void addWayPoint(WayPointEntity wayPointEntity) {
+        assignedWaypoints.add(wayPointEntity);
+        wayPointEntity.setWaypointCargoEntity(this);
+    }
+
+    /**
+     * Removes waypoint from the set of the waypoints assigned to this cargo.
+     *
+     * @param wayPointEntity {@link WayPointEntity} entity.
+     */
+    public void removeWayPoint(WayPointEntity wayPointEntity) {
+        assignedWaypoints.remove(wayPointEntity);
+        wayPointEntity.setWaypointCargoEntity(null);
+    }
+
+    /**
      * Equals method override.
      *
      * @param obj another object.
@@ -68,7 +107,7 @@ public class CargoEntity extends AbstractEntity {
             return false;
         } else {
             CargoEntity entity = (CargoEntity) obj;
-            return getId().equals(entity.getId()) && getUniqueIdentificator().equals(entity.getUniqueIdentificator());
+            return getId().equals(entity.getId());
         }
     }
 
@@ -79,7 +118,7 @@ public class CargoEntity extends AbstractEntity {
      */
     @Override
     public int hashCode() {
-        return getId().hashCode() + getUniqueIdentificator().hashCode();
+        return getId().hashCode();
     }
 
     /**
@@ -89,6 +128,6 @@ public class CargoEntity extends AbstractEntity {
      */
     @Override
     public String toString() {
-        return getClass().getName() + "{id=" + getId() + "; UID=" + getUniqueIdentificator();
+        return getClass().getName() + "{id=" + getId();
     }
 }

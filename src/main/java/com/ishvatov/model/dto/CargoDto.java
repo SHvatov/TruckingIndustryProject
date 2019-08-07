@@ -13,12 +13,17 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CargoDto implements BaseDtoInterface<String> {
+public class CargoDto implements BaseDtoInterface<Integer> {
 
     /**
-     * Unique identificator of the object.
+     * ID of the cargo in the database.
      */
-    private String uniqueIdentificator;
+    private Integer id;
+
+    /**
+     * Name of the cargo.
+     */
+    private String cargoName;
 
     /**
      * Mass of the cargo.
@@ -29,4 +34,14 @@ public class CargoDto implements BaseDtoInterface<String> {
      * Status of the cargo.
      */
     private CargoStatusType cargoStatus;
+
+    /**
+     * Get the unique identificator of the entity method.
+     *
+     * @return UID of the entity in the database.
+     */
+    @Override
+    public Integer getUniqueIdentificator() {
+        return id;
+    }
 }

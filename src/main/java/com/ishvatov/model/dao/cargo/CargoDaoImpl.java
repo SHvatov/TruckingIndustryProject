@@ -11,6 +11,16 @@ import org.springframework.stereotype.Repository;
  * @author Sergey Khvatov.
  */
 @Repository("cargoDao")
-public class CargoDaoImpl extends AbstractDao<String, CargoEntity> implements CargoDao {
-    // empty
+public class CargoDaoImpl extends AbstractDao<Integer, CargoEntity> implements CargoDao {
+
+    /**
+     * Finds entity by it's unique id.
+     *
+     * @param key unique key of the id.
+     * @return Unique entity with this id.
+     */
+    @Override
+    public CargoEntity findByUniqueKey(Integer key) {
+        return findById(key);
+    }
 }

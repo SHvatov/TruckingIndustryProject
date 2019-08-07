@@ -5,7 +5,7 @@ import com.ishvatov.mapper.Mapper;
 import com.ishvatov.model.dao.user.UserDao;
 import com.ishvatov.model.dto.UserDto;
 import com.ishvatov.model.entity.buisness.UserEntity;
-import com.ishvatov.service.AbstractService;
+import com.ishvatov.service.inner.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Sergey Khvatov
  */
 @Service("userService")
+@Transactional
 public class UserServiceImpl extends AbstractService<String, UserEntity, UserDto> implements UserService {
 
     /**
@@ -51,7 +52,6 @@ public class UserServiceImpl extends AbstractService<String, UserEntity, UserDto
      * @param dtoObj new entity to add.
      * @throws DAOException if entity with this UID already exists
      */
-    @Transactional
     @Override
     public void save(UserDto dtoObj) {
         if (userDao.exists(dtoObj.getUniqueIdentificator())) {
@@ -66,13 +66,30 @@ public class UserServiceImpl extends AbstractService<String, UserEntity, UserDto
     }
 
     /**
+     * Updates data in the database. Updates
+     * entity fields using all not-null fields from the
+     * DTO object.
+     *
+     * @param dtoObj values to update in the entity.
+     * @throws DAOException if entity with this UID already exists
+     */
+    @Override
+    public void update(UserDto dtoObj) {
+        UserEntity userEntity = userDao.findByUniqueKey(dtoObj.getUniqueIdentificator());
+        if (userEntity == null) {
+            throw new DAOException(getClass(), "update", "Entity with such UID does not exist");
+        } else {
+            updatePassword(dtoObj.getUniqueIdentificator(), dtoObj.getPassword());
+        }
+    }
+
+    /**
      * Updates password of the user.
      *
      * @param userUID  UID of the user.
      * @param password new password of the user.
      * @throws DAOException if no such entity exists.
      */
-    @Transactional
     @Override
     public void updatePassword(String userUID, String password) {
         UserEntity entity = userDao.findByUniqueKey(userUID);

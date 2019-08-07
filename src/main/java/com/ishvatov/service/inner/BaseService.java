@@ -1,4 +1,4 @@
-package com.ishvatov.service;
+package com.ishvatov.service.inner;
 
 import com.ishvatov.exception.DAOException;
 import com.ishvatov.model.dto.BaseDtoInterface;
@@ -26,9 +26,25 @@ public interface BaseService<U, T extends BaseDtoInterface<U>> {
      * Adds entity to the DB. Check if entity already exists.
      *
      * @param dtoObj new entity to add.
-     * @throws DAOException if entity with this UID already exists
+     * @throws DAOException         if entity with this UID already exists
+     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     *                              the not nullable field in the Entity object is null.
      */
     void save(T dtoObj);
+
+    /**
+     * Updates data in the database. If fields in teh DTO
+     * are not null, then update them. If are null, then
+     * if corresponding filed in the Entity is nullable,
+     * then set it to null and remove all connections,
+     * otherwise throw NPE.
+     *
+     * @param dtoObj values to update in the entity.
+     * @throws DAOException         if entity with this UID already exists
+     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     *                              the not nullable field in the Entity object is null.
+     */
+    void update(T dtoObj);
 
     /**
      * Deletes entity from the DB if it exists.
@@ -66,5 +82,5 @@ public interface BaseService<U, T extends BaseDtoInterface<U>> {
      * @param key key to check.
      * @return true, if this key is unique in the DB, false otherwise.
      */
-    boolean isUniqueKey(U key);
+    boolean exists(U key);
 }

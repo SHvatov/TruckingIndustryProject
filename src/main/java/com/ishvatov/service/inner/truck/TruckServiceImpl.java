@@ -3,16 +3,20 @@ package com.ishvatov.service.inner.truck;
 import com.ishvatov.exception.DAOException;
 import com.ishvatov.mapper.Mapper;
 import com.ishvatov.model.dao.city.CityDao;
+import com.ishvatov.model.dao.driver.DriverDao;
 import com.ishvatov.model.dao.order.OrderDao;
 import com.ishvatov.model.dao.truck.TruckDao;
 import com.ishvatov.model.dto.TruckDto;
 import com.ishvatov.model.entity.buisness.CityEntity;
+import com.ishvatov.model.entity.buisness.DriverEntity;
 import com.ishvatov.model.entity.buisness.OrderEntity;
 import com.ishvatov.model.entity.buisness.TruckEntity;
-import com.ishvatov.service.AbstractService;
+import com.ishvatov.service.inner.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Set;
 
 /**
  * Basic {@link TruckService} interface implementation.
@@ -20,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Sergey Khvatov
  */
 @Service("truckService")
+@Transactional
 public class TruckServiceImpl extends AbstractService<String, TruckEntity, TruckDto> implements TruckService {
 
     /**
@@ -38,176 +43,181 @@ public class TruckServiceImpl extends AbstractService<String, TruckEntity, Truck
     private OrderDao orderDao;
 
     /**
+     * Autowired DAO field.
+     */
+    private DriverDao driverDao;
+
+    /**
      * Default class constructor, that is used
      * to inject DAO interface implementation and
      * initialize the super class.
      *
-     * @param mapper    {@link Mapper} implementation.
-     * @param truckDao  autowired {@link TruckDao} impl.
-     * @param cityDao   autowired {@link CityDao} impl.
-     * @param orderDao  autowired {@link OrderDao} impl.
+     * @param mapper   {@link Mapper} implementation.
+     * @param truckDao autowired {@link TruckDao} impl.
+     * @param cityDao  autowired {@link CityDao} impl.
+     * @param orderDao autowired {@link OrderDao} impl.
      */
     @Autowired
-    public TruckServiceImpl(TruckDao truckDao, CityDao cityDao,
-                            OrderDao orderDao, Mapper<TruckEntity, TruckDto> mapper) {
+    public TruckServiceImpl(TruckDao truckDao, CityDao cityDao, DriverDao driverDao, OrderDao orderDao, Mapper<TruckEntity, TruckDto> mapper) {
         super(truckDao, mapper);
         this.cityDao = cityDao;
         this.orderDao = orderDao;
         this.truckDao = truckDao;
+        this.driverDao = driverDao;
     }
 
     /**
      * Adds entity to the DB. Check if entity already exists.
      *
      * @param dtoObj new entity to add.
-     * @throws DAOException if entity with this UID already exists
+     * @throws DAOException         if entity with this UID already exists
+     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     *                              the not nullable field in the Entity object is null.
      */
-    @Transactional
     @Override
     public void save(TruckDto dtoObj) {
-        if (truckDao.exists(dtoObj.getUniqueIdentificator())) {
+        validateRequiredFields(dtoObj);
+        if (exists(dtoObj.getUniqueIdentificator())) {
             throw new DAOException(getClass(), "save", "Entity with such UID already exists");
         } else {
-            // create new instance
             TruckEntity entity = new TruckEntity();
-
-            // set UID
-            entity.setUniqueIdentificator(dtoObj.getUniqueIdentificator());
-
-            // static fields are required
-            updateRegularFieldsImpl(dtoObj, entity);
-
-            // city is not required
-            if (dtoObj.getTruckCityUID() != null) {
-                updateCityImpl(dtoObj.getTruckCityUID(), entity);
-            }
-
-            // order is not required
-            if (dtoObj.getTruckOrderUID() != null) {
-                updateOrderImpl(dtoObj.getTruckOrderUID(), entity);
-            }
-
-            // save entity
+            updateImpl(dtoObj, entity);
             truckDao.save(entity);
         }
     }
 
     /**
-     * Updates static field of the object.
+     * Updates data in the database. If fields in teh DTO
+     * are not null, then update them. If are null, then
+     * if corresponding filed in the Entity is nullable,
+     * then set it to null and remove all connections,
+     * otherwise throw NPE.
      *
-     * @param dtoObj   {@link TruckDto} instance.
-     * @param truckUID UID of the modified truck.
+     * @param dtoObj values to update in the entity.
+     * @throws DAOException         if entity with this UID already exists
+     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     *                              the not nullable field in the Entity object is null.
      */
-    @Transactional
     @Override
-    public void updateRegularFields(TruckDto dtoObj, String truckUID) {
+    public void update(TruckDto dtoObj) {
+        validateRequiredFields(dtoObj);
         TruckEntity entity = truckDao.findByUniqueKey(dtoObj.getUniqueIdentificator());
         if (entity == null) {
-            throw new DAOException(getClass(), "updateRegularFields", "Entity with such UID does not exist");
+            throw new DAOException(getClass(), "update", "Entity with such UID does not exist");
         } else {
-            updateRegularFieldsImpl(dtoObj, entity);
+            updateImpl(dtoObj, entity);
         }
     }
 
     /**
-     * Updates city.
+     * Update method implementation.
      *
-     * @param cityUID      uid of the city.
-     * @param truckUID UID of the modified truck.
+     * @param dto    DTO object.
+     * @param entity Entity object.
      */
-    @Transactional
-    @Override
-    public void updateCity(String cityUID, String truckUID) {
-        TruckEntity entity = truckDao.findByUniqueKey(truckUID);
-        if (entity == null) {
-            throw new DAOException(getClass(), "updateCity", "Entity with such UID does not exist");
-        } else {
-            updateCityImpl(cityUID, entity);
-        }
+    private void updateImpl(TruckDto dto, TruckEntity entity) {
+        entity.setUniqueIdentificator(dto.getUniqueIdentificator());
+        entity.setTruckCondition(dto.getTruckCondition());
+        entity.setTruckCapacity(dto.getTruckCapacity());
+        entity.setTruckDriverShiftSize(dto.getTruckDriverShiftSize());
+
+        // add city to the entity
+        updateCity(dto.getTruckCityUID(), entity);
+
+        // add / replace order
+        updateOrder(dto.getTruckOrderUID(), entity);
+
+        // add / replace drivers
+        updateDriverSet(dto.getTruckDriverUIDSet(), entity);
     }
 
     /**
-     * Updates order.
+     * Updates the city of the entity.
      *
-     * @param orderUID      uid of the order.
-     * @param truckUID UID of the modified truck.
+     * @param cityUID UID of the city.
+     * @param entity  Entity object.
      */
-    @Transactional
-    @Override
-    public void updateOrder(String orderUID, String truckUID) {
-        TruckEntity entity = truckDao.findByUniqueKey(truckUID);
-        if (entity == null) {
-            throw new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist");
-        } else {
-            updateOrderImpl(orderUID, entity);
-        }
-    }
-
-    /**
-     * Removes order from the truck.
-     *
-     * @param truckUID uid of the truck.
-     */
-    @Override
-    public void removeOrder(String truckUID) {
-        TruckEntity truckEntity = truckDao.findByUniqueKey(truckUID);
-        if (truckEntity == null) {
-            throw new DAOException(getClass(), "updateDriver", "Entity with such UID does not exist");
-        }
-        truckEntity.setTruckOrder(null);
-    }
-
-    /**
-     * Removes city from the truck and sets it to the default value.
-     *
-     * @param truckUID uid of the truck.
-     */
-    @Override
-    public void removeCity(String truckUID) {
-        TruckEntity truckEntity = truckDao.findByUniqueKey(truckUID);
-        if (truckEntity == null) {
-            throw new DAOException(getClass(), "updateDriver", "Entity with such UID does not exist");
-        }
-        truckEntity.setTruckCity(null);
-    }
-
-    /**
-     * Updates static field of the object.
-     *
-     * @param dtoObj {@link TruckDto} instance.
-     * @param truckEntity {@link TruckEntity} instance.
-     */
-    private void updateRegularFieldsImpl(TruckDto dtoObj, TruckEntity truckEntity) {
-        if (dtoObj.getTruckDriverShiftSize() != null) truckEntity.setTruckDriverShiftSize(dtoObj.getTruckDriverShiftSize());
-        if (dtoObj.getTruckCondition() != null) truckEntity.setTruckCondition(dtoObj.getTruckCondition());
-        if (dtoObj.getTruckCapacity() != null) truckEntity.setTruckCapacity(dtoObj.getTruckCapacity());
-    }
-
-    /**
-     * Updates city.
-     *
-     * @param uid         uid of the city.
-     * @param truckEntity {@link TruckEntity} instance.
-     */
-    private void updateCityImpl(String uid, TruckEntity truckEntity) {
-        CityEntity cityEntity = cityDao.findByUniqueKey(uid);
+    private void updateCity(String cityUID, TruckEntity entity) {
+        CityEntity cityEntity = cityDao.findByUniqueKey(cityUID);
         if (cityEntity == null) {
-            throw new DAOException(getClass(), "updateCityImpl", "Entity with such UID does not exist");
+            throw new DAOException(getClass(), "updateCity", "Entity with such UID does not exist");
         }
-        truckEntity.setTruckCity(cityEntity);
+
+        if (entity.getTruckCity() == null) {
+            cityEntity.addTruck(entity);
+        } else {
+            CityEntity previousCity = entity.getTruckCity();
+            previousCity.removeTruck(entity);
+            cityEntity.addTruck(entity);
+        }
     }
 
     /**
-     * Updates order.
+     * Updates the order of the entity.
      *
-     * @param uid         uid of the order.
-     * @param truckEntity {@link TruckEntity} instance.
+     * @param orderUID UID of the order.
+     * @param entity   Entity object.
      */
-    private void updateOrderImpl(String uid, TruckEntity truckEntity) {
-        OrderEntity orderEntity = orderDao.findByUniqueKey(uid);
-        if (orderEntity == null) {
-            throw new DAOException(getClass(), "updateOrderImpl", "Entity with such UID does not exist");
+    private void updateOrder(String orderUID, TruckEntity entity) {
+        if (orderUID != null) {
+            OrderEntity orderEntity = orderDao.findByUniqueKey(orderUID);
+            if (orderEntity == null) {
+                throw new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist");
+            }
+
+            OrderEntity previousOrder = entity.getTruckOrder();
+            if (previousOrder != null) {
+                previousOrder.removeTruck(entity);
+            }
+            orderEntity.addTruck(entity);
+        } else {
+            OrderEntity previousOrder = entity.getTruckOrder();
+            if (previousOrder != null) {
+                previousOrder.removeTruck(entity);
+            }
         }
-        truckEntity.setTruckOrder(orderEntity);
+    }
+
+    /**
+     * Updates the set of drivers, who are assigned to this truck.
+     *
+     * @param driverUIDSet Set of the drivers UID.
+     * @param entity       Entity object.
+     */
+    private void updateDriverSet(Set<String> driverUIDSet, TruckEntity entity) {
+        if (driverUIDSet != null) {
+            // clear the set and leave it so, if input set is empty
+            Set<DriverEntity> previousDrivers = entity.getTruckDriversSet();
+            if (previousDrivers != null && !previousDrivers.isEmpty()) {
+                for (DriverEntity driverEntity : previousDrivers) {
+                    if (driverEntity != null) {
+                        entity.removeDriver(driverEntity);
+                    }
+                }
+            }
+            // otherwise add all elements from the set
+            if (!driverUIDSet.isEmpty()) {
+                for (String driverUID : driverUIDSet) {
+                    DriverEntity driverEntity = driverDao.findByUniqueKey(driverUID);
+                    if (driverEntity == null) {
+                        throw new DAOException(getClass(), "updateDriverSet", "Entity with such UID does not exist");
+                    } else {
+                        entity.addDriver(driverEntity);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Validates the input DTO object and throws NPE,
+     * if object or one of required fields is null.
+     *
+     * @param dto DTO object.
+     */
+    private void validateRequiredFields(TruckDto dto) {
+        if (dto == null || dto.getUniqueIdentificator() == null || dto.getTruckCityUID() == null || dto.getTruckCondition() == null || dto.getTruckCapacity() == null || dto.getTruckDriverShiftSize() == null) {
+            throw new ValidationExceptionointerException();
+        }
     }
 }

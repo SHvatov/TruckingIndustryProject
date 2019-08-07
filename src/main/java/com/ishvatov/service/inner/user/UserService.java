@@ -2,7 +2,7 @@ package com.ishvatov.service.inner.user;
 
 import com.ishvatov.exception.DAOException;
 import com.ishvatov.model.dto.UserDto;
-import com.ishvatov.service.BaseService;
+import com.ishvatov.service.inner.BaseService;
 
 /**
  * Defines a basic interface to interact with

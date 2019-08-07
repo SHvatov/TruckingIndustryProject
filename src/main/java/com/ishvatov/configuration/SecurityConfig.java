@@ -86,6 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
             // mapToDto user permissions
             .antMatchers("/login/**").permitAll()
+            .antMatchers("/css/**").permitAll()
             .antMatchers("/error/**").permitAll()
             .antMatchers("/employee/**").hasRole("USER")
             .antMatchers("/driver/**").hasRole("DRIVER")

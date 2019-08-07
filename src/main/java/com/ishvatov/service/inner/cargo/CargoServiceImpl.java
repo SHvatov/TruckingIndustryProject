@@ -1,14 +1,13 @@
-package com.ishvatov.service.inner.order;
+package com.ishvatov.service.inner.cargo;
 
 import com.ishvatov.exception.DAOException;
 import com.ishvatov.mapper.Mapper;
-import com.ishvatov.model.dao.city.CityDao;
-import com.ishvatov.model.dao.driver.DriverDao;
+import com.ishvatov.model.dao.cargo.CargoDao;
 import com.ishvatov.model.dao.order.OrderDao;
-import com.ishvatov.model.dao.truck.TruckDao;
-import com.ishvatov.model.dto.OrderDto;
-import com.ishvatov.model.entity.buisness.OrderEntity;
+import com.ishvatov.model.dto.CargoDto;
+import com.ishvatov.model.entity.buisness.CargoEntity;
 import com.ishvatov.service.inner.AbstractService;
+import com.ishvatov.service.inner.order.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,48 +17,27 @@ import org.springframework.transaction.annotation.Transactional;
  *
  * @author Sergey Khvatov
  */
-@Service("orderService")
+@Service("cargoService")
 @Transactional
-public class OrderServiceImpl extends AbstractService<String, OrderEntity, OrderDto> implements OrderService {
+public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, CargoDto> implements CargoService {
 
     /**
      * Autowired DAO field.
      */
-    private TruckDao truckDao;
-
-    /**
-     * Autowired DAO field.
-     */
-    private CityDao cityDao;
-
-    /**
-     * Autowired DAO field.
-     */
-    private OrderDao orderDao;
-
-    /**
-     * Autowired DAO field.
-     */
-    private DriverDao driverDao;
+    private CargoDao cargoDao;
 
     /**
      * Default class constructor, that is used
      * to inject DAO interface implementation and
      * initialize the super class.
      *
-     * @param mapper    {@link Mapper} implementation.
-     * @param truckDao  autowired {@link TruckDao} impl.
-     * @param cityDao   autowired {@link CityDao} impl.
-     * @param orderDao  autowired {@link OrderDao} impl.
+     * @param mapper   {@link Mapper} implementation.
+     * @param cargoDao autowired {@link OrderDao} impl.
      */
     @Autowired
-    public OrderServiceImpl(TruckDao truckDao, CityDao cityDao, DriverDao driverDao,
-                            OrderDao orderDao, Mapper<OrderEntity, OrderDto> mapper) {
-        super(orderDao, mapper);
-        this.cityDao = cityDao;
-        this.orderDao = orderDao;
-        this.truckDao = truckDao;
-        this.driverDao = driverDao;
+    public CargoServiceImpl(CargoDao cargoDao, Mapper<CargoEntity, CargoDto> mapper) {
+        super(cargoDao, mapper);
+        this.cargoDao = cargoDao;
     }
 
     /**
@@ -71,15 +49,13 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      *                              the not nullable field in the Entity object is null.
      */
     @Override
-    public void save(OrderDto dtoObj) {
+    public void save(CargoDto dtoObj) {
         validateRequiredFields(dtoObj);
-        if (exists(dtoObj.getUniqueIdentificator())) {
-            throw new DAOException(getClass(), "save", "Entity with such UID already exists");
-        } else {
-            OrderEntity entity = new OrderEntity();
-            updateImpl(dtoObj, entity);
-            orderDao.save(entity);
-        }
+        CargoEntity entity = new CargoEntity();
+        entity.setCargoMass(dtoObj.getCargoMass());
+        entity.setCargoName(dtoObj.getCargoName());
+        entity.setCargoStatus(dtoObj.getCargoStatus());
+        cargoDao.save(entity);
     }
 
     /**
@@ -95,13 +71,13 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      *                              the not nullable field in the Entity object is null.
      */
     @Override
-    public void update(OrderDto dtoObj) {
+    public void update(CargoDto dtoObj) {
         validateRequiredFields(dtoObj);
-        OrderEntity entity = orderDao.findByUniqueKey(dtoObj.getUniqueIdentificator());
-        if (entity == null) {
+        CargoEntity cargoEntity = cargoDao.findByUniqueKey(dtoObj.getUniqueIdentificator());
+        if (cargoEntity == null) {
             throw new DAOException(getClass(), "update", "Entity with such UID does not exist");
         } else {
-            updateImpl(dtoObj, entity);
+            updateImpl(dtoObj, cargoEntity);
         }
     }
 
@@ -111,14 +87,11 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      * @param dto    DTO object.
      * @param entity Entity object.
      */
-    private void updateImpl(OrderDto dto, OrderEntity entity) {
-        entity.setOrderStatus(dto.getOrderStatus());
-
-        // todo add / remove drivers
-
-        // todo add / remove trucks
-
-        // todo add / remove waypoints
+    private void updateImpl(CargoDto dto, CargoEntity entity) {
+        entity.setId(dto.getId());
+        entity.setCargoStatus(dto.getCargoStatus());
+        entity.setCargoMass(dto.getCargoMass());
+        entity.setCargoName(dto.getCargoName());
     }
 
     /**
@@ -127,8 +100,9 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      *
      * @param dto DTO object.
      */
-    private void validateRequiredFields(OrderDto dto) {
-        if (dto.getOrderStatus() == null) {
+    private void validateRequiredFields(CargoDto dto) {
+        if (dto == null || dto.getCargoName() == null || dto.getCargoStatus() == null
+            || dto.getCargoMass() == null || dto.getId() == null) {
             throw new ValidationExceptionointerException();
         }
     }
