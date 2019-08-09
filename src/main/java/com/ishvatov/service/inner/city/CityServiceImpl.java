@@ -5,11 +5,16 @@ import com.ishvatov.exception.DAOException;
 import com.ishvatov.mapper.Mapper;
 import com.ishvatov.model.dao.city.CityDao;
 import com.ishvatov.model.dto.CityDto;
+import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.buisness.CityEntity;
 import com.ishvatov.service.inner.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Basic {@link CityService} interface implementation.
@@ -70,5 +75,30 @@ public class CityServiceImpl extends AbstractService<String, CityEntity, CityDto
     @Override
     public void update(CityDto dtoObj) {
         throw new CustomProjectException(getClass(), "update", "Update method is not supported");
+    }
+
+    /**
+     * Deletes entity from the DB if it exists.
+     *
+     * @param key UID of the entity.
+     */
+    @Override
+    public void delete(String key) {
+        // todo add delete
+        throw new CustomProjectException(getClass(), "delete", "Delete method is not supported");
+    }
+
+    /**
+     * Get the names of all cities in the DB.
+     *
+     * @return list with names of all cities in the DB.
+     */
+    @Override
+    public List<String> getAllCityNames() {
+        return cityDao.findAll()
+            .stream()
+            .filter(Objects::nonNull)
+            .map(AbstractEntity::getUniqueIdentificator)
+            .collect(Collectors.toList());
     }
 }

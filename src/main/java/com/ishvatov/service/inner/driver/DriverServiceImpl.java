@@ -7,6 +7,7 @@ import com.ishvatov.model.dao.driver.DriverDao;
 import com.ishvatov.model.dao.order.OrderDao;
 import com.ishvatov.model.dao.truck.TruckDao;
 import com.ishvatov.model.dto.DriverDto;
+import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.buisness.CityEntity;
 import com.ishvatov.model.entity.buisness.DriverEntity;
 import com.ishvatov.model.entity.buisness.OrderEntity;
@@ -15,6 +16,10 @@ import com.ishvatov.service.inner.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * Basic {@link DriverService} interface implementation.
@@ -71,7 +76,7 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
      *
      * @param dtoObj new entity to add.
      * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     * @throws NullPointerException if DTO field, which is corresponding to
      *                              the not nullable field in the Entity object is null.
      */
     @Override
@@ -95,7 +100,7 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
      *
      * @param dtoObj values to update in the entity.
      * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     * @throws NullPointerException if DTO field, which is corresponding to
      *                              the not nullable field in the Entity object is null.
      */
     @Override
@@ -107,6 +112,52 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
         } else {
             updateImpl(dtoObj, entity);
         }
+    }
+
+    /**
+     * Deletes entity from the DB if it exists.
+     *
+     * @param key UID of the entity.
+     */
+    @Override
+    public void delete(String key) {
+        if (Objects.isNull(key)) {
+            throw new NullPointerException();
+        }
+
+        DriverEntity driverEntity = driverDao.findByUniqueKey(key);
+        if (driverEntity != null) {
+            CityEntity cityEntity = driverEntity.getDriverCurrentCity();
+            if (cityEntity != null) {
+                cityEntity.removeDriver(driverEntity);
+            }
+
+            OrderEntity orderEntity = driverEntity.getDriverOrder();
+            if (orderEntity != null) {
+                orderEntity.removeDriver(driverEntity);
+            }
+
+            TruckEntity truckEntity = driverEntity.getDriverTruckEntity();
+            if (truckEntity != null) {
+                truckEntity.removeDriver(driverEntity);
+            }
+
+            driverDao.delete(driverEntity);
+        }
+    }
+
+    /**
+     * Get all list of UID of all drivers in the DB.
+     *
+     * @return list with UID of all drivers in the DB.
+     */
+    @Override
+    public List<String> getAllDriversUID() {
+        return driverDao.findAll()
+            .stream()
+            .filter(Objects::nonNull)
+            .map(AbstractEntity::getUniqueIdentificator)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -139,17 +190,22 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
      * @param entity  Entity object.
      */
     private void updateCity(String cityUID, DriverEntity entity) {
-        CityEntity cityEntity = cityDao.findByUniqueKey(cityUID);
-        if (cityEntity == null) {
-            throw new DAOException(getClass(), "updateImpl", "Entity with such UID does not exist");
-        }
+        if (cityUID != null) {
+            CityEntity cityEntity = cityDao.findByUniqueKey(cityUID);
+            if (cityEntity == null) {
+                throw new DAOException(getClass(), "updateCity", "Entity with such UID does not exist");
+            }
 
-        if (entity.getDriverCurrentCity() == null) {
+            CityEntity previousCity = entity.getDriverCurrentCity();
+            if (previousCity != null) {
+                previousCity.removeDriver(entity);
+            }
             cityEntity.addDriver(entity);
         } else {
             CityEntity previousCity = entity.getDriverCurrentCity();
-            previousCity.removeDriver(entity);
-            cityEntity.addDriver(entity);
+            if (previousCity != null) {
+                previousCity.removeDriver(entity);
+            }
         }
     }
 
@@ -163,7 +219,7 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
         if (orderUID != null) {
             OrderEntity orderEntity = orderDao.findByUniqueKey(orderUID);
             if (orderEntity == null) {
-                throw new DAOException(getClass(), "updateImpl", "Entity with such UID does not exist");
+                throw new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist");
             }
 
             OrderEntity previousOrder = entity.getDriverOrder();
@@ -189,7 +245,7 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
         if (truckUID != null) {
             TruckEntity truckEntity = truckDao.findByUniqueKey(truckUID);
             if (truckEntity == null) {
-                throw new DAOException(getClass(), "updateImpl", "Entity with such UID does not exist");
+                throw new DAOException(getClass(), "updateTruck", "Entity with such UID does not exist");
             }
 
             TruckEntity previousTruck = entity.getDriverTruckEntity();
@@ -212,8 +268,10 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
      * @param dto DTO object.
      */
     private void validateRequiredFields(DriverDto dto) {
-        if (dto == null || dto.getUniqueIdentificator() == null || dto.getDriverWorkedHours() == null || dto.getDriverStatus() == null || dto.getDriverName() == null || dto.getDriverSurname() == null || dto.getCurrentCityUID() == null) {
-            throw new ValidationExceptionointerException();
+        if (dto == null || dto.getUniqueIdentificator() == null
+            || dto.getDriverWorkedHours() == null || dto.getDriverStatus() == null
+            || dto.getDriverName() == null || dto.getDriverSurname() == null) {
+            throw new NullPointerException();
         }
     }
 }

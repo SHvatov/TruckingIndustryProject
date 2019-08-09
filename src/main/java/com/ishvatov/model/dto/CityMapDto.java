@@ -22,12 +22,12 @@ public class CityMapDto implements BaseDtoInterface<Integer> {
     /**
      * Name of the A point on the update.
      */
-    private String sourceCityName;
+    private Integer cityFromId;
 
     /**
      * Name of the B point on the update.
      */
-    private String destinationCityName;
+    private Integer cityToId;
 
     /**
      * Distance between.

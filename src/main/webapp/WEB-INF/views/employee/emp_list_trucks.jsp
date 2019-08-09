@@ -45,6 +45,14 @@
                         <c:if test="${empty truck.truckCityUID}">UNKNOWN CITY</c:if>
                         <c:if test="${not empty truck.truckCityUID}">${truck.truckCityUID}</c:if>
                     </td>
+                    <td>
+                        <input type="submit" value="EDIT"
+                               onclick="window.location='${pageContext.request.contextPath}/employee/edit_truck?uid=${truck.uniqueIdentificator}';" />
+                    </td>
+                    <td>
+                        <input type="submit" value="DELETE"
+                               onclick="window.location='${pageContext.request.contextPath}/employee/delete_truck?uid=${truck.uniqueIdentificator}';" />
+                    </td>
                 </tr>
             </c:forEach>
         </table>

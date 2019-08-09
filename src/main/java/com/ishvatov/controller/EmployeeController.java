@@ -1,6 +1,8 @@
 package com.ishvatov.controller;
 
 import com.ishvatov.model.dto.TruckDto;
+import com.ishvatov.service.inner.city.CityService;
+import com.ishvatov.service.inner.driver.DriverService;
 import com.ishvatov.service.inner.truck.TruckService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,6 +35,20 @@ public class EmployeeController {
     private TruckService truckService;
 
     /**
+     * Autowired service, used
+     * to fetch data from DAO layer.
+     */
+    @Autowired
+    private DriverService driverService;
+
+    /**
+     * Autowired service, used
+     * to fetch data from DAO layer.
+     */
+    @Autowired
+    private CityService cityService;
+
+    /**
      * Truck form input validator.
      */
     @Autowired
@@ -58,6 +74,8 @@ public class EmployeeController {
     @ModelAttribute
     public void addAttributes(Model model) {
         model.addAttribute("truckDto", new TruckDto());
+        model.addAttribute("cityList", cityService.getAllCityNames());
+        model.addAttribute("driverList", driverService.getAllDriversUID());
     }
 
     /**
@@ -109,10 +127,10 @@ public class EmployeeController {
     public String addNewTruck(@ModelAttribute("truckDto") @Validated TruckDto truckDto,
                               BindingResult bindingResult, Model model) {
         if (bindingResult.hasErrors()) {
-            return "redirect:/employee/add_truck";
+            return "employee/emp_add_truck";
         }
 
-
+        truckService.save(truckDto);
         return "redirect:/employee/list_trucks";
     }
 }

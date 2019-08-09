@@ -21,9 +21,9 @@ public class OrderDaoImpl extends AbstractDao<String, OrderEntity> implements Or
 
     /**
      * Finds all the cargo entities that are associated
-     * with order with this uid.
+     * with order with this UID.
      *
-     * @param uid UID of the order.
+     * @param UID UID of the order.
      * @return list with all the cargo in this order.
      */
     @Override

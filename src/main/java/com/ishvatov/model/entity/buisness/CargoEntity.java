@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -72,7 +73,7 @@ public class CargoEntity {
      * Set of waypoints, that are located in the city.
      */
     @OneToMany(mappedBy = "waypointCargoEntity", fetch = FetchType.LAZY)
-    private Set<WayPointEntity> assignedWaypoints;
+    private Set<WayPointEntity> assignedWaypoints = new HashSet<>();
 
     /**
      * Adds a waypoint to the set of the waypoints assigned to this cargo.
@@ -80,6 +81,7 @@ public class CargoEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void addWayPoint(WayPointEntity wayPointEntity) {
+        if (wayPointEntity == null) return;
         assignedWaypoints.add(wayPointEntity);
         wayPointEntity.setWaypointCargoEntity(this);
     }
@@ -90,6 +92,7 @@ public class CargoEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void removeWayPoint(WayPointEntity wayPointEntity) {
+        if (wayPointEntity == null) return;
         assignedWaypoints.remove(wayPointEntity);
         wayPointEntity.setWaypointCargoEntity(null);
     }
@@ -128,6 +131,6 @@ public class CargoEntity {
      */
     @Override
     public String toString() {
-        return getClass().getName() + "{id=" + getId();
+        return getClass().getName() + "{id=" + getId() + "}";
     }
 }

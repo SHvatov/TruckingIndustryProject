@@ -67,7 +67,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      *
      * @param dtoObj new entity to add.
      * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     * @throws NullPointerException if DTO field, which is corresponding to
      *                              the not nullable field in the Entity object is null.
      */
     @Override
@@ -91,7 +91,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      *
      * @param dtoObj values to update in the entity.
      * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     * @throws NullPointerException if DTO field, which is corresponding to
      *                              the not nullable field in the Entity object is null.
      */
     @Override
@@ -103,6 +103,18 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
         } else {
             updateImpl(dtoObj, entity);
         }
+    }
+
+    /**
+     * Deletes entity from the DB if it exists.
+     *
+     * @param key UID of the entity.
+     */
+    @Override
+    public void delete(String key) {
+        // todo add delete method for order
+        // todo delete all waypoints with order
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -129,7 +141,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      */
     private void validateRequiredFields(OrderDto dto) {
         if (dto.getOrderStatus() == null) {
-            throw new ValidationExceptionointerException();
+            throw new NullPointerException();
         }
     }
 }

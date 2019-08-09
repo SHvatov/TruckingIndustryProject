@@ -42,19 +42,6 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
     }
 
     /**
-     * Deletes entity from the DB if it exists.
-     *
-     * @param dtoObj entity to delete.
-     */
-    @Override
-    public void delete(T2 dtoObj) {
-        if (daoInterface.exists(dtoObj.getUniqueIdentificator())) {
-            T1 entity = daoInterface.findByUniqueKey(dtoObj.getUniqueIdentificator());
-            daoInterface.delete(entity);
-        }
-    }
-
-    /**
      * Finds entity by it's id in the DB.
      *
      * @param id id of the entity in DB.

@@ -30,7 +30,7 @@ public class OrderDto implements BaseDtoInterface<String> {
     /**
      * Truck, that is assigned to this order.
      */
-    private Set<String> truckUIDSet;
+    private String truckUID;
 
     /**
      * Set of drivers, who are assigned to this order.

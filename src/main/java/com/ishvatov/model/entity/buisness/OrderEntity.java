@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -39,40 +40,20 @@ public class OrderEntity extends AbstractEntity {
     /**
      * Truck, that is assigned to this order.
      */
-    @OneToMany(mappedBy = "truckOrder", fetch = FetchType.LAZY)
-    private Set<TruckEntity> truckEntitySet;
+    @OneToOne(mappedBy = "truckOrder", fetch = FetchType.LAZY)
+    private TruckEntity truckEntity;
 
     /**
      * Set of drivers, who are assigned to this order.
      */
     @OneToMany(mappedBy = "driverOrder", fetch = FetchType.LAZY)
-    private Set<DriverEntity> driverEntitySet;
+    private Set<DriverEntity> driverEntitySet = new HashSet<>();
 
     /**
      * Set of waypoints, that are located in the order.
      */
     @OneToMany(mappedBy = "waypointOrderEntity", fetch = FetchType.LAZY)
-    private Set<WayPointEntity> assignedWaypoints;
-
-    /**
-     * Adds truck to the set of the assigned to this order ones.
-     *
-     * @param truckEntity {@link TruckEntity} entity.
-     */
-    public void addTruck(TruckEntity truckEntity) {
-        truckEntitySet.add(truckEntity);
-        truckEntity.setTruckOrder(this);
-    }
-
-    /**
-     * Removes truck from the set of the located in this order ones.
-     *
-     * @param truckEntity {@link TruckEntity} entity.
-     */
-    public void removeTruck(TruckEntity truckEntity) {
-        truckEntitySet.remove(truckEntity);
-        truckEntity.setTruckOrder(null);
-    }
+    private Set<WayPointEntity> assignedWaypoints = new HashSet<>();
 
     /**
      * Adds driver to the set of the assigned to this order ones.
@@ -80,6 +61,7 @@ public class OrderEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void addDriver(DriverEntity driverEntity) {
+        if (driverEntity == null) return;
         driverEntitySet.add(driverEntity);
         driverEntity.setDriverOrder(this);
     }
@@ -90,6 +72,7 @@ public class OrderEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void removeDriver(DriverEntity driverEntity) {
+        if (driverEntity == null) return;
         driverEntitySet.remove(driverEntity);
         driverEntity.setDriverOrder(null);
     }
@@ -100,6 +83,7 @@ public class OrderEntity extends AbstractEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void addWayPoint(WayPointEntity wayPointEntity) {
+        if (wayPointEntity == null) return;
         assignedWaypoints.add(wayPointEntity);
         wayPointEntity.setWaypointOrderEntity(this);
     }
@@ -110,44 +94,8 @@ public class OrderEntity extends AbstractEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void removeWayPoint(WayPointEntity wayPointEntity) {
+        if (wayPointEntity == null) return;
         assignedWaypoints.remove(wayPointEntity);
         wayPointEntity.setWaypointOrderEntity(null);
-    }
-
-    /**
-     * Equals method override.
-     *
-     * @param obj another object.
-     * @return false, if other object is null, of other type or does not equal
-     * to this, true otherwise.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof DriverEntity)) {
-            return false;
-        } else {
-            DriverEntity entity = (DriverEntity) obj;
-            return getId().equals(entity.getId()) && getUniqueIdentificator().equals(entity.getUniqueIdentificator());
-        }
-    }
-
-    /**
-     * HashCode method implementation.
-     *
-     * @return hash code of the object.
-     */
-    @Override
-    public int hashCode() {
-        return getId().hashCode() + getUniqueIdentificator().hashCode();
-    }
-
-    /**
-     * To string method implementation.
-     *
-     * @return string representation of the entity.
-     */
-    @Override
-    public String toString() {
-        return getClass().getName() + "{id=" + getId() + "; UID=" + getUniqueIdentificator();
     }
 }

@@ -110,42 +110,4 @@ public class DriverEntity extends AbstractEntity {
         CascadeType.REMOVE, CascadeType.MERGE})
     @JoinColumn(name = ORDER_ID)
     private OrderEntity driverOrder;
-
-
-    /**
-     * Equals method override.
-     *
-     * @param obj another object.
-     * @return false, if other object is null, of other type or does not equal
-     * to this, true otherwise.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof DriverEntity)) {
-            return false;
-        } else {
-            DriverEntity entity = (DriverEntity) obj;
-            return getId().equals(entity.getId()) && getUniqueIdentificator().equals(entity.getUniqueIdentificator());
-        }
-    }
-
-    /**
-     * HashCode method implementation.
-     *
-     * @return hash code of the object.
-     */
-    @Override
-    public int hashCode() {
-        return getId().hashCode() + getUniqueIdentificator().hashCode();
-    }
-
-    /**
-     * To string method implementation.
-     *
-     * @return string representation of the entity.
-     */
-    @Override
-    public String toString() {
-        return getClass().getName() + "{id=" + getId() + "; UID=" + getUniqueIdentificator();
-    }
 }

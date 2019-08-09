@@ -35,22 +35,17 @@ public class OrderMapperImpl implements Mapper<OrderEntity, OrderDto> {
     public OrderDto map(OrderEntity src) {
         OrderDto orderDto = mapper.map(src, OrderDto.class);
 
-        if (src.getTruckEntitySet() != null) {
+        if (src.getDriverEntitySet() != null) {
             orderDto.setDriverUIDSet(
-                src.getTruckEntitySet()
+                src.getDriverEntitySet()
                     .stream()
                     .filter(Objects::nonNull)
                     .map(AbstractEntity::getUniqueIdentificator)
                     .collect(Collectors.toSet()));
         }
 
-        if (src.getTruckEntitySet() != null) {
-            orderDto.setTruckUIDSet(
-                src.getTruckEntitySet()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .map(AbstractEntity::getUniqueIdentificator)
-                    .collect(Collectors.toSet()));
+        if (src.getTruckEntity() != null) {
+            orderDto.setTruckUID(src.getTruckEntity().getUniqueIdentificator());
         }
 
         if (src.getAssignedWaypoints() != null) {

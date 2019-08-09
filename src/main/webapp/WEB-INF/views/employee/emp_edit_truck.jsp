@@ -5,19 +5,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
     <head>
-        <title>Add New Truck</title>
+        <title>Edit Truck</title>
     </head>
     <body>
-        <h2>Add new truck:</h2>
+        <h2>Edit truck: ${truckUID}</h2>
         <form:form method="post"
-                   action="${pageContext.request.contextPath}/employee/add_truck"
+                   action="${pageContext.request.contextPath}/employee/edit_truck?uid=${truckUID}"
                    modelAttribute="truckDto">
             <table border="1px solid">
-                <tr>
-                    <td><form:label path="uniqueIdentificator">UID</form:label></td>
-                    <td><form:input path="uniqueIdentificator"/></td>
-                    <td><form:errors path="uniqueIdentificator" cssClass="error"/></td>
-                </tr>
                 <tr>
                     <td><form:label path="truckDriverShiftSize">Shift size</form:label></td>
                     <td><form:input path="truckDriverShiftSize"/></td>

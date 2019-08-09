@@ -34,7 +34,7 @@ public class WayPointDto implements BaseDtoInterface<Integer> {
     /**
      * Cargo, that is assigned to this waypoint.
      */
-    private String waypointCargoUID;
+    private Integer waypointCargoUID;
 
     /**
      * City, that is assigned to this waypoint.

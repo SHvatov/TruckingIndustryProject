@@ -26,9 +26,9 @@ public interface BaseService<U, T extends BaseDtoInterface<U>> {
      * Adds entity to the DB. Check if entity already exists.
      *
      * @param dtoObj new entity to add.
-     * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
-     *                              the not nullable field in the Entity object is null.
+     * @throws DAOException        if entity with this UID already exists
+     * @throws NullPointerException if DTO field, which is corresponding to
+     *                             the not nullable field in the Entity object is null.
      */
     void save(T dtoObj);
 
@@ -40,18 +40,18 @@ public interface BaseService<U, T extends BaseDtoInterface<U>> {
      * otherwise throw NPE.
      *
      * @param dtoObj values to update in the entity.
-     * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
-     *                              the not nullable field in the Entity object is null.
+     * @throws DAOException        if entity with this UID already exists
+     * @throws NullPointerException if DTO field, which is corresponding to
+     *                             the not nullable field in the Entity object is null.
      */
     void update(T dtoObj);
 
     /**
      * Deletes entity from the DB if it exists.
      *
-     * @param dtoObj entity to delete.
+     * @param key UID of the entity.
      */
-    void delete(T dtoObj);
+    void delete(U key);
 
     /**
      * Finds all the entities in the DB.

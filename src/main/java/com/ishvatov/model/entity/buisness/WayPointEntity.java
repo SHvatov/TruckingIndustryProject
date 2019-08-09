@@ -113,6 +113,6 @@ public class WayPointEntity {
      */
     @Override
     public String toString() {
-        return getClass().getName() + "{id=" + getId();
+        return getClass().getName() + "{id=" + getId() + "}";
     }
 }

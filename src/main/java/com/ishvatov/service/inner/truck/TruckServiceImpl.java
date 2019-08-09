@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -71,7 +72,7 @@ public class TruckServiceImpl extends AbstractService<String, TruckEntity, Truck
      *
      * @param dtoObj new entity to add.
      * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     * @throws NullPointerException if DTO field, which is corresponding to
      *                              the not nullable field in the Entity object is null.
      */
     @Override
@@ -95,7 +96,7 @@ public class TruckServiceImpl extends AbstractService<String, TruckEntity, Truck
      *
      * @param dtoObj values to update in the entity.
      * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     * @throws NullPointerException if DTO field, which is corresponding to
      *                              the not nullable field in the Entity object is null.
      */
     @Override
@@ -106,6 +107,39 @@ public class TruckServiceImpl extends AbstractService<String, TruckEntity, Truck
             throw new DAOException(getClass(), "update", "Entity with such UID does not exist");
         } else {
             updateImpl(dtoObj, entity);
+        }
+    }
+
+    /**
+     * Deletes entity from the DB if it exists.
+     *
+     * @param key UID of the entity.
+     */
+    @Override
+    public void delete(String key) {
+        if (Objects.isNull(key)) {
+            throw new NullPointerException();
+        }
+
+        TruckEntity truckEntity = truckDao.findByUniqueKey(key);
+        if (truckEntity != null) {
+            CityEntity cityEntity = truckEntity.getTruckCity();
+            if (cityEntity != null) {
+                cityEntity.removeTruck(truckEntity);
+            }
+
+            OrderEntity orderEntity = truckEntity.getTruckOrder();
+            if (orderEntity != null) {
+                orderEntity.setTruckEntity(null);
+                truckEntity.setTruckOrder(null);
+            }
+
+            Set<DriverEntity> driverEntitySet = truckEntity.getTruckDriversSet();
+            for (DriverEntity driverEntity : driverEntitySet) {
+                truckEntity.removeDriver(driverEntity);
+            }
+
+            truckDao.delete(truckEntity);
         }
     }
 
@@ -138,17 +172,22 @@ public class TruckServiceImpl extends AbstractService<String, TruckEntity, Truck
      * @param entity  Entity object.
      */
     private void updateCity(String cityUID, TruckEntity entity) {
-        CityEntity cityEntity = cityDao.findByUniqueKey(cityUID);
-        if (cityEntity == null) {
-            throw new DAOException(getClass(), "updateCity", "Entity with such UID does not exist");
-        }
+        if (cityUID != null) {
+            CityEntity cityEntity = cityDao.findByUniqueKey(cityUID);
+            if (cityEntity == null) {
+                throw new DAOException(getClass(), "updateCity", "Entity with such UID does not exist");
+            }
 
-        if (entity.getTruckCity() == null) {
+            CityEntity previousCity = entity.getTruckCity();
+            if (previousCity != null) {
+                previousCity.removeTruck(entity);
+            }
             cityEntity.addTruck(entity);
         } else {
             CityEntity previousCity = entity.getTruckCity();
-            previousCity.removeTruck(entity);
-            cityEntity.addTruck(entity);
+            if (previousCity != null) {
+                previousCity.removeTruck(entity);
+            }
         }
     }
 
@@ -167,13 +206,15 @@ public class TruckServiceImpl extends AbstractService<String, TruckEntity, Truck
 
             OrderEntity previousOrder = entity.getTruckOrder();
             if (previousOrder != null) {
-                previousOrder.removeTruck(entity);
+                previousOrder.setTruckEntity(null);
             }
-            orderEntity.addTruck(entity);
+            orderEntity.setTruckEntity(entity);
+            entity.setTruckOrder(orderEntity);
         } else {
             OrderEntity previousOrder = entity.getTruckOrder();
             if (previousOrder != null) {
-                previousOrder.removeTruck(entity);
+                previousOrder.setTruckEntity(null);
+                entity.setTruckOrder(null);
             }
         }
     }
@@ -186,15 +227,14 @@ public class TruckServiceImpl extends AbstractService<String, TruckEntity, Truck
      */
     private void updateDriverSet(Set<String> driverUIDSet, TruckEntity entity) {
         if (driverUIDSet != null) {
-            // clear the set and leave it so, if input set is empty
+            // todo should i check if null
             Set<DriverEntity> previousDrivers = entity.getTruckDriversSet();
             if (previousDrivers != null && !previousDrivers.isEmpty()) {
                 for (DriverEntity driverEntity : previousDrivers) {
-                    if (driverEntity != null) {
-                        entity.removeDriver(driverEntity);
-                    }
+                    entity.removeDriver(driverEntity);
                 }
             }
+
             // otherwise add all elements from the set
             if (!driverUIDSet.isEmpty()) {
                 for (String driverUID : driverUIDSet) {
@@ -216,8 +256,14 @@ public class TruckServiceImpl extends AbstractService<String, TruckEntity, Truck
      * @param dto DTO object.
      */
     private void validateRequiredFields(TruckDto dto) {
-        if (dto == null || dto.getUniqueIdentificator() == null || dto.getTruckCityUID() == null || dto.getTruckCondition() == null || dto.getTruckCapacity() == null || dto.getTruckDriverShiftSize() == null) {
-            throw new ValidationExceptionointerException();
+        if (dto == null || dto.getUniqueIdentificator() == null
+            || dto.getTruckCondition() == null
+            || dto.getTruckCapacity() == null || dto.getTruckDriverShiftSize() == null) {
+            throw new NullPointerException();
+        }
+
+        if (dto.getTruckDriverUIDSet() != null && dto.getTruckDriverUIDSet().contains(null)) {
+            throw new NullPointerException();
         }
     }
 }

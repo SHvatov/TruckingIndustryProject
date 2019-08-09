@@ -6,11 +6,16 @@ import com.ishvatov.model.dao.cargo.CargoDao;
 import com.ishvatov.model.dao.order.OrderDao;
 import com.ishvatov.model.dto.CargoDto;
 import com.ishvatov.model.entity.buisness.CargoEntity;
+import com.ishvatov.model.entity.buisness.WayPointEntity;
 import com.ishvatov.service.inner.AbstractService;
 import com.ishvatov.service.inner.order.OrderService;
+import com.ishvatov.service.inner.waypoint.WayPointService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Basic {@link OrderService} interface implementation.
@@ -25,6 +30,11 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      * Autowired DAO field.
      */
     private CargoDao cargoDao;
+
+    /**
+     * Autowired service.
+     */
+    private WayPointService wayPointService;
 
     /**
      * Default class constructor, that is used
@@ -45,7 +55,7 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      *
      * @param dtoObj new entity to add.
      * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     * @throws NullPointerException if DTO field, which is corresponding to
      *                              the not nullable field in the Entity object is null.
      */
     @Override
@@ -67,7 +77,7 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      *
      * @param dtoObj values to update in the entity.
      * @throws DAOException         if entity with this UID already exists
-     * @throws ValidationExceptionointerException if DTO field, which is corresponding to
+     * @throws NullPointerException if DTO field, which is corresponding to
      *                              the not nullable field in the Entity object is null.
      */
     @Override
@@ -78,6 +88,32 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
             throw new DAOException(getClass(), "update", "Entity with such UID does not exist");
         } else {
             updateImpl(dtoObj, cargoEntity);
+        }
+    }
+
+    /**
+     * Deletes entity from the DB if it exists.
+     *
+     * @param key UID of the entity.
+     */
+    @Override
+    public void delete(Integer key) {
+        if (Objects.isNull(key)) {
+            throw new NullPointerException();
+        }
+
+        // todo should i check if null
+        CargoEntity cargoEntity = cargoDao.findByUniqueKey(key);
+        if (cargoEntity != null) {
+            Set<WayPointEntity> wayPointEntitySet = cargoEntity.getAssignedWaypoints();
+            if (wayPointEntitySet != null && !wayPointEntitySet.isEmpty()) {
+                for (WayPointEntity wayPointEntity : wayPointEntitySet) {
+                    if (wayPointEntity != null) {
+                        wayPointService.delete(wayPointEntity.getId());
+                    }
+                }
+            }
+            cargoDao.delete(cargoEntity);
         }
     }
 
@@ -103,7 +139,7 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
     private void validateRequiredFields(CargoDto dto) {
         if (dto == null || dto.getCargoName() == null || dto.getCargoStatus() == null
             || dto.getCargoMass() == null || dto.getId() == null) {
-            throw new ValidationExceptionointerException();
+            throw new NullPointerException();
         }
     }
 }

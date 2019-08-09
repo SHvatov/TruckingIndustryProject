@@ -11,6 +11,8 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
 
+import java.util.Set;
+
 /**
  * Basic validator, used to validate input from truck update and save s.
  *
@@ -59,6 +61,11 @@ public class TruckFormValidator implements Validator {
     private static final int MAX_SHIFT_SIZE = 8;
 
     /**
+     * Maximum number of the drivers in the truck.
+     */
+    private static final int MAX_DRIVER_NUM = 2;
+
+    /**
      * Checks if this validator supports validation of
      * objects, that are instances of aClass.
      *
@@ -71,7 +78,7 @@ public class TruckFormValidator implements Validator {
     }
 
     /**
-     * Implements the validation process.
+     * Implements the validation of the {@link TruckDto} process.
      *
      * @param o      Object to validate.
      * @param errors {@link Errors} interface implementation.
@@ -79,56 +86,115 @@ public class TruckFormValidator implements Validator {
     @Override
     public void validate(Object o, Errors errors) {
         // check the validation  input
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "uid", "NotEmpty.user.name");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "capacity", "NotEmpty.user.email");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "shift_size", "NotEmpty.user.address");
-        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "condition", "NotEmpty.user.password");
+        validateRequiredFields(errors);
 
-        TruckDto dto = (TruckDto) o;
-        if (dto.getUniqueIdentificator() == null || dto.getUniqueIdentificator().isEmpty()) {
-            errors.rejectValue("uid", "NotEmpty.truck.uid");
+        if (o != null) {
+            TruckDto dto = (TruckDto) o;
+
+            // check uid
+            validateUID(dto.getUniqueIdentificator(), errors);
+
+            // check capacity
+            validateCapacity(dto.getTruckCapacity(), errors);
+
+            // check shift size
+            validateShiftSize(dto.getTruckDriverShiftSize(), errors);
+
+            // check condition
+            if (dto.getTruckCondition() == null) {
+                errors.rejectValue("truckCondition", "NotEmpty.field");
+            }
+
+            // check city
+            if (dto.getTruckCityUID() != null && !cityService.exists(dto.getTruckCityUID())) {
+                errors.rejectValue("truckCityUID", "NotExist.city");
+            }
+
+            // check order
+            if (dto.getTruckOrderUID() != null && !orderService.exists(dto.getTruckOrderUID())) {
+                errors.rejectValue("truckOrderUID", "NotExist.order");
+            }
+
+            // check driver set
+            validateDriverSet(dto.getTruckDriverUIDSet(), errors);
         }
+    }
 
-        if (!dto.getUniqueIdentificator().matches(UID_PATTERN) || dto.getUniqueIdentificator().length() != UID_LEN) {
-            errors.rejectValue("uid", "Incorrect.truck.uid");
+    /**
+     * Checks if required fields are empty.
+     *
+     * @param errors {@link Errors} interface implementation.
+     */
+    private void validateRequiredFields(Errors errors) {
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "uniqueIdentificator", "NotEmpty.field");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "truckCapacity", "NotEmpty.field");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "truckDriverShiftSize", "NotEmpty.field");
+        ValidationUtils.rejectIfEmptyOrWhitespace(errors, "truckCondition", "NotEmpty.field");
+    }
+
+    /**
+     * Checks the uid of the object.
+     *
+     * @param uid    UID of the object.
+     * @param errors {@link Errors} interface implementation.
+     */
+    private void validateUID(String uid, Errors errors) {
+        if (uid == null || uid.isEmpty()) {
+            errors.rejectValue("uniqueIdentificator", "NotEmpty.field");
+        } else {
+            if (!uid.matches(UID_PATTERN) || uid.length() != UID_LEN) {
+                errors.rejectValue("uniqueIdentificator", "Incorrect.truck.uid");
+            }
+
+            if (truckService.exists(uid)) {
+                errors.rejectValue("uniqueIdentificator", "NotUnique.truck");
+            }
         }
+    }
 
-        if (truckService.exists(dto.getUniqueIdentificator())) {
-            errors.rejectValue("uid", "NotUnique.truck.uid");
+    /**
+     * Checks the capacity of the truck.
+     *
+     * @param capacity input capacity.
+     * @param errors   {@link Errors} interface implementation.
+     */
+    private void validateCapacity(Double capacity, Errors errors) {
+        if (capacity == null) {
+            errors.rejectValue("truckCapacity", "NotEmpty.field");
+        } else if (Double.compare(capacity, 0) <= 0) {
+            errors.rejectValue("truckCapacity", "Incorrect.truck.capacity");
         }
+    }
 
-        if (dto.getTruckCapacity() == null) {
-            errors.rejectValue("capacity", "NotEmpty.truck.capacity");
+    /**
+     * Checks the shift size.
+     *
+     * @param shiftSize input shift size
+     * @param errors    {@link Errors} interface implementation.
+     */
+    private void validateShiftSize(Integer shiftSize, Errors errors) {
+        if (shiftSize == null) {
+            errors.rejectValue("truckDriverShiftSize", "NotEmpty.field");
+        } else if (shiftSize <= 0 || shiftSize > MAX_SHIFT_SIZE) {
+            errors.rejectValue("truckDriverShiftSize", "Incorrect.truck.shift_size");
         }
+    }
 
-        if (Double.compare(dto.getTruckCapacity(), 0) <= 0) {
-            errors.rejectValue("capacity", "Incorrect.truck.capacity");
-        }
+    /**
+     * Checks the set of drivers' UID.
+     *
+     * @param driverUIDSet set of drivers' UID.
+     * @param errors       {@link Errors} interface implementation.
+     */
+    private void validateDriverSet(Set<String> driverUIDSet, Errors errors) {
+        if (driverUIDSet != null && !driverUIDSet.isEmpty()) {
+            if (driverUIDSet.size() > MAX_DRIVER_NUM) {
+                errors.rejectValue("truckDriverUIDSet", "Incorrect.truck.drivers_number");
+            }
 
-        if (dto.getTruckDriverShiftSize() == null) {
-            errors.rejectValue("shift_size", "NotEmpty.truck.shift_size");
-        }
-
-        if (dto.getTruckDriverShiftSize() <= 0 || dto.getTruckDriverShiftSize() > MAX_SHIFT_SIZE) {
-            errors.rejectValue("shift_size", "NotEmpty.truck.shift_size");
-        }
-
-        if (dto.getTruckCondition() == null) {
-            errors.rejectValue("condition", "NotEmpty.truck.condition");
-        }
-
-        if (dto.getTruckCityUID() != null && !cityService.exists(dto.getTruckCityUID())) {
-            errors.rejectValue("city", "NotExist.truck.city");
-        }
-
-        if (dto.getTruckOrderUID() != null && !orderService.exists(dto.getTruckOrderUID())) {
-            errors.rejectValue("order", "NotExist.truck.order");
-        }
-
-        if (dto.getTruckDriverUIDSet() != null && !dto.getTruckDriverUIDSet().isEmpty()) {
-            for (String driverUID: dto.getTruckDriverUIDSet()) {
-                if (!driverService.exists(driverUID)) {
-                    errors.rejectValue("drivers", "NotExist.truck.driver");
+            for (String driverUID : driverUIDSet) {
+                if (driverUID != null && !driverService.exists(driverUID)) {
+                    errors.rejectValue("truckDriverUIDSet", "NotExist.driver");
                 }
             }
         }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -73,7 +74,7 @@ public class TruckEntity extends AbstractEntity {
      * Set of drivers, who are assigned to this truck.
      */
     @OneToMany(mappedBy = "driverTruckEntity", fetch = FetchType.LAZY)
-    private Set<DriverEntity> truckDriversSet;
+    private Set<DriverEntity> truckDriversSet = new HashSet<>();
 
     /**
      * City, where this truck is located.
@@ -97,6 +98,7 @@ public class TruckEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void addDriver(DriverEntity driverEntity) {
+        if (driverEntity == null) return;
         truckDriversSet.add(driverEntity);
         driverEntity.setDriverTruckEntity(this);
     }
@@ -107,44 +109,8 @@ public class TruckEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void removeDriver(DriverEntity driverEntity) {
+        if (driverEntity == null) return;
         truckDriversSet.remove(driverEntity);
         driverEntity.setDriverTruckEntity(null);
-    }
-
-    /**
-     * Equals method override.
-     *
-     * @param obj another object.
-     * @return false, if other object is null, of other type or does not equal
-     * to this, true otherwise.
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof DriverEntity)) {
-            return false;
-        } else {
-            DriverEntity entity = (DriverEntity) obj;
-            return getId().equals(entity.getId()) && getUniqueIdentificator().equals(entity.getUniqueIdentificator());
-        }
-    }
-
-    /**
-     * HashCode method implementation.
-     *
-     * @return hash code of the object.
-     */
-    @Override
-    public int hashCode() {
-        return getId().hashCode() + getUniqueIdentificator().hashCode();
-    }
-
-    /**
-     * To string method implementation.
-     *
-     * @return string representation of the entity.
-     */
-    @Override
-    public String toString() {
-        return getClass().getName() + "{id=" + getId() + "; UID=" + getUniqueIdentificator();
     }
 }

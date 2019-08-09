@@ -39,7 +39,7 @@ public class DriverMapperImpl implements Mapper<DriverEntity, DriverDto> {
         }
 
         if (src.getDriverCurrentCity() != null) {
-            driverDto.setDriverTruckUID(src.getDriverOrder().getUniqueIdentificator());
+            driverDto.setDriverTruckUID(src.getDriverTruckEntity().getUniqueIdentificator());
         }
 
         return driverDto;

@@ -39,4 +39,53 @@ public abstract class AbstractEntity {
      */
     @Column(name = UNIQUE_KEY_COLUMN_NAME, unique = true)
     private String uniqueIdentificator;
+
+    /**
+     * Basic implementation of the hashCode
+     * method. Unique identificator is unique for
+     * each entity in the entity group.
+     *
+     * @return hashcode of the UID.
+     */
+    @Override
+    public int hashCode() {
+        return uniqueIdentificator.hashCode();
+    }
+
+    /**
+     * Basic implementation of the equals
+     * method. Unique identificator is unique for
+     * each entity in the entity group.
+     *
+     * @return true, if objects are of the same type
+     * and have the same UID.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
+        if (this == obj) {
+            return true;
+        }
+
+        if (this.getClass() != obj.getClass()) {
+            return false;
+        } else {
+            return this.uniqueIdentificator.equals(((AbstractEntity) obj).uniqueIdentificator);
+        }
+    }
+
+    /**
+     * To string method implementation.
+     *
+     * @return string representation of the entity.
+     */
+    @Override
+    public String toString() {
+        return getClass().getName() + "{id=" +
+            (getId() == null ? "#" : getId())
+            + "; UID=" + getUniqueIdentificator() + "}";
+    }
 }

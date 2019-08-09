@@ -84,6 +84,19 @@ public class UserServiceImpl extends AbstractService<String, UserEntity, UserDto
     }
 
     /**
+     * Deletes entity from the DB if it exists.
+     *
+     * @param key UID of the entity.
+     */
+    @Override
+    public void delete(String key) {
+        UserEntity userEntity = userDao.findByUniqueKey(key);
+        if (userEntity != null) {
+            userDao.delete(userEntity);
+        }
+    }
+
+    /**
      * Updates password of the user.
      *
      * @param userUID  UID of the user.
