@@ -35,6 +35,11 @@ public class CityMapDto implements BaseDtoInterface<Integer> {
     private Double distance;
 
     /**
+     * Average speed.
+     */
+    private Double averageSpeed;
+
+    /**
      * Get the unique identificator of the entity method.
      *
      * @return UID of the entity in the database.

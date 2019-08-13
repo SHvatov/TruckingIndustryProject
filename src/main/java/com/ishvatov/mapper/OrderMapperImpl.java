@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -35,27 +36,21 @@ public class OrderMapperImpl implements Mapper<OrderEntity, OrderDto> {
     public OrderDto map(OrderEntity src) {
         OrderDto orderDto = mapper.map(src, OrderDto.class);
 
-        if (src.getDriverEntitySet() != null) {
-            orderDto.setDriverUIDSet(
-                src.getDriverEntitySet()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .map(AbstractEntity::getUniqueIdentificator)
-                    .collect(Collectors.toSet()));
-        }
+        orderDto.setDriverUIDSet(src.getAssignedDrivers()
+            .stream()
+            .filter(Objects::nonNull)
+            .map(AbstractEntity::getUniqueIdentificator)
+            .collect(Collectors.toSet()));
 
-        if (src.getTruckEntity() != null) {
-            orderDto.setTruckUID(src.getTruckEntity().getUniqueIdentificator());
-        }
+        Optional.ofNullable(src.getAssignedTruck())
+            .ifPresent(e -> orderDto.setTruckUID(e.getUniqueIdentificator()));
 
-        if (src.getAssignedWaypoints() != null) {
-            orderDto.setAssignedWaypointsIdSet(
-                src.getAssignedWaypoints()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .map(WayPointEntity::getId)
-                    .collect(Collectors.toSet()));
-        }
+        orderDto.setWaypointsIDSet(src.getAssignedWaypoints()
+            .stream()
+            .filter(Objects::nonNull)
+            .map(WayPointEntity::getId)
+            .collect(Collectors.toSet()));
+
         return null;
     }
 }

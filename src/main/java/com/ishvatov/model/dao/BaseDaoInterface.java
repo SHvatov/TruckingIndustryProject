@@ -1,9 +1,5 @@
 package com.ishvatov.model.dao;
 
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
@@ -57,27 +53,6 @@ public interface BaseDaoInterface<U, T> {
      * @return Unique entity with this id.
      */
     T findByUniqueKey(U key);
-
-    /**
-     * Finds the entities that suit this predicate.
-     *
-     * @param predicate     boolean conditional expression.
-     * @param criteriaQuery instance of the {@link CriteriaQuery} which is used
-     *                      to from the query.
-     * @param root          instance of the {@link Root}.
-     * @return entities that suit this predicate.
-     */
-    List<T> findEntities(Predicate predicate, CriteriaQuery<T> criteriaQuery, Root<T> root);
-
-    /**
-     * Deletes the entities that suit this predicate.
-     *
-     * @param predicate      boolean conditional expression.
-     * @param criteriaDelete instance of the {@link CriteriaDelete} which is used
-     *                       to from the query.
-     * @param root           instance of the {@link Root}.
-     */
-    void deleteEntities(Predicate predicate, CriteriaDelete<T> criteriaDelete, Root<T> root);
 
     /**
      * Checks if entity with such key exists in teh database.

@@ -8,5 +8,6 @@ package com.ishvatov.model.entity.enum_types;
 public enum DriverStatusType {
     IDLE,
     IN_SHIFT,
-    DRIVING
+    DRIVING,
+    LOADING_UNLOADING
 }

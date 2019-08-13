@@ -1,6 +1,7 @@
 package com.ishvatov.service.inner.user;
 
 import com.ishvatov.exception.DAOException;
+import com.ishvatov.exception.ValidationException;
 import com.ishvatov.mapper.Mapper;
 import com.ishvatov.model.dao.user.UserDao;
 import com.ishvatov.model.dto.UserDto;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 /**
  * Basic {@link UserService} interface implementation.
@@ -54,7 +57,8 @@ public class UserServiceImpl extends AbstractService<String, UserEntity, UserDto
      */
     @Override
     public void save(UserDto dtoObj) {
-        if (userDao.exists(dtoObj.getUniqueIdentificator())) {
+        validateRequiredFields(dtoObj);
+        if (exists(dtoObj.getUniqueIdentificator())) {
             throw new DAOException(getClass(), "save", "Entity with such UID already exists");
         } else {
             UserEntity entity = new UserEntity();
@@ -75,12 +79,10 @@ public class UserServiceImpl extends AbstractService<String, UserEntity, UserDto
      */
     @Override
     public void update(UserDto dtoObj) {
-        UserEntity userEntity = userDao.findByUniqueKey(dtoObj.getUniqueIdentificator());
-        if (userEntity == null) {
-            throw new DAOException(getClass(), "update", "Entity with such UID does not exist");
-        } else {
-            updatePassword(dtoObj.getUniqueIdentificator(), dtoObj.getPassword());
-        }
+        validateRequiredFields(dtoObj);
+        UserEntity userEntity = Optional.ofNullable(userDao.findByUniqueKey(dtoObj.getUniqueIdentificator()))
+            .orElseThrow(() -> new DAOException(getClass(), "update", "Entity with such UID does not exist"));
+        userEntity.setPassword(encoder.encode(dtoObj.getPassword()));
     }
 
     /**
@@ -90,26 +92,26 @@ public class UserServiceImpl extends AbstractService<String, UserEntity, UserDto
      */
     @Override
     public void delete(String key) {
-        UserEntity userEntity = userDao.findByUniqueKey(key);
-        if (userEntity != null) {
-            userDao.delete(userEntity);
-        }
+        Optional<UserEntity> userEntity = Optional.ofNullable(
+            userDao.findByUniqueKey(
+                Optional.ofNullable(key)
+                    .orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null"))
+            )
+        );
+
+        userEntity.ifPresent(e -> userDao.delete(e));
     }
 
     /**
-     * Updates password of the user.
+     * Validates the input DTO object and throws NPE,
+     * if object or one of required fields is null.
      *
-     * @param userUID  UID of the user.
-     * @param password new password of the user.
-     * @throws DAOException if no such entity exists.
+     * @param dto DTO object.
      */
-    @Override
-    public void updatePassword(String userUID, String password) {
-        UserEntity entity = userDao.findByUniqueKey(userUID);
-        if (entity == null) {
-            throw new DAOException(getClass(), "updatePassword", "Entity with such UID does not exist");
-        } else {
-            entity.setPassword(encoder.encode(password));
+    private void validateRequiredFields(UserDto dto) {
+        if (dto == null || dto.getPassword() == null
+        || dto.getAuthority() == null || dto.getUniqueIdentificator() == null) {
+            throw new ValidationException();
         }
     }
 }

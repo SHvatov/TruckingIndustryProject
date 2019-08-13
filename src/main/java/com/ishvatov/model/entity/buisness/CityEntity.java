@@ -11,6 +11,7 @@ import javax.persistence.FetchType;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -35,14 +36,14 @@ public class CityEntity extends AbstractEntity {
     /**
      * Set of trucks, that are located in the city.
      */
-    @OneToMany(mappedBy = "driverCurrentCity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "driverCity", fetch = FetchType.LAZY)
     private Set<DriverEntity> locatedDrivers = new HashSet<>();
 
     /**
      * Set of waypoints, that are located in the city.
      */
-    @OneToMany(mappedBy = "waypointCityEntity", fetch = FetchType.LAZY)
-    private Set<WayPointEntity> assignedWaypoints = new HashSet<>();
+    @OneToMany(mappedBy = "waypointCity", fetch = FetchType.LAZY)
+    private Set<WayPointEntity> locatedWaypoints = new HashSet<>();
 
     /**
      * Adds truck to the set of the located in this city ones.
@@ -50,9 +51,10 @@ public class CityEntity extends AbstractEntity {
      * @param truckEntity {@link TruckEntity} entity.
      */
     public void addTruck(TruckEntity truckEntity) {
-        if (truckEntity == null) return;
-        locatedTrucks.add(truckEntity);
-        truckEntity.setTruckCity(this);
+        Optional.ofNullable(truckEntity).ifPresent(e -> {
+            locatedTrucks.add(e);
+            e.setTruckCity(this);
+        });
     }
 
     /**
@@ -61,9 +63,10 @@ public class CityEntity extends AbstractEntity {
      * @param truckEntity {@link TruckEntity} entity.
      */
     public void removeTruck(TruckEntity truckEntity) {
-        if (truckEntity == null) return;
-        locatedTrucks.remove(truckEntity);
-        truckEntity.setTruckCity(null);
+        Optional.ofNullable(truckEntity).ifPresent(e -> {
+            locatedTrucks.remove(e);
+            e.setTruckCity(null);
+        });
     }
 
     /**
@@ -72,9 +75,10 @@ public class CityEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void addDriver(DriverEntity driverEntity) {
-        if (driverEntity == null) return;
-        locatedDrivers.add(driverEntity);
-        driverEntity.setDriverCurrentCity(this);
+        Optional.ofNullable(driverEntity).ifPresent(e -> {
+            locatedDrivers.add(e);
+            e.setDriverCity(this);
+        });
     }
 
     /**
@@ -83,9 +87,10 @@ public class CityEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void removeDriver(DriverEntity driverEntity) {
-        if (driverEntity == null) return;
-        locatedDrivers.remove(driverEntity);
-        driverEntity.setDriverCurrentCity(null);
+        Optional.ofNullable(driverEntity).ifPresent(e -> {
+            locatedDrivers.remove(e);
+            e.setDriverCity(null);
+        });
     }
 
     /**
@@ -94,9 +99,10 @@ public class CityEntity extends AbstractEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void addWayPoint(WayPointEntity wayPointEntity) {
-        if (wayPointEntity == null) return;
-        assignedWaypoints.add(wayPointEntity);
-        wayPointEntity.setWaypointCityEntity(this);
+        Optional.ofNullable(wayPointEntity).ifPresent(e -> {
+            locatedWaypoints.add(e);
+            e.setWaypointCity(this);
+        });
     }
 
     /**
@@ -105,8 +111,9 @@ public class CityEntity extends AbstractEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void removeWayPoint(WayPointEntity wayPointEntity) {
-        if (wayPointEntity == null) return;
-        assignedWaypoints.remove(wayPointEntity);
-        wayPointEntity.setWaypointCityEntity(null);
+        Optional.ofNullable(wayPointEntity).ifPresent(e -> {
+            locatedWaypoints.remove(e);
+            e.setWaypointCity(null);
+        });
     }
 }

@@ -2,6 +2,7 @@ package com.ishvatov.service.inner.city;
 
 import com.ishvatov.exception.CustomProjectException;
 import com.ishvatov.exception.DAOException;
+import com.ishvatov.exception.ValidationException;
 import com.ishvatov.mapper.Mapper;
 import com.ishvatov.model.dao.city.CityDao;
 import com.ishvatov.model.dto.CityDto;
@@ -52,16 +53,7 @@ public class CityServiceImpl extends AbstractService<String, CityEntity, CityDto
      */
     @Override
     public void save(CityDto dtoObj) {
-        if (exists(dtoObj.getUniqueIdentificator())) {
-            throw new DAOException(getClass(), "save", "Entity with such UID already exists");
-        } else {
-            // create new instance
-            CityEntity entity = new CityEntity();
-            // set UID
-            entity.setUniqueIdentificator(dtoObj.getUniqueIdentificator());
-            // save entity
-            cityDao.save(entity);
-        }
+        throw new CustomProjectException(getClass(), "save", "Save method is not supported");
     }
 
     /**
@@ -84,7 +76,6 @@ public class CityServiceImpl extends AbstractService<String, CityEntity, CityDto
      */
     @Override
     public void delete(String key) {
-        // todo add delete
         throw new CustomProjectException(getClass(), "delete", "Delete method is not supported");
     }
 
@@ -100,5 +91,17 @@ public class CityServiceImpl extends AbstractService<String, CityEntity, CityDto
             .filter(Objects::nonNull)
             .map(AbstractEntity::getUniqueIdentificator)
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Validates the input DTO object and throws NPE,
+     * if object or one of required fields is null.
+     *
+     * @param dto DTO object.
+     */
+    private void validateRequiredFields(CityDto dto) {
+        if (dto == null || dto.getUniqueIdentificator() == null) {
+            throw new ValidationException();
+        }
     }
 }

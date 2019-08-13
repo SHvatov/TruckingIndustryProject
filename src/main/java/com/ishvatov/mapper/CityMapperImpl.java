@@ -34,23 +34,20 @@ public class CityMapperImpl implements Mapper<CityEntity, CityDto> {
     public CityDto map(CityEntity src) {
         CityDto cityDto = mapper.map(src, CityDto.class);
 
-        if (src.getLocatedDrivers() != null) {
-            cityDto.setLocatedDrivers(
-                src.getLocatedDrivers()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .map(AbstractEntity::getUniqueIdentificator)
-                    .collect(Collectors.toSet()));
-        }
+        cityDto.setLocatedDrivers(src.getLocatedDrivers()
+            .stream()
+            .filter(Objects::nonNull)
+            .map(AbstractEntity::getUniqueIdentificator)
+            .collect(Collectors.toSet())
+        );
 
-        if (src.getLocatedTrucks() != null) {
-            cityDto.setLocatedTrucks(
-                src.getLocatedTrucks()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .map(AbstractEntity::getUniqueIdentificator)
-                    .collect(Collectors.toSet()));
-        }
+        cityDto.setLocatedTrucks(src.getLocatedTrucks()
+            .stream()
+            .filter(Objects::nonNull)
+            .map(AbstractEntity::getUniqueIdentificator)
+            .collect(Collectors.toSet())
+        );
+
         return cityDto;
     }
 }

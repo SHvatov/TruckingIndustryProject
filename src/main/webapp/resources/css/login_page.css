@@ -1,0 +1,45 @@
+body {
+    background: whitesmoke;
+    padding: 20px;
+    font-family: Helvetica, serif;
+    width: 100%;
+}
+
+h2 {
+    text-align: center;
+}
+
+td {
+    padding: 10px;
+    background: #80ccff;
+    text-align: center
+}
+
+table {
+    margin: 0 auto;
+    font-size: 18px;
+    text-align: center;
+}
+
+table, th, td {
+    border: 1px solid #006bb3;
+    border-radius: 5px
+}
+
+input[type=text]:focus {
+    border: 3px solid #555;
+}
+
+input[type=password]:focus {
+    border: 3px solid #555;
+}
+
+.loginButton {
+    background: #006bb3;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    padding: 15px 15px;
+    font-size: 18px;
+    width: 100%;
+}

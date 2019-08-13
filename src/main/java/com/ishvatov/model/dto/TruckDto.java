@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -45,7 +46,7 @@ public class TruckDto implements BaseDtoInterface<String> {
     /**
      * Drivers, who are using this truck.
      */
-    private Set<String> truckDriverUIDSet;
+    private Set<String> truckDriversUIDSet = new HashSet<>();
 
     /**
      * Orders, that is assigned to this truck.

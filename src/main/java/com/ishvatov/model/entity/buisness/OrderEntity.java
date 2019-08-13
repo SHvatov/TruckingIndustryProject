@@ -8,7 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -31,6 +33,18 @@ public class OrderEntity extends AbstractEntity {
     public static final String STATUS = "order_status";
 
     /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String START_DATE = "order_start";
+
+    /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String END_DATE = "order_end";
+
+    /**
      * Status of the order.
      */
     @Column(name = STATUS)
@@ -38,21 +52,33 @@ public class OrderEntity extends AbstractEntity {
     private OrderStatusType orderStatus;
 
     /**
+     * Date - start of the order.
+     */
+    @Column(name = START_DATE)
+    private Timestamp orderStart;
+
+    /**
+     * Date - end of the order.
+     */
+    @Column(name = END_DATE)
+    private Timestamp orderEnd;
+
+    /**
      * Truck, that is assigned to this order.
      */
     @OneToOne(mappedBy = "truckOrder", fetch = FetchType.LAZY)
-    private TruckEntity truckEntity;
+    private TruckEntity assignedTruck;
 
     /**
      * Set of drivers, who are assigned to this order.
      */
     @OneToMany(mappedBy = "driverOrder", fetch = FetchType.LAZY)
-    private Set<DriverEntity> driverEntitySet = new HashSet<>();
+    private Set<DriverEntity> assignedDrivers = new HashSet<>();
 
     /**
      * Set of waypoints, that are located in the order.
      */
-    @OneToMany(mappedBy = "waypointOrderEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "waypointOrder", fetch = FetchType.LAZY)
     private Set<WayPointEntity> assignedWaypoints = new HashSet<>();
 
     /**
@@ -61,9 +87,10 @@ public class OrderEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void addDriver(DriverEntity driverEntity) {
-        if (driverEntity == null) return;
-        driverEntitySet.add(driverEntity);
-        driverEntity.setDriverOrder(this);
+        Optional.ofNullable(driverEntity).ifPresent(e -> {
+            assignedDrivers.add(e);
+            e.setDriverOrder(this);
+        });
     }
 
     /**
@@ -72,9 +99,10 @@ public class OrderEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void removeDriver(DriverEntity driverEntity) {
-        if (driverEntity == null) return;
-        driverEntitySet.remove(driverEntity);
-        driverEntity.setDriverOrder(null);
+        Optional.ofNullable(driverEntity).ifPresent(e -> {
+            assignedDrivers.remove(e);
+            e.setDriverOrder(null);
+        });
     }
 
     /**
@@ -83,9 +111,10 @@ public class OrderEntity extends AbstractEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void addWayPoint(WayPointEntity wayPointEntity) {
-        if (wayPointEntity == null) return;
-        assignedWaypoints.add(wayPointEntity);
-        wayPointEntity.setWaypointOrderEntity(this);
+        Optional.ofNullable(wayPointEntity).ifPresent(e -> {
+            assignedWaypoints.add(e);
+            e.setWaypointOrder(this);
+        });
     }
 
     /**
@@ -94,8 +123,9 @@ public class OrderEntity extends AbstractEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void removeWayPoint(WayPointEntity wayPointEntity) {
-        if (wayPointEntity == null) return;
-        assignedWaypoints.remove(wayPointEntity);
-        wayPointEntity.setWaypointOrderEntity(null);
+        Optional.ofNullable(wayPointEntity).ifPresent(e -> {
+            assignedWaypoints.remove(e);
+            e.setWaypointOrder(null);
+        });
     }
 }

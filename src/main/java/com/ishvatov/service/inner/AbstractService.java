@@ -1,12 +1,15 @@
 package com.ishvatov.service.inner;
 
 import com.ishvatov.exception.DAOException;
+import com.ishvatov.exception.ValidationException;
 import com.ishvatov.mapper.Mapper;
 import com.ishvatov.model.dao.BaseDaoInterface;
 import com.ishvatov.model.dto.BaseDtoInterface;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -50,12 +53,12 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      */
     @Override
     public T2 findById(int id) {
-        T1 entity = daoInterface.findById(id);
-        if (entity == null) {
-            throw new DAOException(getClass(), "findById", "No entity with such id");
-        } else {
-            return mapper.map(entity);
-        }
+        Optional<T1> entity = Optional.ofNullable(daoInterface.findById(id));
+        return mapper.map(
+            entity.orElseThrow(
+                () -> new DAOException(getClass(), "findById", "No entity with such unique key exists.")
+            )
+        );
     }
 
     /**
@@ -65,7 +68,11 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      */
     @Override
     public List<T2> findAll() {
-        return daoInterface.findAll().stream().map(mapper::map).collect(Collectors.toList());
+        return daoInterface.findAll()
+            .stream()
+            .filter(Objects::nonNull)
+            .map(mapper::map)
+            .collect(Collectors.toList());
     }
 
     /**
@@ -76,26 +83,19 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      * @throws DAOException if no entity with such unique key exists.
      */
     @Override
-    public T2 findByUniqueKey(U key) {
-        T1 entity = daoInterface.findByUniqueKey(key);
-        if (entity == null) {
-            throw new DAOException(getClass(), "findByUniqueKey", "No entity with such unique key exists.");
-        } else {
-            return mapper.map(entity);
-        }
-    }
-
-    /**
-     * Deletes entity by it's unique id if it exists.
-     *
-     * @param key unique key of the entity.
-     */
-    @Override
-    public void deleteByUniqueKey(U key) {
-        T1 entity = daoInterface.findByUniqueKey(key);
-        if (entity != null) {
-            daoInterface.delete(entity);
-        }
+    public T2 find(U key) {
+        Optional<T1> entity = Optional.ofNullable(
+            daoInterface.findByUniqueKey(
+                Optional.ofNullable(key).orElseThrow(
+                    () -> new ValidationException(getClass(), "find", "Key is null")
+                )
+            )
+        );
+        return mapper.map(
+            entity.orElseThrow(
+                () -> new DAOException(getClass(), "find", "No entity with such unique key exists.")
+            )
+        );
     }
 
     /**
@@ -103,9 +103,14 @@ public abstract class AbstractService<U, T1, T2 extends BaseDtoInterface<U>> imp
      *
      * @param key key to check.
      * @return true, if this key is unique in the DB, false otherwise.
+     * @throws ValidationException if key is null.
      */
     @Override
     public boolean exists(U key) {
-        return daoInterface.exists(key);
+        if (key == null) {
+            throw new ValidationException();
+        } else {
+            return daoInterface.exists(key);
+        }
     }
 }

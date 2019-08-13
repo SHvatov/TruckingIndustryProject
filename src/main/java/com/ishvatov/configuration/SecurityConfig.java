@@ -86,7 +86,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
             // mapToDto user permissions
             .antMatchers("/login/**").permitAll()
-            .antMatchers("/css/**").permitAll()
+            .antMatchers("/resources/**").permitAll()
             .antMatchers("/error/**").permitAll()
             .antMatchers("/employee/**").hasRole("USER")
             .antMatchers("/driver/**").hasRole("DRIVER")
@@ -104,9 +104,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .logout()
             .logoutUrl("/login/perform_logout")
             .deleteCookies("JSESSIONID")
-            .invalidateHttpSession(true)
-            // disable csrf
-            .and()
-            .csrf().disable();
+            .invalidateHttpSession(true);
+        http.csrf().disable();
     }
 }

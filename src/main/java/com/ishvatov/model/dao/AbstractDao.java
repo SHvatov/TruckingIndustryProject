@@ -130,7 +130,7 @@ public abstract class AbstractDao<U, T> implements BaseDaoInterface<U, T> {
      * @param root          instance of the {@link Root}.
      * @return entities that suit this predicate.
      */
-    public List<T> findEntities(Predicate predicate, CriteriaQuery<T> criteriaQuery, Root<T> root) {
+    protected List<T> findEntities(Predicate predicate, CriteriaQuery<T> criteriaQuery, Root<T> root) {
         // create request
         criteriaQuery.select(root).where(predicate);
 
@@ -146,7 +146,7 @@ public abstract class AbstractDao<U, T> implements BaseDaoInterface<U, T> {
      *                       to from the query.
      * @param root           instance of the {@link Root}.
      */
-    public void deleteEntities(Predicate predicate, CriteriaDelete<T> criteriaDelete, Root<T> root) {
+    protected void deleteEntities(Predicate predicate, CriteriaDelete<T> criteriaDelete, Root<T> root) {
         // process the request
         criteriaDelete.where(predicate);
 

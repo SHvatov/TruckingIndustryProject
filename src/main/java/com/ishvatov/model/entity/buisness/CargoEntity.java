@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -31,7 +32,7 @@ public class CargoEntity {
     public static final String MASS = "mass";
 
     /**
-     * String representation of the 'state'
+     * String representation of the 'cargo_status'
      * column name in the table.
      */
     public static final String STATE = "cargo_status";
@@ -72,7 +73,7 @@ public class CargoEntity {
     /**
      * Set of waypoints, that are located in the city.
      */
-    @OneToMany(mappedBy = "waypointCargoEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "waypointCargo", fetch = FetchType.LAZY)
     private Set<WayPointEntity> assignedWaypoints = new HashSet<>();
 
     /**
@@ -81,9 +82,10 @@ public class CargoEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void addWayPoint(WayPointEntity wayPointEntity) {
-        if (wayPointEntity == null) return;
-        assignedWaypoints.add(wayPointEntity);
-        wayPointEntity.setWaypointCargoEntity(this);
+        Optional.ofNullable(wayPointEntity).ifPresent(e -> {
+            assignedWaypoints.add(e);
+            e.setWaypointCargo(this);
+        });
     }
 
     /**
@@ -92,9 +94,10 @@ public class CargoEntity {
      * @param wayPointEntity {@link WayPointEntity} entity.
      */
     public void removeWayPoint(WayPointEntity wayPointEntity) {
-        if (wayPointEntity == null) return;
-        assignedWaypoints.remove(wayPointEntity);
-        wayPointEntity.setWaypointCargoEntity(null);
+        Optional.ofNullable(wayPointEntity).ifPresent(e -> {
+            assignedWaypoints.remove(e);
+            e.setWaypointCargo(null);
+        });
     }
 
     /**

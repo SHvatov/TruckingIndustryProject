@@ -37,6 +37,12 @@ public class CityMapEntity {
     public static final String DISTANCE_FIELD = "distance";
 
     /**
+     * String representation of the 'distance'
+     * column name in the table.
+     */
+    public static final String AVERAGE_SPEED_FIELD = "average_speed";
+
+    /**
      * Unique id of the truck in the DB.
      */
     @Id
@@ -61,6 +67,12 @@ public class CityMapEntity {
      */
     @Column(name = DISTANCE_FIELD)
     private Double distance;
+
+    /**
+     * Average speed on the track.
+     */
+    @Column(name = AVERAGE_SPEED_FIELD)
+    private Double averageSpeed;
 
 
     /**

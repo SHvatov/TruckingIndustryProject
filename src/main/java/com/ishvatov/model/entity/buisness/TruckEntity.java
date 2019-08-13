@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -73,7 +74,7 @@ public class TruckEntity extends AbstractEntity {
     /**
      * Set of drivers, who are assigned to this truck.
      */
-    @OneToMany(mappedBy = "driverTruckEntity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "driverTruck", fetch = FetchType.LAZY)
     private Set<DriverEntity> truckDriversSet = new HashSet<>();
 
     /**
@@ -87,7 +88,7 @@ public class TruckEntity extends AbstractEntity {
     /**
      * Order, assigned to this truck.
      */
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
         CascadeType.REMOVE, CascadeType.MERGE})
     @JoinColumn(name = ORDER_ID)
     private OrderEntity truckOrder;
@@ -98,9 +99,10 @@ public class TruckEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void addDriver(DriverEntity driverEntity) {
-        if (driverEntity == null) return;
-        truckDriversSet.add(driverEntity);
-        driverEntity.setDriverTruckEntity(this);
+        Optional.ofNullable(driverEntity).ifPresent(e -> {
+            truckDriversSet.add(e);
+            e.setDriverTruck(this);
+        });
     }
 
     /**
@@ -109,8 +111,9 @@ public class TruckEntity extends AbstractEntity {
      * @param driverEntity {@link DriverEntity} entity.
      */
     public void removeDriver(DriverEntity driverEntity) {
-        if (driverEntity == null) return;
-        truckDriversSet.remove(driverEntity);
-        driverEntity.setDriverTruckEntity(null);
+        Optional.ofNullable(driverEntity).ifPresent(e -> {
+            truckDriversSet.remove(e);
+            e.setDriverTruck(null);
+        });
     }
 }

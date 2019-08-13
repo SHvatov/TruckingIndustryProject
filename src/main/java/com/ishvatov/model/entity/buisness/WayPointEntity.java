@@ -63,21 +63,21 @@ public class WayPointEntity {
      */
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = ORDER_ID)
-    private OrderEntity waypointOrderEntity;
+    private OrderEntity waypointOrder;
 
     /**
      * Cargo, that is assigned to this waypoint.
      */
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = CARGO_ID)
-    private CargoEntity waypointCargoEntity;
+    private CargoEntity waypointCargo;
 
     /**
      * City, that is assigned to this waypoint.
      */
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = CITY_ID)
-    private CityEntity waypointCityEntity;
+    private CityEntity waypointCity;
 
     /**
      * Equals method override.

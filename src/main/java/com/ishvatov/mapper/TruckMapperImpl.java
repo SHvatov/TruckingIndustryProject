@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -34,22 +35,18 @@ public class TruckMapperImpl implements Mapper<TruckEntity, TruckDto> {
     public TruckDto map(TruckEntity src) {
         TruckDto truckDto = mapper.map(src, TruckDto.class);
 
-        if (src.getTruckCity() != null) {
-            truckDto.setTruckCityUID(src.getTruckCity().getUniqueIdentificator());
-        }
+        Optional.ofNullable(src.getTruckCity())
+            .ifPresent(entity -> truckDto.setTruckCityUID(entity.getUniqueIdentificator()));
 
-        if (src.getTruckOrder() != null) {
-            truckDto.setTruckOrderUID(src.getTruckOrder().getUniqueIdentificator());
-        }
+        Optional.ofNullable(src.getTruckOrder())
+            .ifPresent(entity -> truckDto.setTruckOrderUID(entity.getUniqueIdentificator()));
 
-        if (src.getTruckDriversSet() != null) {
-            truckDto.setTruckDriverUIDSet(
-                src.getTruckDriversSet()
-                    .stream()
-                    .filter(Objects::nonNull)
-                    .map(AbstractEntity::getUniqueIdentificator)
-                    .collect(Collectors.toSet()));
-        }
+        truckDto.setTruckDriversUIDSet(src.getTruckDriversSet()
+            .stream()
+            .filter(Objects::nonNull)
+            .map(AbstractEntity::getUniqueIdentificator)
+            .collect(Collectors.toSet())
+        );
 
         return truckDto;
     }

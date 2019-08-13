@@ -20,7 +20,7 @@ import javax.persistence.*;
 public abstract class AbstractEntity {
 
     /**
-     * To implement findByUniqueKey method,
+     * To implement find method,
      * all unique columns in the DB for all instances
      * are named as unique key.
      */

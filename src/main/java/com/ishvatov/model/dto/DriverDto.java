@@ -34,7 +34,7 @@ public class DriverDto implements BaseDtoInterface<String> {
      * Number of hours driver has worked
      * in this month.
      */
-    private String driverWorkedHours;
+    private Integer driverWorkedHours;
 
     /**
      * Status of the driver.

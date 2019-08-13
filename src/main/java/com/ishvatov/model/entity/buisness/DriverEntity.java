@@ -78,7 +78,7 @@ public class DriverEntity extends AbstractEntity {
      * in this month.
      */
     @Column(name = WORKED_HOURS)
-    private String driverWorkedHours;
+    private Integer driverWorkedHours;
 
     /**
      * Status of the driver.
@@ -93,7 +93,7 @@ public class DriverEntity extends AbstractEntity {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
         CascadeType.REMOVE, CascadeType.MERGE})
     @JoinColumn(name = TRUCK_ID)
-    private TruckEntity driverTruckEntity;
+    private TruckEntity driverTruck;
 
     /**
      * City, where this driver is located.
@@ -101,7 +101,7 @@ public class DriverEntity extends AbstractEntity {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
         CascadeType.REMOVE, CascadeType.MERGE})
     @JoinColumn(name = CITY_ID)
-    private CityEntity driverCurrentCity;
+    private CityEntity driverCity;
 
     /**
      * Order, this driver is assigned to.

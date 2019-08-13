@@ -6,6 +6,8 @@ import org.dozer.DozerBeanMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 /**
  * {@link Mapper} interface implementation for driver.
  *
@@ -30,17 +32,14 @@ public class DriverMapperImpl implements Mapper<DriverEntity, DriverDto> {
     public DriverDto map(DriverEntity src) {
         DriverDto driverDto = mapper.map(src, DriverDto.class);
 
-        if (src.getDriverTruckEntity() != null) {
-            driverDto.setCurrentCityUID(src.getDriverTruckEntity().getUniqueIdentificator());
-        }
+        Optional.ofNullable(src.getDriverTruck())
+            .ifPresent(entity -> driverDto.setCurrentCityUID(entity.getUniqueIdentificator()));
 
-        if (src.getDriverOrder() != null) {
-            driverDto.setDriverOrderUID(src.getDriverOrder().getUniqueIdentificator());
-        }
+        Optional.ofNullable(src.getDriverOrder())
+            .ifPresent(entity -> driverDto.setDriverOrderUID(entity.getUniqueIdentificator()));
 
-        if (src.getDriverCurrentCity() != null) {
-            driverDto.setDriverTruckUID(src.getDriverTruckEntity().getUniqueIdentificator());
-        }
+        Optional.ofNullable(src.getDriverCity())
+            .ifPresent(entity -> driverDto.setDriverTruckUID(entity.getUniqueIdentificator()));
 
         return driverDto;
     }
