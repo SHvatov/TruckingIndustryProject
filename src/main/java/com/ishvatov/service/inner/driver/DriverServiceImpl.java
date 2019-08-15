@@ -166,6 +166,10 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
             entity.setDriverWorkedHours(dto.getDriverWorkedHours());
         }
 
+        if (!dto.getLastUpdated().equals(entity.getLastUpdated())) {
+            entity.setLastUpdated(dto.getLastUpdated());
+        }
+
         if (!dto.getDriverStatus().equals(entity.getDriverStatus())) {
             entity.setDriverStatus(dto.getDriverStatus());
         }
@@ -294,7 +298,8 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
     private void validateRequiredFields(DriverDto dto) {
         if (dto == null || dto.getUniqueIdentificator() == null
             || dto.getDriverWorkedHours() == null || dto.getDriverStatus() == null
-            || dto.getDriverName() == null || dto.getDriverSurname() == null) {
+            || dto.getDriverName() == null || dto.getDriverSurname() == null
+            || dto.getLastUpdated() == null) {
             throw new NullPointerException();
         }
     }

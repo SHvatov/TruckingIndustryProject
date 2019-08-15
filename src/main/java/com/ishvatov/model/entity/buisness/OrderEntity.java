@@ -9,9 +9,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Defines a basic order in the system.
@@ -36,7 +34,7 @@ public class OrderEntity extends AbstractEntity {
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String START_DATE = "order_start";
+    public static final String LAST_UPDATED = "last_updated";
 
     /**
      * String representation of the 'status'
@@ -52,16 +50,10 @@ public class OrderEntity extends AbstractEntity {
     private OrderStatusType orderStatus;
 
     /**
-     * Date - start of the order.
+     * Date - last time order was updated.
      */
-    @Column(name = START_DATE)
-    private Timestamp orderStart;
-
-    /**
-     * Date - end of the order.
-     */
-    @Column(name = END_DATE)
-    private Timestamp orderEnd;
+    @Column(name = LAST_UPDATED)
+    private Timestamp lastUpdated;
 
     /**
      * Truck, that is assigned to this order.
@@ -79,7 +71,7 @@ public class OrderEntity extends AbstractEntity {
      * Set of waypoints, that are located in the order.
      */
     @OneToMany(mappedBy = "waypointOrder", fetch = FetchType.LAZY)
-    private Set<WayPointEntity> assignedWaypoints = new HashSet<>();
+    private List<WayPointEntity> assignedWaypoints = new ArrayList<>();
 
     /**
      * Adds driver to the set of the assigned to this order ones.

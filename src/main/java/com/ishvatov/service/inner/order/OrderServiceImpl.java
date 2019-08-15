@@ -3,24 +3,29 @@ package com.ishvatov.service.inner.order;
 import com.ishvatov.exception.DAOException;
 import com.ishvatov.exception.ValidationException;
 import com.ishvatov.mapper.Mapper;
+import com.ishvatov.model.dao.cargo.CargoDao;
+import com.ishvatov.model.dao.city.CityDao;
+import com.ishvatov.model.dao.city_map.CityMapDao;
 import com.ishvatov.model.dao.driver.DriverDao;
 import com.ishvatov.model.dao.order.OrderDao;
 import com.ishvatov.model.dao.truck.TruckDao;
 import com.ishvatov.model.dao.waypoint.WayPointDao;
+import com.ishvatov.model.dto.DriverDto;
 import com.ishvatov.model.dto.OrderDto;
+import com.ishvatov.model.dto.TruckDto;
+import com.ishvatov.model.dto.WayPointDto;
 import com.ishvatov.model.entity.AbstractEntity;
-import com.ishvatov.model.entity.buisness.DriverEntity;
-import com.ishvatov.model.entity.buisness.OrderEntity;
-import com.ishvatov.model.entity.buisness.TruckEntity;
-import com.ishvatov.model.entity.buisness.WayPointEntity;
+import com.ishvatov.model.entity.buisness.*;
+import com.ishvatov.model.entity.enum_types.TruckConditionType;
 import com.ishvatov.service.inner.AbstractService;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.jgrapht.graph.DefaultEdge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -36,6 +41,37 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      * Autowired DAO field.
      */
     private TruckDao truckDao;
+
+    /**
+     * Autowired DAO field.
+     */
+    @Autowired
+    private CargoDao cargoDao;
+
+
+    /**
+     * Autowired DAO field.
+     */
+    @Autowired
+    private CityMapDao cityMapDao;
+
+    /**
+     * Autowired DAO field.
+     */
+    @Autowired
+    private CityDao cityDao;
+
+    /**
+     * Autowired DAO field.
+     */
+    @Autowired
+    private Mapper<TruckEntity, TruckDto> truckDtoMapper;
+
+    /**
+     * Autowired DAO field.
+     */
+    @Autowired
+    private Mapper<DriverEntity, DriverDto> driverDtoMapper;
 
     /**
      * Autowired DAO field.
@@ -71,6 +107,132 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
         this.orderDao = orderDao;
         this.truckDao = truckDao;
         this.driverDao = driverDao;
+    }
+
+    /**
+     * Finds all suitable for this order trucks.
+     *
+     * @param wayPointDtoList list of the waypoints.
+     * @return list of suitable for this order trucks.
+     */
+    @Override
+    public List<TruckDto> findSuitableTrucks(List<WayPointDto> wayPointDtoList) {
+        double maxMass = 0;
+        double currentMass = 0;
+        for (WayPointDto wayPointDto : wayPointDtoList) {
+            CargoEntity cargoDto = Optional
+                .ofNullable(cargoDao.findByUniqueKey(wayPointDto.getWaypointCargoUID()))
+                .orElseThrow(() -> new DAOException(getClass(), "update", "Entity with such UID does not exist"));
+
+            switch (wayPointDto.getCargoAction()) {
+                case LOADING:
+                    currentMass += cargoDto.getCargoMass();
+                    break;
+                case UNLOADING:
+                    currentMass -= cargoDto.getCargoMass();
+                    break;
+            }
+
+            if (Double.compare(currentMass, maxMass) > 0) {
+                maxMass = currentMass;
+            }
+        }
+
+        final double finalMass = maxMass;
+        return truckDao.findAll()
+            .stream()
+            .filter(Objects::nonNull)
+            .filter(entity -> (Double.compare(entity.getTruckCapacity(), finalMass) >= 0)
+                    && (entity.getTruckCondition() == TruckConditionType.IN_ORDER))
+            .map(truckDtoMapper::map)
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Finds all suitable for this order drivers.
+     *
+     * @param truckUID        UID of the truck.
+     * @param wayPointDtoList list of the waypoints.
+     * @return list of suitable for this order trucks.
+     */
+    @Override
+    public List<DriverDto> findSuitableDrivers(String truckUID, List<WayPointDto> wayPointDtoList) {
+        // build graph
+        Graph<Integer, DefaultEdge> map = cityMapDao.buildCityMap();
+        DijkstraShortestPath<Integer, DefaultEdge> dijkstraShortestPath = new DijkstraShortestPath<>(map);
+
+        // get truck
+        TruckEntity truckEntity = Optional.ofNullable(truckDao.findByUniqueKey(truckUID))
+            .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+
+        // get shift size in seconds
+        int shiftSize = truckEntity.getTruckDriverShiftSize() * 3600;
+
+        // get start position
+        int totalTime = 0;
+        CityEntity currentCity = truckEntity.getTruckCity();
+        for (WayPointDto wayPointDto : wayPointDtoList) {
+            CityEntity nextCity = Optional.ofNullable(cityDao.findByUniqueKey(wayPointDto.getWaypointCityUID()))
+                .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+
+            // find shortes path
+            List<Integer> citiesToVisit = dijkstraShortestPath
+                .getPath(currentCity.getId(), nextCity.getId())
+                .getVertexList();
+
+            // find total time
+            if (!citiesToVisit.isEmpty()) {
+                Integer start = citiesToVisit.get(0);
+                for (int i = 1; i < citiesToVisit.size(); i++) {
+                    CityMapEntity cityMapEntity =
+                        Optional.ofNullable(cityMapDao.findDistanceBetween(start, citiesToVisit.get(i)))
+                        .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+
+                    double distance = cityMapEntity.getDistance();
+                    double speed = cityMapEntity.getAverageSpeed();
+                    totalTime += (int) (distance / speed * 3600);
+                }
+            }
+            currentCity = nextCity;
+        }
+
+        // list with all trucks
+        List<DriverEntity> driverList = driverDao.findAll();
+        // result list
+        List<DriverDto> result = new ArrayList<>();
+        // 176 hours in seconds
+        final int MAX_SHIFT = 176 * 3600;
+        // choose drivers
+        for (DriverEntity driver : driverList) {
+            if (driver.getDriverCity().equals(truckEntity.getTruckCity())
+                && driver.getDriverOrder() == null) {
+                if (driver.getDriverWorkedHours() + totalTime <= MAX_SHIFT) {
+                    result.add(driverDtoMapper.map(driver));
+                } else {
+                    int workedHours = driver.getDriverWorkedHours();
+                    int orderHours = 0;
+                    boolean suits = true;
+                    Calendar calendar = Calendar.getInstance();
+                    int month = calendar.get(Calendar.MONTH);
+                    while (orderHours < totalTime) {
+                        orderHours += shiftSize;
+                        workedHours += shiftSize;
+                        calendar.add(Calendar.DATE, 1);
+                        if (calendar.get(Calendar.MONTH) != month) {
+                            workedHours = 0;
+                            month = calendar.get(Calendar.MONTH);
+                        } else if (workedHours > MAX_SHIFT) {
+                            suits = false;
+                        }
+                    }
+
+                    if (suits) {
+                        result.add(driverDtoMapper.map(driver));
+                    }
+                }
+            }
+        }
+        return result;
     }
 
     /**
@@ -146,6 +308,10 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
             entity.setUniqueIdentificator(dto.getUniqueIdentificator());
         }
 
+        if (!dto.getLastUpdated().equals(entity.getLastUpdated())) {
+            entity.setLastUpdated(dto.getLastUpdated());
+        }
+
         if (!dto.getOrderStatus().equals(entity.getOrderStatus())) {
             entity.setOrderStatus(dto.getOrderStatus());
         }
@@ -167,7 +333,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
             }
         });
 
-        Optional.ofNullable(dto.getWaypointsIDSet()).ifPresent(waypointsSet -> {
+        Optional.ofNullable(dto.getWaypointsIDList()).ifPresent(waypointsSet -> {
             if (!waypointsSet.isEmpty()) {
                 updateWaypointsSet(waypointsSet
                     .stream()
@@ -317,7 +483,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      */
     private void validateRequiredFields(OrderDto dto) {
         if (dto == null || dto.getUniqueIdentificator() == null || dto.getOrderStatus() == null
-            || dto.getOrderStart() == null || dto.getOrderEnd() == null) {
+            || dto.getLastUpdated() == null) {
             throw new ValidationException();
         }
     }

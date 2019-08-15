@@ -5,7 +5,7 @@
  * @param pageContext - page context.
  * @param elemId - button.
  */
-function load_truck_list(pageContext, elemId) {
+function load_truck_table(pageContext, elemId) {
     // reset button
     reset_button(elemId);
 
@@ -27,7 +27,7 @@ function load_truck_list(pageContext, elemId) {
             $("#refreshButton")
                 .text("Refresh trucks list")
                 .click(function () {
-                    load_truck_list(pageContext, elemId);
+                    load_truck_table(pageContext, elemId);
                 }).show();
 
             let tableInnerBlock = "<tr>" +
@@ -44,7 +44,7 @@ function load_truck_list(pageContext, elemId) {
                 let temp = truckDtoList[i];
 
                 // add data
-                tableInnerBlock += `<tr></tr><td>${i}</td>`
+                tableInnerBlock += `<tr><td>${i}</td>`
                     + `<td>${temp["uniqueIdentificator"]}</td>`
                     + `<td>${temp["truckCapacity"]}</td>`
                     + `<td>${temp["truckDriverShiftSize"]}</td>`;
@@ -69,7 +69,7 @@ function load_truck_list(pageContext, elemId) {
                     `onclick='delete_truck("${pageContext}", "${temp["uniqueIdentificator"]}");'>` +
                     `Delete` +
                     `</button>` +
-                    `</td>`;
+                    `</td></tr>`;
             }
             $("table").html(tableInnerBlock).show();
         },
@@ -138,7 +138,7 @@ function delete_truck(pageContext, truckUID) {
 
 /**
  * Gets data from the user input, and then
- * sends it in the employee/truck/add POST request.
+ * sends it in the employee/truck/create POST request.
  * If successful, then adds new truck to the DB and
  * redirects to the homepage.jsp, otherwise prints the errors.
  *
@@ -265,35 +265,13 @@ function load_truck(pageContext, truckUID) {
                     useBootstrap: false,
                     buttons: {
                         confirm: function () {
-                            window.location.href = pageContext + '/employee/truck/location'
+                            window.location.href = pageContext + '/employee/homepage'
                         },
                     }
                 });
             }
         }
-    })
-}
-
-/**
- * Hides the update interface.
- *
- * @param tdId - id of the td tag.
- * @param editButtonId - id of the button tag.
- */
-function hide_update_interface(tdId, editButtonId) {
-    $('#' + editButtonId).show();
-    $('#' + tdId).hide();
-}
-
-/**
- * Shows the update interface
- *
- * @param tdId - id of the td tag.
- * @param editButtonId - id of the button tag.
- */
-function show_update_interface(tdId, editButtonId) {
-    $('#' + editButtonId).hide();
-    $('#' + tdId).show();
+    });
 }
 
 /**
@@ -309,7 +287,7 @@ function update_truck_capacity(pageContext, truckUID) {
     if (isNaN($("#editCapacityInput").val())) {
         $.confirm({
             title: 'Error occurred!',
-            content: 'Incorrect capacity input: Must be a number.',
+            content: 'Incorrect input: Must be a number.',
             boxWidth: '350px',
             useBootstrap: false,
             buttons: {
@@ -344,7 +322,7 @@ function update_truck_capacity(pageContext, truckUID) {
 
                 $.confirm({
                     title: 'Error occurred!',
-                    content: 'Incorrect capacity input: ' + message + ".",
+                    content: 'Incorrect input: ' + message + ".",
                     boxWidth: '350px',
                     useBootstrap: false,
                     buttons: {
@@ -370,7 +348,7 @@ function update_truck_shift_size(pageContext, truckUID) {
     if (isNaN($("#editShiftSizeInput").val())) {
         $.confirm({
             title: 'Error occurred!',
-            content: 'Incorrect shift size input: Must be a number.',
+            content: 'Incorrect input: Must be a number.',
             boxWidth: '350px',
             useBootstrap: false,
             buttons: {
@@ -405,7 +383,66 @@ function update_truck_shift_size(pageContext, truckUID) {
 
                 $.confirm({
                     title: 'Error occurred!',
-                    content: 'Incorrect shift size input: ' + message + ".",
+                    content: 'Incorrect input: ' + message + ".",
+                    boxWidth: '350px',
+                    useBootstrap: false,
+                    buttons: {
+                        confirm: function () {
+                        },
+                    }
+                });
+            }
+        }
+    });
+}
+
+/**
+ * Sends employee/truck/{uid}/update_condition POST request.
+ *
+ * @param pageContext - page context.
+ * @param truckUID - UID of the truck.
+ */
+function update_truck_condition(pageContext, truckUID) {
+    hide_update_interface("editConditionTd", "conditionButton");
+
+    // check if capacity is a number
+    if (isNaN($("#editShiftSizeInput").val())) {
+        $.confirm({
+            title: 'Error occurred!',
+            content: 'Incorrect input: Must be a number.',
+            boxWidth: '350px',
+            useBootstrap: false,
+            buttons: {
+                confirm: function () {
+                },
+            }
+        });
+        return;
+    }
+
+    $.ajax({
+        url: pageContext + '/employee/truck/' + truckUID + '/update_condition',
+        type: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({
+            "uniqueIdentificator": truckUID,
+            "truckCondition": $("#editConditionSelect").val()
+        }),
+        success: function (response) {
+            if (response["status"] === "success") {
+                load_truck(pageContext, truckUID);
+            } else {
+                let message = "";
+                if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
+                    message = response["messages"]["uniqueIdentificator"]
+                } else if (response["messages"].hasOwnProperty("truckCondition")) {
+                    message = response["messages"]["truckCondition"]
+                }
+
+                $.confirm({
+                    title: 'Error occurred!',
+                    content: 'Incorrect input: ' + message + ".",
                     boxWidth: '350px',
                     useBootstrap: false,
                     buttons: {

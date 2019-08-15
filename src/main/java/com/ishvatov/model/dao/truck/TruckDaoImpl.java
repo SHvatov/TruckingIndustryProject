@@ -11,5 +11,4 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("truckDao")
 public class TruckDaoImpl extends AbstractDao<String, TruckEntity> implements TruckDao {
-    // empty
 }

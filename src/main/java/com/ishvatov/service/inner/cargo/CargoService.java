@@ -10,5 +10,12 @@ import com.ishvatov.service.inner.BaseService;
  * @author Sergey Khvatov
  */
 public interface CargoService extends BaseService<Integer, CargoDto> {
-    // empty
+
+    /**
+     * Checks if cargo with this id has been assigned.
+     *
+     * @param id id of the cargo.
+     * @return true, it it was, false otherwise.
+     */
+    boolean hasOrder(Integer id);
 }

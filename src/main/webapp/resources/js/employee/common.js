@@ -51,3 +51,34 @@ function is_empty(obj) {
     }
     return true;
 }
+
+/**
+ * Hides the update interface.
+ *
+ * @param tdId - id of the td tag.
+ * @param editButtonId - id of the button tag.
+ */
+function hide_update_interface(tdId, editButtonId) {
+    $('#' + editButtonId).show();
+    $('#' + tdId).hide();
+}
+
+/**
+ * Shows the update interface
+ *
+ * @param tdId - id of the td tag.
+ * @param editButtonId - id of the button tag.
+ */
+function show_update_interface(tdId, editButtonId) {
+    $('#' + editButtonId).hide();
+    $('#' + tdId).show();
+}
+
+/**
+ * Removes the parent of the parent of the button with this id.
+ * @param buttonId - id of the button.
+ */
+function remove_option(buttonId) {
+    let parent = $(buttonId).parent().parent();
+    $(parent).remove();
+}

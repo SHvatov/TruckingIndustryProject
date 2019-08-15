@@ -1,6 +1,7 @@
 package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.enum_types.CargoActionType;
+import com.ishvatov.model.entity.enum_types.WayPointStatus;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,6 +25,12 @@ public class WayPointEntity {
      * column name in the table.
      */
     public static final String ACTION = "action";
+
+    /**
+     * String representation of the 'action'
+     * column name in the table.
+     */
+    public static final String STATUS = "status";
 
     /**
      * String representation of the 'order_id'
@@ -57,6 +64,12 @@ public class WayPointEntity {
      */
     @Column(name = ACTION)
     private CargoActionType cargoAction;
+
+    /**
+     * Defines the status of the waypoint (completed or not).
+     */
+    @Column(name = STATUS)
+    private WayPointStatus wayPointStatus;
 
     /**
      * Order, this waypoint is assigned to.

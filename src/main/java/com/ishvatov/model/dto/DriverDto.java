@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.sql.Timestamp;
+
 /**
  * Basic country update DTO implementation.
  *
@@ -21,6 +23,12 @@ public class DriverDto implements BaseDtoInterface<String> {
     private String uniqueIdentificator;
 
     /**
+     * Password of the driver. Used only
+     * while adding new user.
+     */
+    private String driverPassword;
+
+    /**
      * Name of the driver.
      */
     private String driverName;
@@ -35,6 +43,11 @@ public class DriverDto implements BaseDtoInterface<String> {
      * in this month.
      */
     private Integer driverWorkedHours;
+
+    /**
+     * Date - last time order was updated.
+     */
+    private Timestamp lastUpdated;
 
     /**
      * Status of the driver.

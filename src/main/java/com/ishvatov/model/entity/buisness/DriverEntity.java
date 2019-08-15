@@ -5,6 +5,7 @@ import com.ishvatov.model.entity.enum_types.DriverStatusType;
 import lombok.*;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 /**
  * Defines basic driver entity in the database.
@@ -36,6 +37,12 @@ public class DriverEntity extends AbstractEntity {
      * column name in the table.
      */
     public static final String WORKED_HOURS = "worked_hours";
+
+    /**
+     * String representation of the 'status'
+     * column name in the table.
+     */
+    public static final String LAST_UPDATED = "last_updated";
 
     /**
      * String representation of the 'status'
@@ -81,6 +88,12 @@ public class DriverEntity extends AbstractEntity {
     private Integer driverWorkedHours;
 
     /**
+     * Date - last time order was updated.
+     */
+    @Column(name = LAST_UPDATED)
+    private Timestamp lastUpdated;
+
+    /**
      * Status of the driver.
      */
     @Column(name = STATE)
@@ -90,24 +103,21 @@ public class DriverEntity extends AbstractEntity {
     /**
      * Truck, this driver is assigned to.
      */
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
-        CascadeType.REMOVE, CascadeType.MERGE})
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = TRUCK_ID)
     private TruckEntity driverTruck;
 
     /**
      * City, where this driver is located.
      */
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
-        CascadeType.REMOVE, CascadeType.MERGE})
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = CITY_ID)
     private CityEntity driverCity;
 
     /**
      * Order, this driver is assigned to.
      */
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
-        CascadeType.REMOVE, CascadeType.MERGE})
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = ORDER_ID)
     private OrderEntity driverOrder;
 }

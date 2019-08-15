@@ -1,10 +1,10 @@
 package com.ishvatov.controller.truck;
 
-import com.ishvatov.controller.response.ServerResponseObject;
 import com.ishvatov.controller.response.ServerResponse;
+import com.ishvatov.controller.response.ServerResponseObject;
 import com.ishvatov.model.dto.TruckDto;
 import com.ishvatov.service.inner.truck.TruckService;
-import com.ishvatov.validator.truck.TruckValidator;
+import com.ishvatov.validator.CustomValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +30,7 @@ public class RestTruckController {
      * Autowired validator.
      */
     @Autowired
-    private TruckValidator truckValidator;
+    private CustomValidator<TruckDto, String> truckValidator;
 
     /**
      * Gets all the trucks from the database.
@@ -54,6 +54,34 @@ public class RestTruckController {
             responseObject.setObject(truckService.find(truckUID));
         }
         return responseObject;
+    }
+
+    /**
+     * Gets all the trucks from the database.
+     *
+     * @return {@link ServerResponse} object.
+     */
+    @PostMapping(value = "/{uid}/delete")
+    public @ResponseBody ServerResponse deleteTruck(@PathVariable(name = "uid") String truckUID) {
+        ServerResponse response = new ServerResponse();
+        if (truckValidator.validateBeforeDelete(truckUID, response)) {
+            truckService.delete(truckUID);
+        }
+        return response;
+    }
+
+    /**
+     * Gets all the trucks from the database.
+     *
+     * @return {@link ServerResponse} object.
+     */
+    @PostMapping(value = "/create")
+    public @ResponseBody ServerResponse addTruck(@RequestBody TruckDto truckDto) {
+        ServerResponse response = new ServerResponse();
+        if (truckValidator.validateBeforeSave(truckDto, response)) {
+            truckService.save(truckDto);
+        }
+        return response;
     }
 
     /**
@@ -99,30 +127,23 @@ public class RestTruckController {
     }
 
     /**
-     * Gets all the trucks from the database.
+     * Updates the condition status of the truck.
      *
-     * @return {@link ServerResponse} object.
+     * @return {@link ServerResponseObject} object.
      */
-    @PostMapping(value = "/{uid}/delete")
-    public @ResponseBody ServerResponse deleteTruck(@PathVariable(name = "uid") String truckUID) {
-        ServerResponse response = new ServerResponse();
-        if (truckValidator.validateBeforeDelete(truckUID, response)) {
-            truckService.delete(truckUID);
+    @PostMapping(value = "/{uid}/update_condition")
+    public @ResponseBody ServerResponse updateTruckCondition(@RequestBody TruckDto truckDto,
+                                                             @PathVariable(name = "uid") String truckUID) {
+        ServerResponse responseObject = new ServerResponseObject<>();
+        if (!truckValidator.validateBeforeLoad(truckDto.getUniqueIdentificator(), responseObject)) {
+            return responseObject;
+        } else {
+            TruckDto innerTruckDto = truckService.find(truckDto.getUniqueIdentificator());
+            innerTruckDto.setTruckCondition(truckDto.getTruckCondition());
+            if (truckValidator.validateBeforeUpdate(innerTruckDto, responseObject)) {
+                truckService.update(innerTruckDto);
+            }
         }
-        return response;
-    }
-
-    /**
-     * Gets all the trucks from the database.
-     *
-     * @return {@link ServerResponse} object.
-     */
-    @PostMapping(value = "/create")
-    public @ResponseBody ServerResponse addTruck(@RequestBody TruckDto truckDto) {
-        ServerResponse response = new ServerResponse();
-        if (truckValidator.validateBeforeSave(truckDto, response)) {
-            truckService.save(truckDto);
-        }
-        return response;
+        return responseObject;
     }
 }

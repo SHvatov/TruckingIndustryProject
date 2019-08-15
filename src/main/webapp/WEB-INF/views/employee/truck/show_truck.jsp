@@ -18,7 +18,7 @@
     </script>
     <table class="myTableStyle">
         <tr>
-            <th colspan='5'>Truck ${truckUID} information</th>
+            <th colspan='4'>Truck [${truckUID}] information</th>
         </tr>
         <tr>
             <td>Registration Number</td>
@@ -30,12 +30,10 @@
             <td hidden="hidden" id="editShiftSizeTd">
                 <label><input type="text" id="editShiftSizeInput"/></label>
                 <button class="tableEditButton"
-                        id="saveButton"
                         onclick="update_truck_shift_size('${pageContext.request.contextPath}', '${truckUID}')">
                     Update
                 </button>
                 <button class="tableEditButton"
-                        id="cancelButton"
                         onclick='hide_update_interface("editShiftSizeTd", "shiftSizeButton");'>
                     Cancel
                 </button>
@@ -54,12 +52,10 @@
             <td hidden="hidden" id="editCapacityTd">
                 <label><input type="text" id="editCapacityInput"/></label>
                 <button class="tableEditButton"
-                        id="updateCapacityButton"
                         onclick="update_truck_capacity('${pageContext.request.contextPath}', '${truckUID}')">
                     Update
                 </button>
                 <button class="tableEditButton"
-                        id="cancelCapacityUpdateButton"
                         onclick="hide_update_interface('editCapacityTd', 'capacityButton')">
                     Cancel
                 </button>
@@ -74,20 +70,53 @@
         </tr>
         <tr>
             <td>Condition</td>
-            <td id="conditionTd" colspan="4"></td>
+            <td id="conditionTd"></td>
+            <td hidden="hidden" id="editConditionTd">
+                <label>
+                    <select id="editConditionSelect">
+                        <option value="IN_ORDER">In Order</option>
+                        <option value="NOT_IN_ORDER">Not in Order</option>
+                    </select>
+                </label>
+                <button class="tableEditButton"
+                        onclick="update_truck_condition('${pageContext.request.contextPath}', '${truckUID}')">
+                    Update
+                </button>
+                <button class="tableEditButton"
+                        onclick="hide_update_interface('editConditionTd', 'conditionButton')">
+                    Cancel
+                </button>
+            </td>
+            <td>
+                <button class="tableEditButton"
+                        id="conditionButton"
+                        onclick="show_update_interface('editConditionTd', 'conditionButton')">
+                    Edit
+                </button>
+            </td>
         </tr>
         <tr>
             <td>City</td>
-            <td id="cityTd" colspan="4"></td>
+            <td id="cityTd" colspan="3"></td>
         </tr>
         <tr>
             <td>Order</td>
-            <td id="orderTd" colspan="4"></td>
+            <td id="orderTd" colspan="3"></td>
         </tr>
         <tr>
             <td>Drivers</td>
-            <td id="driversTd" colspan="4"></td>
+            <td id="driversTd" colspan="3"></td>
         </tr>
     </table>
+    <div class="topButtonDiv">
+        <button class="myRegularButton"
+                onclick="window.location.href = '${pageContext.request.contextPath}/employee/homepage'">
+            Go back
+        </button>
+        <button class="myRegularButton"
+                onclick="load_truck('${pageContext.request.contextPath}', '${truckUID}');">
+            Refresh
+        </button>
+    </div>
 </body>
 </html>

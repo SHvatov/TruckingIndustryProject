@@ -45,11 +45,11 @@ public class OrderMapperImpl implements Mapper<OrderEntity, OrderDto> {
         Optional.ofNullable(src.getAssignedTruck())
             .ifPresent(e -> orderDto.setTruckUID(e.getUniqueIdentificator()));
 
-        orderDto.setWaypointsIDSet(src.getAssignedWaypoints()
+        orderDto.setWaypointsIDList(src.getAssignedWaypoints()
             .stream()
             .filter(Objects::nonNull)
             .map(WayPointEntity::getId)
-            .collect(Collectors.toSet()));
+            .collect(Collectors.toList()));
 
         return null;
     }

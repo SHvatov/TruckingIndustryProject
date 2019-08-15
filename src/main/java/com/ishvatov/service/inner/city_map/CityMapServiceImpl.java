@@ -1,16 +1,20 @@
 package com.ishvatov.service.inner.city_map;
 
-import com.ishvatov.exception.CustomProjectException;
 import com.ishvatov.exception.DAOException;
-import com.ishvatov.exception.ValidationException;
-import com.ishvatov.mapper.Mapper;
 import com.ishvatov.model.dao.city.CityDao;
-import com.ishvatov.model.dto.CityDto;
+import com.ishvatov.model.dao.city_map.CityMapDao;
+import com.ishvatov.model.dto.WayPointDto;
 import com.ishvatov.model.entity.buisness.CityEntity;
-import com.ishvatov.service.inner.AbstractService;
+import org.jgrapht.Graph;
+import org.jgrapht.GraphPath;
+import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
+import org.jgrapht.graph.DefaultEdge;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Basic {@link CityMapService} interface implementation.
@@ -19,70 +23,88 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service("cityMapService")
 @Transactional
-public class CityMapServiceImpl extends AbstractService<String, CityEntity, CityDto> implements CityMapService {
+public class CityMapServiceImpl implements CityMapService {
 
     /**
      * Autowired DAO field.
      */
+    @Autowired
+    private CityMapDao cityMapDao;
+
+    /**
+     * Autowired DAO field.
+     */
+    @Autowired
     private CityDao cityDao;
 
     /**
-     * Default class constructor, that is used
-     * to inject DAO interface implementation and
-     * initialize the super class.
+     * Builds a graph which represents the map of the country.
      *
-     * @param mapper  {@link Mapper} implementation.
-     * @param cityDao autowired {@link CityDao} impl.
-     */
-    @Autowired
-    public CityMapServiceImpl(CityDao cityDao, Mapper<CityEntity, CityDto> mapper) {
-        super(cityDao, mapper);
-        this.cityDao = cityDao;
-    }
-
-    /**
-     * Adds entity to the DB. Check if entity already exists.
-     *
-     * @param dtoObj new entity to add.
-     * @throws DAOException if entity with this UID already exists
+     * @return SimpleGraph object.
      */
     @Override
-    public void save(CityDto dtoObj) {
-        throw new CustomProjectException(getClass(), "save", "Save method is not supported");
+    public Graph<Integer, DefaultEdge> buildCityMap() {
+        return cityMapDao.buildCityMap();
     }
 
     /**
-     * Updates data in the database. Updates
-     * entity fields using all not-null fields from the
-     * DTO object.
+     * Builds a graph which represents the map of the country.
      *
-     * @param dtoObj values to update in the entity.
-     * @throws DAOException if entity with this UID already exists
+     * @param path
+     * @return SimpleGraph object.
      */
     @Override
-    public void update(CityDto dtoObj) {
-        throw new CustomProjectException(getClass(), "update", "Update method is not supported");
-    }
+    public boolean checkIfPathExists(String startCityUID, List<WayPointDto> path) {
+        // build graph
+        Graph<Integer, DefaultEdge> map = cityMapDao.buildCityMap();
+        DijkstraShortestPath<Integer, DefaultEdge> dijkstraShortestPath = new DijkstraShortestPath<>(map);
 
-    /**
-     * Deletes entity from the DB if it exists.
-     *
-     * @param key UID of the entity.
-     */
-    @Override
-    public void delete(String key) {
-        throw new CustomProjectException(getClass(), "delete", "Delete method is not supported");
-    }
+        CityEntity currentCity = Optional.ofNullable(cityDao.findByUniqueKey(startCityUID))
+            .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+        for (WayPointDto wayPointDto : path) {
+            CityEntity nextCity = Optional.ofNullable(cityDao.findByUniqueKey(wayPointDto.getWaypointCityUID()))
+                .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
 
-    /**
-     * Validates the input DTO object and throws NPE,
-     * if object or one of required fields is null.
-     *
-     * @param dto DTO object.
-     */
-    private void validateRequiredFields(CityDto dto) {
-        if (dto == null || dto.getUniqueIdentificator() == null) {
-            throw new ValidationException();
+            // find shortest path
+            GraphPath<Integer, DefaultEdge> shortestPath
+                = dijkstraShortestPath.getPath(currentCity.getId(), nextCity.getId());
+            if (shortestPath == null) {
+                return false;
+            }
+            currentCity = nextCity;
         }
+        return true;
+    }
+
+    /**
+     * Builds a graph which represents the map of the country.
+     *
+     * @param path
+     * @return SimpleGraph object.
+     */
+    @Override
+    public boolean checkIfPathExists(List<WayPointDto> path) {
+        if (path.size() <= 1) {
+            return false;
+        }
+
+        Graph<Integer, DefaultEdge> map = cityMapDao.buildCityMap();
+        DijkstraShortestPath<Integer, DefaultEdge> dijkstraShortestPath = new DijkstraShortestPath<>(map);
+
+        CityEntity currentCity = Optional.ofNullable(cityDao.findByUniqueKey(path.get(0).getWaypointCityUID()))
+            .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+        for (int i = 1; i < path.size(); i++) {
+            CityEntity nextCity = Optional.ofNullable(cityDao.findByUniqueKey(path.get(i).getWaypointCityUID()))
+                .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+
+            // find shortest path
+            GraphPath<Integer, DefaultEdge> shortestPath
+                = dijkstraShortestPath.getPath(currentCity.getId(), nextCity.getId());
+            if (shortestPath == null) {
+                return false;
+            }
+            currentCity = nextCity;
+        }
+        return true;
     }
 }

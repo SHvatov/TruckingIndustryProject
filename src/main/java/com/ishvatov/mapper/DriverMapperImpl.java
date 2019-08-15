@@ -33,13 +33,13 @@ public class DriverMapperImpl implements Mapper<DriverEntity, DriverDto> {
         DriverDto driverDto = mapper.map(src, DriverDto.class);
 
         Optional.ofNullable(src.getDriverTruck())
-            .ifPresent(entity -> driverDto.setCurrentCityUID(entity.getUniqueIdentificator()));
+            .ifPresent(entity -> driverDto.setDriverTruckUID(entity.getUniqueIdentificator()));
 
         Optional.ofNullable(src.getDriverOrder())
             .ifPresent(entity -> driverDto.setDriverOrderUID(entity.getUniqueIdentificator()));
 
         Optional.ofNullable(src.getDriverCity())
-            .ifPresent(entity -> driverDto.setDriverTruckUID(entity.getUniqueIdentificator()));
+            .ifPresent(entity -> driverDto.setCurrentCityUID(entity.getUniqueIdentificator()));
 
         return driverDto;
     }

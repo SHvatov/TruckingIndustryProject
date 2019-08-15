@@ -1,6 +1,7 @@
 package com.ishvatov.model.dto;
 
 import com.ishvatov.model.entity.enum_types.CargoActionType;
+import com.ishvatov.model.entity.enum_types.WayPointStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,11 @@ public class WayPointDto implements BaseDtoInterface<Integer> {
      * unloaded in this city.
      */
     private CargoActionType cargoAction;
+
+    /**
+     * Defines the status of the waypoint (completed or not).
+     */
+    private WayPointStatus wayPointStatus;
 
     /**
      * Order, this waypoint is assigned to.

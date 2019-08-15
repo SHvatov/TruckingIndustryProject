@@ -54,13 +54,13 @@ public class CityMapEntity {
      * Id of th source city.
      */
     @Column(name = FROM_CITY)
-    private Integer cityFromId;
+    private Integer from;
 
     /**
      * Id of the destination city.
      */
     @Column(name = TO_CITY)
-    private Integer cityToId;
+    private Integer to;
 
     /**
      * Distance between two cities.
@@ -89,8 +89,8 @@ public class CityMapEntity {
         } else {
             CityMapEntity entity = (CityMapEntity) obj;
             return getId().equals(entity.getId())
-                && getCityToId().equals(entity.getCityToId())
-                && getCityFromId().equals(entity.getCityFromId());
+                && getTo().equals(entity.getTo())
+                && getFrom().equals(entity.getFrom());
         }
     }
 

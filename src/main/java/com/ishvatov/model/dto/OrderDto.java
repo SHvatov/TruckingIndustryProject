@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,12 +39,7 @@ public class OrderDto implements BaseDtoInterface<String> {
     /**
      * Date - start of the order.
      */
-    private Timestamp orderStart;
-
-    /**
-     * Date - end of the order.
-     */
-    private Timestamp orderEnd;
+    private Timestamp lastUpdated;
 
     /**
      * Set of drivers, who are assigned to this order.
@@ -52,5 +49,5 @@ public class OrderDto implements BaseDtoInterface<String> {
     /**
      * Set of waypoints, that are located in the city.
      */
-    private Set<Integer> waypointsIDSet = new HashSet<>();
+    private List<Integer> waypointsIDList = new ArrayList<>();
 }

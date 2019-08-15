@@ -5,6 +5,7 @@ import com.ishvatov.exception.ValidationException;
 import com.ishvatov.mapper.Mapper;
 import com.ishvatov.model.dao.cargo.CargoDao;
 import com.ishvatov.model.dao.order.OrderDao;
+import com.ishvatov.model.dao.waypoint.WayPointDao;
 import com.ishvatov.model.dto.CargoDto;
 import com.ishvatov.model.entity.buisness.CargoEntity;
 import com.ishvatov.model.entity.buisness.WayPointEntity;
@@ -34,15 +35,21 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
     private CargoDao cargoDao;
 
     /**
+     * Autowired DAO field.
+     */
+    private WayPointDao wayPointDao;
+
+    /**
      * Default class constructor, that is used
      * to inject DAO interface implementation and
      * initialize the super class.
      *
-     * @param mapper   {@link Mapper} implementation.
-     * @param cargoDao autowired {@link OrderDao} impl.
+     * @param mapper      {@link Mapper} implementation.
+     * @param cargoDao    autowired {@link OrderDao} impl.
+     * @param wayPointDao autowired {@link WayPointDao} impl.
      */
     @Autowired
-    public CargoServiceImpl(CargoDao cargoDao, Mapper<CargoEntity, CargoDto> mapper) {
+    public CargoServiceImpl(CargoDao cargoDao, WayPointDao wayPointDao, Mapper<CargoEntity, CargoDto> mapper) {
         super(cargoDao, mapper);
         this.cargoDao = cargoDao;
     }
@@ -78,9 +85,7 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
     @Override
     public void update(CargoDto dtoObj) {
         validateRequiredFields(dtoObj, false);
-        CargoEntity cargoEntity = Optional
-            .of(cargoDao.findByUniqueKey(dtoObj.getUniqueIdentificator()))
-            .orElseThrow(() -> new DAOException(getClass(), "update", "Entity with such UID does not exist"));
+        CargoEntity cargoEntity = Optional.of(cargoDao.findByUniqueKey(dtoObj.getUniqueIdentificator())).orElseThrow(() -> new DAOException(getClass(), "update", "Entity with such UID does not exist"));
         updateImpl(dtoObj, cargoEntity);
     }
 
@@ -92,22 +97,27 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      */
     @Override
     public void delete(Integer key) {
-        Optional<CargoEntity> cargoEntity = Optional.ofNullable(
-            cargoDao.findByUniqueKey(
-                Optional.ofNullable(key).orElseThrow(
-                    () -> new ValidationException(getClass(), "find", "Key is null")
-                )
-            )
-        );
+        Optional<CargoEntity> cargoEntity = Optional.ofNullable(cargoDao.findByUniqueKey(Optional.ofNullable(key).orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null"))));
 
         cargoEntity.ifPresent(entity -> {
-            Set<WayPointEntity> set = entity.getAssignedWaypoints()
-                .stream()
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+            Set<WayPointEntity> set = entity.getAssignedWaypoints().stream().filter(Objects::nonNull).collect(Collectors.toSet());
             set.forEach(entity::removeWayPoint);
             cargoDao.delete(entity);
         });
+    }
+
+    /**
+     * Checks if cargo with this id has been assigned.
+     *
+     * @param id id of the cargo.
+     * @return true, it it was, false otherwise.
+     */
+    @Override
+    public boolean hasOrder(Integer id) {
+        int cargoId = Optional.ofNullable(id).orElseThrow(
+            () -> new ValidationException(getClass(), "find", "Key is null")
+        );
+        return wayPointDao.isAssigned(cargoId);
     }
 
     /**
@@ -139,8 +149,7 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      *               save method or not.
      */
     private void validateRequiredFields(CargoDto dto, boolean isSave) {
-        if (dto == null || dto.getCargoName() == null
-            || dto.getCargoStatus() == null || dto.getCargoMass() == null) {
+        if (dto == null || dto.getCargoName() == null || dto.getCargoStatus() == null || dto.getCargoMass() == null) {
             throw new ValidationException();
         }
 

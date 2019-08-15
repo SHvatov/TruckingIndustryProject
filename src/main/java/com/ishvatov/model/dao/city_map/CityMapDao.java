@@ -2,6 +2,8 @@ package com.ishvatov.model.dao.city_map;
 
 import com.ishvatov.model.dao.BaseDaoInterface;
 import com.ishvatov.model.entity.buisness.CityMapEntity;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
 
 /**
  * Defines basic interface to work with city_map entities in the database.
@@ -18,5 +20,12 @@ public interface CityMapDao extends BaseDaoInterface<Integer, CityMapEntity> {
      * @return Distance between two cities, if
      * both of them exist in the table.
      */
-    Double findDistanceBetween(Integer from, Integer to);
+    CityMapEntity findDistanceBetween(Integer from, Integer to);
+
+    /**
+     * Builds a graph which represents the map of the country.
+     *
+     * @return SimpleGraph object.
+     */
+    Graph<Integer, DefaultEdge> buildCityMap();
 }

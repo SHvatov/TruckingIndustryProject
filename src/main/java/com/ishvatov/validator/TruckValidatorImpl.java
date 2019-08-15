@@ -1,4 +1,4 @@
-package com.ishvatov.validator.truck;
+package com.ishvatov.validator;
 
 import com.ishvatov.controller.response.ServerResponse;
 import com.ishvatov.model.dto.TruckDto;
@@ -12,12 +12,12 @@ import org.springframework.stereotype.Component;
 import java.util.Locale;
 
 /**
- * {@link TruckValidator} implementation class.
+ * {@link CustomValidator} implementation class.
  *
  * @author Sergey Khvatov
  */
 @Component("truckValidator")
-public class TruckValidatorImpl implements TruckValidator {
+public class TruckValidatorImpl implements CustomValidator<TruckDto, String> {
 
     /**
      * Autowired message source.
@@ -60,47 +60,46 @@ public class TruckValidatorImpl implements TruckValidator {
     /**
      * Validates truck entity before deleting it.
      *
-     * @param truckUID UID of the truck entity.
-     * @param response Object, which stores server response.
+     * @param entityUID UID of the truck entity.
+     * @param response  Object, which stores server response.
      * @return true, if validation was passed, false otherwise.
      */
     @Override
-    public boolean validateBeforeLoad(String truckUID, ServerResponse response) {
-        if (truckService.exists(truckUID)) {
+    public boolean validateBeforeLoad(String entityUID, ServerResponse response) {
+        if (truckService.exists(entityUID)) {
             return true;
         }
-        response.addError("uniqueIdentificator", messageSource.getMessage("NotExist.truck", null, Locale.ENGLISH));
+        response.addError("uniqueIdentificator",
+            messageSource.getMessage("NotExist.truck", null, Locale.ENGLISH));
         return false;
     }
 
     /**
      * Validates truck entity before updating its capacity.
      *
-     * @param truckDto DTO object.
-     * @param response Object, which stores server response.
+     * @param entityDto DTO object.
+     * @param response  Object, which stores server response.
      * @return true, if validation was passed, false otherwise.
      */
     @Override
-    public boolean validateBeforeUpdate(TruckDto truckDto, ServerResponse response) {
-        boolean valiadted = validateUIDBeforeUpdate(truckDto.getUniqueIdentificator(), response);
-        valiadted &= validateCapacity(truckDto.getTruckCapacity(), response);
-        valiadted &= validateShiftSize(truckDto.getTruckDriverShiftSize(), response);
-        valiadted &= validateCondition(truckDto.getTruckCondition(), response);
-        valiadted &= validateCity(truckDto.getTruckCityUID(), response);
-        valiadted &= validateOrder(truckDto.getTruckOrderUID(), response);
-        return valiadted;
+    public boolean validateBeforeUpdate(TruckDto entityDto, ServerResponse response) {
+        return validateOrder(entityDto.getTruckOrderUID(), response)
+            && validateCapacity(entityDto.getTruckCapacity(), response)
+            && validateShiftSize(entityDto.getTruckDriverShiftSize(), response)
+            && validateCondition(entityDto.getTruckCondition(), response)
+            && validateCity(entityDto.getTruckCityUID(), response);
     }
 
     /**
      * Validates truck entity before deleting it.
      *
-     * @param truckUID UID of the truck entity.
-     * @param response Object, which stores server response.
+     * @param entityUID UID of the truck entity.
+     * @param response  Object, which stores server response.
      * @return true, if validation was passed, false otherwise.
      */
     @Override
-    public boolean validateBeforeDelete(String truckUID, ServerResponse response) {
-        TruckDto dto = truckService.find(truckUID);
+    public boolean validateBeforeDelete(String entityUID, ServerResponse response) {
+        TruckDto dto = truckService.find(entityUID);
         if (dto == null) {
             return true;
         }
@@ -110,18 +109,18 @@ public class TruckValidatorImpl implements TruckValidator {
     /**
      * Validates user's input before saving new truck entity.
      *
-     * @param truckDto DTO object.
-     * @param response Object, which stores server response.
+     * @param entityDto DTO object.
+     * @param response  Object, which stores server response.
      * @return true, if validation was passed, false otherwise.
      */
     @Override
-    public boolean validateBeforeSave(TruckDto truckDto, ServerResponse response) {
-        boolean valiadted = validateUIDBeforeSave(truckDto.getUniqueIdentificator(), response);
-        valiadted &= validateCapacity(truckDto.getTruckCapacity(), response);
-        valiadted &= validateShiftSize(truckDto.getTruckDriverShiftSize(), response);
-        valiadted &= validateCondition(truckDto.getTruckCondition(), response);
-        valiadted &= validateCity(truckDto.getTruckCityUID(), response);
-        return valiadted;
+    public boolean validateBeforeSave(TruckDto entityDto, ServerResponse response) {
+        boolean validated = validateUIDBeforeSave(entityDto.getUniqueIdentificator(), response);
+        validated &= validateCapacity(entityDto.getTruckCapacity(), response);
+        validated &= validateShiftSize(entityDto.getTruckDriverShiftSize(), response);
+        validated &= validateCondition(entityDto.getTruckCondition(), response);
+        validated &= validateCity(entityDto.getTruckCityUID(), response);
+        return validated;
     }
 
     /**
@@ -133,10 +132,12 @@ public class TruckValidatorImpl implements TruckValidator {
      */
     private boolean validateShiftSize(Integer shiftSize, ServerResponse response) {
         if (shiftSize == null) {
-            response.addError("truckDriverShiftSize", messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
+            response.addError("truckDriverShiftSize",
+                messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
             return false;
         } else if (shiftSize < MIN_SHIFT_SIZE || shiftSize > MAX_SHIFT_SIZE) {
-            response.addError("truckDriverShiftSize", messageSource.getMessage("Incorrect.truck.shift_size", null, Locale.ENGLISH));
+            response.addError("truckDriverShiftSize",
+                messageSource.getMessage("Incorrect.truck.shift_size", null, Locale.ENGLISH));
             return false;
         }
         return true;
@@ -151,10 +152,12 @@ public class TruckValidatorImpl implements TruckValidator {
      */
     private boolean validateCapacity(Double capacity, ServerResponse response) {
         if (capacity == null) {
-            response.addError("truckCapacity", messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
+            response.addError("truckCapacity",
+                messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
             return false;
         } else if (Double.compare(capacity, 0.0) <= 0 || Double.compare(capacity, Double.MAX_VALUE) >= 0) {
-            response.addError("truckCapacity", messageSource.getMessage("Incorrect.truck.capacity", null, Locale.ENGLISH));
+            response.addError("truckCapacity",
+                messageSource.getMessage("Incorrect.truck.capacity", null, Locale.ENGLISH));
             return false;
         }
         return true;
@@ -169,7 +172,8 @@ public class TruckValidatorImpl implements TruckValidator {
      */
     private boolean validateCondition(TruckConditionType condition, ServerResponse response) {
         if (condition == null) {
-            response.addError("truckCondition", messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
+            response.addError("truckCondition",
+                messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
             return false;
         }
         return true;
@@ -184,10 +188,12 @@ public class TruckValidatorImpl implements TruckValidator {
      */
     private boolean validateCity(String cityUID, ServerResponse response) {
         if (cityUID == null) {
-            response.addError("truckCityUID", messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
+            response.addError("truckCityUID",
+                messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
             return false;
         } else if (!cityService.exists(cityUID)) {
-            response.addError("truckCityUID", messageSource.getMessage("NotExist.city", null, Locale.ENGLISH));
+            response.addError("truckCityUID",
+                messageSource.getMessage("NotExist.city", null, Locale.ENGLISH));
             return false;
         }
         return true;
@@ -202,31 +208,16 @@ public class TruckValidatorImpl implements TruckValidator {
      */
     private boolean validateUIDBeforeSave(String uid, ServerResponse response) {
         if (uid == null || uid.isEmpty()) {
-            response.addError("uniqueIdentificator", messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
+            response.addError("uniqueIdentificator",
+                messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
             return false;
         } else if (!uid.matches(UID_PATTERN) || uid.length() != UID_LEN) {
-            response.addError("uniqueIdentificator", messageSource.getMessage("Incorrect.truck.uid", null, Locale.ENGLISH));
+            response.addError("uniqueIdentificator",
+                messageSource.getMessage("Incorrect.truck.uid", null, Locale.ENGLISH));
             return false;
         } else if (truckService.exists(uid)) {
-            response.addError("uniqueIdentificator", messageSource.getMessage("NotUnique.truck", null, Locale.ENGLISH));
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Validates UID before updating.
-     *
-     * @param uid      existing UID.
-     * @param response Object, which stores server response.
-     * @return true, if validation was successful, false otherwise.
-     */
-    private boolean validateUIDBeforeUpdate(String uid, ServerResponse response) {
-        if (uid == null || uid.isEmpty()) {
-            response.addError("uniqueIdentificator", messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
-            return false;
-        } else if (!truckService.exists(uid)) {
-            response.addError("uniqueIdentificator", messageSource.getMessage("NotExist.truck", null, Locale.ENGLISH));
+            response.addError("uniqueIdentificator",
+                messageSource.getMessage("NotUnique.truck", null, Locale.ENGLISH));
             return false;
         }
         return true;
@@ -241,7 +232,8 @@ public class TruckValidatorImpl implements TruckValidator {
      */
     private boolean validateOrder(String orderUID, ServerResponse response) {
         if (orderUID != null) {
-            response.addError("truckOrderUID", messageSource.getMessage("Business.truck.has_order", null, Locale.ENGLISH));
+            response.addError("truckOrderUID",
+                messageSource.getMessage("Business.truck.has_order", null, Locale.ENGLISH));
             return false;
         }
         return true;

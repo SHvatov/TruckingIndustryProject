@@ -1,4 +1,4 @@
-package com.ishvatov.controller.employee;
+package com.ishvatov.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

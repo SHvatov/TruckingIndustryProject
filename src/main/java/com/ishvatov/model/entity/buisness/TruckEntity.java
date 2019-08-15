@@ -80,16 +80,14 @@ public class TruckEntity extends AbstractEntity {
     /**
      * City, where this truck is located.
      */
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
-        CascadeType.REMOVE, CascadeType.MERGE})
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = CITY_ID)
     private CityEntity truckCity;
 
     /**
      * Order, assigned to this truck.
      */
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REFRESH,
-        CascadeType.REMOVE, CascadeType.MERGE})
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = ORDER_ID)
     private OrderEntity truckOrder;
 
