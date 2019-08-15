@@ -1,5 +1,7 @@
 package com.ishvatov.controller;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
@@ -10,7 +12,6 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sergey Khvatov
  */
 @Controller
-@RequestMapping("/login")
 public class LoginController {
 
     /**
@@ -18,7 +19,7 @@ public class LoginController {
      *
      * @return String representation of the source.
      */
-    @RequestMapping("/login")
+    @RequestMapping("/login/login")
     public ModelAndView loginPage() {
         return new ModelAndView("login/login_page");
     }
@@ -28,8 +29,32 @@ public class LoginController {
      *
      * @return String representation of the source.
      */
-    @RequestMapping("/login_failed")
+    @RequestMapping("/login/login_failed")
     public ModelAndView loginFailure() {
         return new ModelAndView("login/login_failed");
+    }
+
+    /**
+     * Redirects employee to the homepage.
+     *
+     * @return {@link ModelAndView} instance.
+     */
+    @RequestMapping("/employee/homepage")
+    public ModelAndView showEmployeeHomePage() {
+        return new ModelAndView("employee/homepage");
+    }
+
+    /**
+     * Redirects employee to the homepage.
+     *
+     * @return {@link ModelAndView} instance.
+     */
+    @RequestMapping("/driver/homepage")
+    public ModelAndView showDriverHomePage() {
+        ModelAndView modelAndView = new ModelAndView("driver/homepage");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+        modelAndView.addObject("driverUID", currentPrincipalName);
+        return modelAndView;
     }
 }

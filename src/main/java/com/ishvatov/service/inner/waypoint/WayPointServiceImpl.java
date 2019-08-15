@@ -1,6 +1,5 @@
 package com.ishvatov.service.inner.waypoint;
 
-import com.ishvatov.exception.CustomProjectException;
 import com.ishvatov.exception.DAOException;
 import com.ishvatov.exception.ValidationException;
 import com.ishvatov.mapper.Mapper;
@@ -115,7 +114,9 @@ public class WayPointServiceImpl extends AbstractService<Integer, WayPointEntity
      */
     @Override
     public void update(WayPointDto dtoObj) {
-        throw new CustomProjectException(getClass(), "update", "Cargo does not support update");
+        WayPointEntity wayPointEntity =
+            Optional.ofNullable(wayPointDao.findById(dtoObj.getId())).orElseThrow(() -> new DAOException(getClass(), "save", "Entity with such unique parameters already exists"));
+        wayPointEntity.setWayPointStatus(dtoObj.getWayPointStatus());
     }
 
     /**

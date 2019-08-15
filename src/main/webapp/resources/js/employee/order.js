@@ -43,6 +43,8 @@ function load_order_list(pageContext, elemId) {
             for (let i = 0; i < orderDtoList.length; i++) {
                 let temp = orderDtoList[i];
 
+                console.log(temp);
+
                 // add data
                 tableInnerBlock += `<tr><td>${i}</td>`
                     + `<td>${temp["uniqueIdentificator"]}</td>`;
@@ -71,17 +73,13 @@ function load_order_list(pageContext, elemId) {
                     tableInnerBlock += `<td>${temp["truckUID"]}</td>`
                 }
 
-                if (temp["truckCondition"] === "IN_ORDER") {
-                    tableInnerBlock += "<td>In order</td>";
-                } else {
-                    tableInnerBlock += "<td>Broken</td>";
-                }
-
                 if (is_empty(temp["driverUIDSet"])) {
                     tableInnerBlock += "<td>Not assigned</td>"
                 } else {
                     tableInnerBlock += "<td><ul>";
-                    for (let driver in temp["driverUIDSet"]) {
+                    for (let i = 0; i < temp["driverUIDSet"].length; i++) {
+                        let driver = temp["driverUIDSet"][i];
+                        console.log(driver);
                         tableInnerBlock += "<li>" + driver + "</li>";
                     }
                     tableInnerBlock += "</ul></td>";

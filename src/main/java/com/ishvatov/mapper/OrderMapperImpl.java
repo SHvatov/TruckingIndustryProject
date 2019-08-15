@@ -51,6 +51,6 @@ public class OrderMapperImpl implements Mapper<OrderEntity, OrderDto> {
             .map(WayPointEntity::getId)
             .collect(Collectors.toList()));
 
-        return null;
+        return orderDto;
     }
 }

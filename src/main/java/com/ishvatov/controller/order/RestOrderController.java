@@ -3,7 +3,10 @@ package com.ishvatov.controller.order;
 import com.ishvatov.controller.response.ServerResponse;
 import com.ishvatov.controller.response.ServerResponseObject;
 import com.ishvatov.model.dto.*;
+import com.ishvatov.model.entity.enum_types.CargoStatusType;
 import com.ishvatov.model.entity.enum_types.OrderStatusType;
+import com.ishvatov.service.inner.cargo.CargoService;
+import com.ishvatov.service.inner.driver.DriverService;
 import com.ishvatov.service.inner.order.OrderService;
 import com.ishvatov.service.inner.waypoint.WayPointService;
 import com.ishvatov.validator.OrderValidator;
@@ -29,6 +32,18 @@ public class RestOrderController {
      */
     @Autowired
     private OrderService orderService;
+
+    /**
+     * Autowired service to access DAO layer.
+     */
+    @Autowired
+    private DriverService driverService;
+
+    /**
+     * Autowired service to access DAO layer.
+     */
+    @Autowired
+    private CargoService cargoService;
 
     /**
      * Autowired service to access DAO layer.
@@ -100,14 +115,26 @@ public class RestOrderController {
             orderService.save(innerOrderDto);
 
             // update order
-            innerOrderDto.setTruckUID(orderDto.getTruckUID());
             innerOrderDto.setDriverUIDSet(orderDto.getDriversUIDSet());
+            innerOrderDto.setTruckUID(orderDto.getTruckUID());
             orderService.update(innerOrderDto);
 
             // save waypoints
             for (WayPointDto wayPointDto : orderDto.getWayPointDtoArray()) {
+                // update cargo status
+                CargoDto cargoDto = cargoService.find(wayPointDto.getWaypointCargoUID());
+                cargoDto.setCargoStatus(CargoStatusType.SHIPPING);
+                cargoService.update(cargoDto);
+                // update waypoints
                 wayPointDto.setWaypointOrderUID(orderDto.getUniqueIdentificator());
                 wayPointService.save(wayPointDto);
+            }
+
+            // update drivers
+            for (String driverUID : orderDto.getDriversUIDSet()) {
+                DriverDto driverDto = driverService.find(driverUID);
+                driverDto.setDriverTruckUID(orderDto.getTruckUID());
+                driverService.update(driverDto);
             }
         }
         return response;

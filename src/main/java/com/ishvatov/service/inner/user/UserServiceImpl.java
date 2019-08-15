@@ -63,7 +63,7 @@ public class UserServiceImpl extends AbstractService<String, UserEntity, UserDto
         } else {
             UserEntity entity = new UserEntity();
             entity.setUniqueIdentificator(dtoObj.getUniqueIdentificator());
-            entity.setPassword(dtoObj.getPassword());
+            entity.setPassword(encoder.encode(dtoObj.getPassword()));
             entity.setAuthority(dtoObj.getAuthority());
             userDao.save(entity);
         }
