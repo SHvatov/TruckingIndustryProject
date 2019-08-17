@@ -19,6 +19,7 @@ function load_order_list(pageContext, elemId) {
             // modify add button
             $("#addButton")
                 .text("Create Order")
+                .off()
                 .click(function () {
                     redirect_to_add_order(pageContext);
                 }).show();
@@ -26,6 +27,7 @@ function load_order_list(pageContext, elemId) {
             // modify refresh button
             $("#refreshButton")
                 .text("Refresh order list")
+                .off()
                 .click(function () {
                     load_order_list(pageContext, elemId);
                 }).show();
@@ -73,12 +75,12 @@ function load_order_list(pageContext, elemId) {
                     tableInnerBlock += `<td>${temp["truckUID"]}</td>`
                 }
 
-                if (is_empty(temp["driverUIDSet"])) {
+                if (is_empty(temp["driversUIDSet"])) {
                     tableInnerBlock += "<td>Not assigned</td>"
                 } else {
                     tableInnerBlock += "<td><ul>";
-                    for (let i = 0; i < temp["driverUIDSet"].length; i++) {
-                        let driver = temp["driverUIDSet"][i];
+                    for (let i = 0; i < temp["driversUIDSet"].length; i++) {
+                        let driver = temp["driversUIDSet"][i];
                         console.log(driver);
                         tableInnerBlock += "<li>" + driver + "</li>";
                     }

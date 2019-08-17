@@ -7,7 +7,7 @@
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/js/jquery-confirm/css/jquery-confirm.css"/>"/>
     <script src="<c:url value="/resources/js/jquery.min.js"/>" type="text/javascript"></script>
     <script src="<c:url value="/resources/js/jquery-confirm/js/jquery-confirm.js"/>" type="text/javascript"></script>
-    <script src="<c:url value="/resources/js/employee/driver.js"/>" type="text/javascript"></script>
+    <script src="<c:url value="/resources/js/employee/cargo.js"/>" type="text/javascript"></script>
     <script src="<c:url value="/resources/js/employee/common.js"/>" type="text/javascript"></script>
 </head>
 <body>

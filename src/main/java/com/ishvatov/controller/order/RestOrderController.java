@@ -115,7 +115,7 @@ public class RestOrderController {
             orderService.save(innerOrderDto);
 
             // update order
-            innerOrderDto.setDriverUIDSet(orderDto.getDriversUIDSet());
+            innerOrderDto.setDriversUIDSet(orderDto.getDriversUIDSet());
             innerOrderDto.setTruckUID(orderDto.getTruckUID());
             orderService.update(innerOrderDto);
 

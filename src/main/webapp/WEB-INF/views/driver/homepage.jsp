@@ -35,6 +35,9 @@
         <th>
             Order
         </th>
+        <th>
+            Order Status
+        </th>
     </tr>
     <tr id="driverInfoTable">
     </tr>
@@ -53,6 +56,7 @@
         <td>
             <select id="driverStatusSelect">
                 <option value="DRIVING">DRIVING</option>
+                <option value="SECOND_DRIVER">SECOND DRIVER</option>
                 <option value="LOADING_UNLOADING">LOADING / UNLOADING</option>
             </select>
         </td>

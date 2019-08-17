@@ -44,7 +44,7 @@ public class OrderDto implements BaseDtoInterface<String> {
     /**
      * Set of drivers, who are assigned to this order.
      */
-    private Set<String> driverUIDSet = new HashSet<>();
+    private Set<String> driversUIDSet = new HashSet<>();
 
     /**
      * Set of waypoints, that are located in the city.

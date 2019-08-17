@@ -76,7 +76,7 @@
             </select>
         </td>
         <td>
-            <button id="addWayPointButton">
+            <button id="addWayPointButton" class="myRegularButton">
                 Add Waypoint
             </button>
         </td>

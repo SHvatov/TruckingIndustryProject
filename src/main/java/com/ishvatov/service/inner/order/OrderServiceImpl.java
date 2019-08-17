@@ -143,7 +143,8 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
             .stream()
             .filter(Objects::nonNull)
             .filter(entity -> (Double.compare(entity.getTruckCapacity(), finalMass) >= 0)
-                    && (entity.getTruckCondition() == TruckConditionType.IN_ORDER))
+                    && (entity.getTruckCondition() == TruckConditionType.IN_ORDER)
+                    && (entity.getTruckOrder() == null))
             .map(truckDtoMapper::map)
             .collect(Collectors.toList());
     }
@@ -322,7 +323,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
             removeTruck(entity);
         }
 
-        Optional.ofNullable(dto.getDriverUIDSet()).ifPresent(driversSet -> {
+        Optional.ofNullable(dto.getDriversUIDSet()).ifPresent(driversSet -> {
             if (!driversSet.isEmpty()) {
                 updateDriversSet(driversSet
                     .stream()

@@ -52,6 +52,7 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
     public CargoServiceImpl(CargoDao cargoDao, WayPointDao wayPointDao, Mapper<CargoEntity, CargoDto> mapper) {
         super(cargoDao, mapper);
         this.cargoDao = cargoDao;
+        this.wayPointDao = wayPointDao;
     }
 
     /**

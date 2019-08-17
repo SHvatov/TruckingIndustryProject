@@ -36,7 +36,7 @@ public class OrderMapperImpl implements Mapper<OrderEntity, OrderDto> {
     public OrderDto map(OrderEntity src) {
         OrderDto orderDto = mapper.map(src, OrderDto.class);
 
-        orderDto.setDriverUIDSet(src.getAssignedDrivers()
+        orderDto.setDriversUIDSet(src.getAssignedDrivers()
             .stream()
             .filter(Objects::nonNull)
             .map(AbstractEntity::getUniqueIdentificator)

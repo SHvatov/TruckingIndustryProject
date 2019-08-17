@@ -19,6 +19,7 @@ function load_driver_table(pageContext, elemId) {
             // modify add button
             $("#addButton")
                 .text("Add driver")
+                .off()
                 .click(function () {
                     redirect_to_add_driver(pageContext);
                 }).show();
@@ -26,6 +27,7 @@ function load_driver_table(pageContext, elemId) {
             // modify refresh button
             $("#refreshButton")
                 .text("Refresh driver list")
+                .off()
                 .click(function () {
                     load_driver_table(pageContext, elemId);
                 }).show();

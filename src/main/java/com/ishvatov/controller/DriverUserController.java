@@ -3,10 +3,7 @@ package com.ishvatov.controller;
 import com.ishvatov.controller.response.ServerResponse;
 import com.ishvatov.controller.response.ServerResponseObject;
 import com.ishvatov.model.dto.*;
-import com.ishvatov.model.entity.enum_types.CargoStatusType;
-import com.ishvatov.model.entity.enum_types.DriverStatusType;
-import com.ishvatov.model.entity.enum_types.OrderStatusType;
-import com.ishvatov.model.entity.enum_types.WayPointStatus;
+import com.ishvatov.model.entity.enum_types.*;
 import com.ishvatov.service.inner.cargo.CargoService;
 import com.ishvatov.service.inner.driver.DriverService;
 import com.ishvatov.service.inner.order.OrderService;
@@ -131,21 +128,22 @@ public class DriverUserController {
                     }
                 }
                 infoDto.setWayPointDtoArray(wayPointDtoList);
+                infoDto.setOrderStatus(orderDto.getOrderStatus());
             }
 
             // set second driver info
-            if (driverDto.getDriverTruckUID() != null
-                && truckService.exists(driverDto.getDriverTruckUID())) {
+            if (driverDto.getDriverOrderUID() != null
+                && orderService.exists(driverDto.getDriverOrderUID())) {
                 // get the order
-                TruckDto truckDto = truckService.find(driverDto.getDriverTruckUID());
+                OrderDto orderDto = orderService.find(driverDto.getDriverOrderUID());
                 // set info
-                if (truckDto.getTruckDriversUIDSet().size() > 1) {
+                if (orderDto.getDriversUIDSet().size() > 1) {
                     // ONLY TWO DRIVERS IN A TRUCK!!!
-                    truckDto.getTruckDriversUIDSet().remove(driverDto.getUniqueIdentificator());
-                    infoDto.setSecondDriverUID(truckDto.getTruckDriversUIDSet().toArray(new String[0])[0]);
-                } else {
-                    infoDto.setSecondDriverUID("None");
+                    orderDto.getDriversUIDSet().remove(driverDto.getUniqueIdentificator());
+                    infoDto.setSecondDriverUID(orderDto.getDriversUIDSet().toArray(new String[0])[0]);
                 }
+            } else {
+                infoDto.setSecondDriverUID("None");
             }
             response.setObject(infoDto);
         } else {
@@ -163,10 +161,10 @@ public class DriverUserController {
      * @param uid UID of the driver.
      * @return ServerResponse object.
      */
-    @PostMapping("/{uid}/waypoint")
+    @PostMapping("/{driverUID}/waypoint/{wayPointUID}")
     @ResponseBody
-    public ServerResponse completeWaypoint(@RequestBody Integer wayPointUID,
-                                           @PathVariable(name = "uid") String uid) {
+    public ServerResponse completeWaypoint(@PathVariable(name = "wayPointUID") Integer wayPointUID,
+                                           @PathVariable(name = "driverUID") String uid) {
         ServerResponse response = new ServerResponse();
         if (driverService.exists(uid)) {
             DriverDto driverDto = driverService.find(uid);
@@ -183,6 +181,14 @@ public class DriverUserController {
                         messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
                     return response;
                 } else {
+                    // check if driver's status is not LOADING / UNLOADING
+                    if (driverDto.getDriverStatus() != DriverStatusType.LOADING_UNLOADING) {
+                        // then return error
+                        response.addError("error",
+                            messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
+                        return response;
+                    }
+
                     // get the ids of the waypoints
                     List<Integer> waypointIdList = orderDto.getWaypointsIDList();
 
@@ -196,7 +202,7 @@ public class DriverUserController {
 
                                 // check if waypoint is already completed
                                 if (wayPointDto.getWayPointStatus() == WayPointStatus.COMPLETED) {
-                                    // else return error
+                                    // then return error
                                     response.addError("error",
                                         messageSource.getMessage("NotEmpty.field", null, Locale.ENGLISH));
                                     return response;
@@ -209,22 +215,34 @@ public class DriverUserController {
                                 // update cargo status
                                 if (cargoService.exists(wayPointDto.getWaypointCargoUID())) {
                                     CargoDto cargoDto = cargoService.find(wayPointDto.getWaypointCargoUID());
-                                    cargoDto.setCargoStatus(CargoStatusType.DELIVERED);
+                                    if (wayPointDto.getCargoAction() == CargoActionType.LOADING) {
+                                        cargoDto.setCargoStatus(CargoStatusType.SHIPPING);
+                                    } else {
+                                        cargoDto.setCargoStatus(CargoStatusType.DELIVERED);
+                                    }
+                                    cargoService.update(cargoDto);
                                 }
 
-                                // update cities of the drivers
-                                Set<String> driversUIDSet = orderDto.getDriverUIDSet();
+                                // update cities of the drivers and the last time they have been updated
+                                Set<String> driversUIDSet = orderDto.getDriversUIDSet();
                                 for (String driverUID : driversUIDSet) {
                                     if (driverService.exists(driverUID)) {
                                         DriverDto dto = driverService.find(driverUID);
+                                        // update city
                                         dto.setCurrentCityUID(wayPointDto.getWaypointCityUID());
-                                        driverService.update(driverDto);
+                                        // update worked hours
+                                        int workedHours =
+                                            (int) (new Date().getTime() - dto.getLastUpdated().getTime()) / 1000;
+                                        dto.setDriverWorkedHours(workedHours);
+                                        // update last time updated
+                                        dto.setLastUpdated(new Timestamp(new Date().getTime()));
+                                        driverService.update(dto);
                                     }
                                 }
 
                                 // update truck's city
-                                if (truckService.exists(driverDto.getDriverTruckUID())) {
-                                    TruckDto truckDto = truckService.find(driverDto.getDriverTruckUID());
+                                if (truckService.exists(orderDto.getTruckUID())) {
+                                    TruckDto truckDto = truckService.find(orderDto.getTruckUID());
                                     truckDto.setTruckCityUID(wayPointDto.getWaypointCityUID());
                                     truckService.update(truckDto);
                                 }
@@ -267,6 +285,7 @@ public class DriverUserController {
         ServerResponse response = new ServerResponse();
         if (driverService.exists(uid)) {
             DriverDto driverDto = driverService.find(uid);
+
             // check if driver has an order
             if (driverDto.getDriverOrderUID() != null
                 && orderService.exists(driverDto.getDriverOrderUID())) {
@@ -289,7 +308,7 @@ public class DriverUserController {
                         driverDto.setDriverStatus(DriverStatusType.IDLE);
                         // update worked hours
                         int workedHours =
-                            (int) (Calendar.getInstance().getTimeInMillis() / 1000 - driverDto.getLastUpdated().getTime());
+                            (int) (new Date().getTime() - driverDto.getLastUpdated().getTime()) / 1000;
                         driverDto.setDriverWorkedHours(workedHours);
                         // update last updated
                         driverDto.setLastUpdated(new Timestamp(new Date().getTime()));
@@ -316,9 +335,9 @@ public class DriverUserController {
      * @param uid UID of the driver.
      * @return ServerResponse object.
      */
-    @PostMapping("/{uid}/status")
+    @PostMapping("/{uid}/status/{status}")
     @ResponseBody
-    public ServerResponse changeStatus(@RequestBody DriverStatusType statusType,
+    public ServerResponse changeStatus(@PathVariable(name = "status") DriverStatusType statusType,
                                         @PathVariable(name = "uid") String uid) {
         ServerResponse response = new ServerResponse();
         if (driverService.exists(uid)) {
@@ -392,22 +411,30 @@ public class DriverUserController {
                         }
                     }
 
+                    // update truck
+                    if (truckService.exists(orderDto.getTruckUID())) {
+                        TruckDto truckDto = truckService.find(orderDto.getTruckUID());
+                        truckDto.setTruckDriversUIDSet(new HashSet<>());
+                        truckService.update(truckDto);
+                    }
+
+                    // update drivers status
+                    Set<String> driversUIDSet = orderDto.getDriversUIDSet();
+                    for (String driverUID : driversUIDSet) {
+                        if (driverService.exists(driverUID)) {
+                            DriverDto dto = driverService.find(driverUID);
+                            dto.setDriverStatus(DriverStatusType.IDLE);
+                            dto.setLastUpdated(new Timestamp(new Date().getTime()));
+                            driverService.update(dto);
+                        }
+                    }
+
                     // update order
                     orderDto.setOrderStatus(OrderStatusType.COMPLETED);
                     orderDto.setTruckUID(null);
                     orderDto.setLastUpdated(new Timestamp(new Date().getTime()));
-                    orderDto.setDriverUIDSet(new HashSet<>());
+                    orderDto.setDriversUIDSet(new HashSet<>());
                     orderService.update(orderDto);
-
-                    // update drivers and trucks
-                    Set<String> driversUIDSet = orderDto.getDriverUIDSet();
-                    for (String driverUID : driversUIDSet) {
-                        if (driverService.exists(driverUID)) {
-                            DriverDto dto = driverService.find(driverUID);
-                            dto.setDriverTruckUID(null);
-                            driverService.update(driverDto);
-                        }
-                    }
                 }
             } else {
                 // else return error
@@ -434,6 +461,7 @@ public class DriverUserController {
         ServerResponse response = new ServerResponse();
         if (driverService.exists(uid)) {
             DriverDto driverDto = driverService.find(uid);
+
             // check if driver has an order
             if (driverDto.getDriverOrderUID() != null
                 && orderService.exists(driverDto.getDriverOrderUID())) {
@@ -452,7 +480,7 @@ public class DriverUserController {
                     orderService.update(orderDto);
 
                     // update drivers
-                    Set<String> driversUIDSet = orderDto.getDriverUIDSet();
+                    Set<String> driversUIDSet = orderDto.getDriversUIDSet();
                     for (String driverUID : driversUIDSet) {
                         if (driverService.exists(driverUID)) {
                             DriverDto dto = driverService.find(driverUID);

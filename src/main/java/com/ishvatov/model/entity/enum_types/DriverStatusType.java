@@ -9,5 +9,6 @@ public enum DriverStatusType {
     IDLE,
     IN_SHIFT,
     DRIVING,
-    LOADING_UNLOADING
+    LOADING_UNLOADING,
+    SECOND_DRIVER
 }

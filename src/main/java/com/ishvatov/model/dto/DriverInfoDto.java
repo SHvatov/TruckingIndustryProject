@@ -1,5 +1,6 @@
 package com.ishvatov.model.dto;
 
+import com.ishvatov.model.entity.enum_types.OrderStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,11 @@ public class DriverInfoDto {
      * Info about this  driver.
      */
     private DriverDto driverInformation;
+
+    /**
+     * Status of the order.
+     */
+    private OrderStatusType orderStatus;
 
     /**
      * UID of the second driver.

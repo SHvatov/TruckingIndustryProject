@@ -47,6 +47,7 @@ function load_cargo_table(pageContext, elemId) {
             // modify add button
             $("#addButton")
                 .text("Add cargo")
+                .off('click')
                 .click(function () {
                     redirect_to_add_cargo(pageContext);
                 }).show();
@@ -54,6 +55,7 @@ function load_cargo_table(pageContext, elemId) {
             // modify refresh button
             $("#refreshButton")
                 .text("Refresh cargo list")
+                .off('click')
                 .click(function () {
                     load_cargo_table(pageContext, elemId);
                 }).show();

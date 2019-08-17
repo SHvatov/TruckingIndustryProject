@@ -19,6 +19,7 @@ function load_truck_table(pageContext, elemId) {
             // modify add button
             $("#addButton")
                 .text("Add truck")
+                .off()
                 .click(function () {
                     redirect_to_add_truck(pageContext);
                 }).show();
@@ -26,6 +27,7 @@ function load_truck_table(pageContext, elemId) {
             // modify refresh button
             $("#refreshButton")
                 .text("Refresh trucks list")
+                .off()
                 .click(function () {
                     load_truck_table(pageContext, elemId);
                 }).show();

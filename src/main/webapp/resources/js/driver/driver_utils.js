@@ -32,31 +32,37 @@ function load_driver_info(pageContext, driverUID) {
                 } else {
                     tableTrHtml += `<td>${driverDto["driverOrderUID"]}</td>`
                 }
+
+                if (driverInfo["object"]["orderStatus"] == null) {
+                    tableTrHtml += `<td>No status</td>`
+                } else {
+                    tableTrHtml += `<td>${driverInfo["object"]["orderStatus"]}</td>`;
+                }
                 $('#driverInfoTable').html(tableTrHtml);
 
                 // set order info
                 let waypointArray = driverInfo["object"]["wayPointDtoArray"];
-                let waypointTr = "<tr>\n" +
-                    "        <th colspan='5'>\n" +
-                    "            Order Details\n" +
-                    "        </th>\n" +
-                    "    </tr>\n" +
-                    "    <tr>\n" +
-                    "        <th>\n" +
-                    "            City\n" +
-                    "        </th>\n" +
-                    "        <th>\n" +
-                    "            Cargo\n" +
-                    "        </th>\n" +
-                    "        <th>\n" +
-                    "            Action\n" +
-                    "        </th>\n" +
-                    "        <th>\n" +
-                    "            Status\n" +
-                    "        </th>\n" +
-                    "        <th>\n" +
-                    "            Complete\n" +
-                    "        </th>\n" +
+                let waypointTr = "<tr>" +
+                    "        <th colspan='5'>" +
+                    "            Order Details" +
+                    "        </th>" +
+                    "    </tr>" +
+                    "    <tr>" +
+                    "        <th>" +
+                    "            City" +
+                    "        </th>" +
+                    "        <th>" +
+                    "            Cargo" +
+                    "        </th>" +
+                    "        <th>" +
+                    "            Action" +
+                    "        </th>" +
+                    "        <th>" +
+                    "            Status" +
+                    "        </th>" +
+                    "        <th>" +
+                    "            Complete" +
+                    "        </th>" +
                     "    </tr>";
                 for (let i = 0; i < waypointArray.length; i++) {
                     let waypoint = waypointArray[i];
@@ -69,22 +75,22 @@ function load_driver_info(pageContext, driverUID) {
                         + `<button class="myRegularButton"`
                         + `onclick='complete_waypoint("${pageContext}", "${driverUID}", "${waypoint["id"]}")'>COMPLETE</button></td></tr>`
                 }
-                waypointTr += "</tr><tr>\n" +
-                    "        <td colspan='3'>\n" +
-                    "            <button class=\"myRegularButton\"\n" +
-                    "                    id=\"startOrderButton\"\n" +
-                    "                    onclick=\"start_order('${pageContext.request.contextPath}', '${driverUID}')\">\n" +
-                    "                Start Order\n" +
-                    "            </button>\n" +
-                    "        </td>\n" +
-                    "        <td colspan='2'>\n" +
-                    "            <button class=\"myRegularButton\"\n" +
-                    "                    id=\"completeOrderButton\"\n" +
-                    "                    onclick=\"complete_order('${pageContext.request.contextPath}', '${driverUID}')\">\n" +
-                    "                Order Completed\n" +
-                    "            </button>\n" +
-                    "        </td>\n" +
-                    "    </tr>";
+                waypointTr += `<tr> 
+                            <td colspan='3'> 
+                                <button class='myRegularButton' 
+                                        id='startOrderButton' 
+                                        onclick="start_order('${pageContext}', '${driverUID}')"> 
+                                    Start Order 
+                                </button> 
+                            </td> 
+                            <td colspan='2'> 
+                                <button class='myRegularButton' 
+                                        id='completeOrderButton' 
+                                        onclick="complete_order('${pageContext}', '${driverUID}')"> 
+                                    Order Completed 
+                                </button> 
+                            </td 
+                        </tr>`;
 
                 $('#wayPointInfoTable').html(waypointTr);
             } else {
@@ -115,13 +121,10 @@ function load_driver_info(pageContext, driverUID) {
  */
 function complete_waypoint(pageContext, driverUID, waypointUID) {
     $.ajax({
-        url: pageContext + '/driver/' + driverUID + '/waypoint',
+        url: pageContext + '/driver/' + driverUID + '/waypoint/' + waypointUID,
         type: 'POST',
         dataType: 'json',
         contentType: 'application/json',
-        data: JSON.stringify({
-            "waypointUID": waypointUID
-        }),
         success: (response) => {
             if (response["status"] === "failed") {
                 $.confirm({
@@ -192,6 +195,8 @@ function complete_order(pageContext, driverUID) {
                         },
                     }
                 });
+            } else {
+                $('#wayPointInfoTable').html("<tr><td>No order assigned.</td></tr>");
             }
         }
     });
@@ -205,13 +210,10 @@ function complete_order(pageContext, driverUID) {
  */
 function change_status(pageContext, driverUID) {
     $.ajax({
-        url: pageContext + '/driver/' + driverUID + '/status',
+        url: pageContext + '/driver/' + driverUID + '/status/' + $("#driverStatusSelect").val(),
         type: 'POST',
         dataType: 'json',
         contentType: 'application/json',
-        data: JSON.stringify({
-            "driverStatus": $("#driverStatusSelect").val()
-        }),
         success: (response) => {
             if (response["status"] === "failed") {
                 $.confirm({

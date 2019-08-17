@@ -16,6 +16,6 @@ public interface WayPointDao extends BaseDaoInterface<Integer, WayPointEntity> {
      * @param cargoId id of the cargo.
      * @return true or false.
      */
-    boolean isAssigned(int cargoId);
+    boolean isAssigned(Integer cargoId);
 }
 
