@@ -2,7 +2,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Driver [${cargoUID}]</title>
+    <title>Cargo: [${cargoUID}]</title>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/css/styles.css"/>"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/js/jquery-confirm/css/jquery-confirm.css"/>"/>
     <script src="<c:url value="/resources/js/jquery.min.js"/>" type="text/javascript"></script>
@@ -18,7 +18,7 @@
     </script>
     <table class="myTableStyle">
         <tr>
-            <th colspan='4'>Driver [{driverUID}] information</th>
+            <th colspan='4'>Cargo [${cargoUID}] information</th>
         </tr>
         <tr>
             <td>Unique Identificator</td>

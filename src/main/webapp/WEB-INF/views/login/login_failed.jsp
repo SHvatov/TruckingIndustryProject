@@ -5,11 +5,16 @@
         <title>Login failed!</title>
     </head>
     <body>
-        <h1>
-            Login failed!
-        </h1>
-        <h2>
-            <a href="<c:url value="/login/login"/>"><- Back to login page.</a>
-        </h2>
+        <table class="myTableStyle">
+            <tr>
+                <th>Login Failed!</th>
+            </tr>
+            <tr>
+                <button class="myCancelButton"
+                        onclick="window.location.href = '${pageContext.request.contextPath}/login/login'">
+                    Return Back
+                </button>
+            </tr>
+        </table>
     </body>
 </html>

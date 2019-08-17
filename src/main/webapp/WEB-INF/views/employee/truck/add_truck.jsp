@@ -19,7 +19,7 @@
 <table class="myTableStyle">
         <tr>
             <th colspan="3">
-                Add new truck
+                Add New Truck
             </th>
         </tr>
         <tr>

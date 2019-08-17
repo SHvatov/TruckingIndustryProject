@@ -2,7 +2,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Add New Truck</title>
+    <title>Add New Driver</title>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/css/styles.css"/>"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/js/jquery-confirm/css/jquery-confirm.css"/>"/>
     <script src="<c:url value="/resources/js/jquery.min.js"/>" type="text/javascript"></script>
@@ -19,7 +19,7 @@
 <table class="myTableStyle">
     <tr>
         <th colspan="3">
-            Add new driver
+            Add New Driver
         </th>
     </tr>
     <tr>
