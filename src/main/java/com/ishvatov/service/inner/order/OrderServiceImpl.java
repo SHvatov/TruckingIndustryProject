@@ -16,7 +16,7 @@ import com.ishvatov.model.dto.TruckDto;
 import com.ishvatov.model.dto.WayPointDto;
 import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.buisness.*;
-import com.ishvatov.model.entity.enum_types.TruckConditionType;
+import com.ishvatov.model.entity.enum_types.TruckStatusType;
 import com.ishvatov.service.inner.AbstractService;
 import org.jgrapht.Graph;
 import org.jgrapht.alg.shortestpath.DijkstraShortestPath;
@@ -121,15 +121,15 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
         double currentMass = 0;
         for (WayPointDto wayPointDto : wayPointDtoList) {
             CargoEntity cargoDto = Optional
-                .ofNullable(cargoDao.findByUniqueKey(wayPointDto.getWaypointCargoUID()))
+                .ofNullable(cargoDao.findByUniqueKey(wayPointDto.getCargoId()))
                 .orElseThrow(() -> new DAOException(getClass(), "update", "Entity with such UID does not exist"));
 
-            switch (wayPointDto.getCargoAction()) {
+            switch (wayPointDto.getAction()) {
                 case LOADING:
-                    currentMass += cargoDto.getCargoMass();
+                    currentMass += cargoDto.getMass();
                     break;
                 case UNLOADING:
-                    currentMass -= cargoDto.getCargoMass();
+                    currentMass -= cargoDto.getMass();
                     break;
             }
 
@@ -142,9 +142,9 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
         return truckDao.findAll()
             .stream()
             .filter(Objects::nonNull)
-            .filter(entity -> (Double.compare(entity.getTruckCapacity(), finalMass) >= 0)
-                    && (entity.getTruckCondition() == TruckConditionType.IN_ORDER)
-                    && (entity.getTruckOrder() == null))
+            .filter(entity -> (Double.compare(entity.getCapacity(), finalMass) >= 0)
+                    && (entity.getStatus() == TruckStatusType.IN_ORDER)
+                    && (entity.getOrder() == null))
             .map(truckDtoMapper::map)
             .collect(Collectors.toList());
     }
@@ -152,31 +152,33 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
     /**
      * Finds all suitable for this order drivers.
      *
-     * @param truckUID        UID of the truck.
+     * @param truckId        UID of the truck.
      * @param wayPointDtoList list of the waypoints.
      * @return list of suitable for this order trucks.
      */
     @Override
-    public List<DriverDto> findSuitableDrivers(String truckUID, List<WayPointDto> wayPointDtoList) {
+    public List<DriverDto> findSuitableDrivers(String truckId, List<WayPointDto> wayPointDtoList) {
         // build graph
-        Graph<Integer, DefaultEdge> map = cityMapDao.buildCityMap();
+        Graph<Integer, DefaultEdge> map = cityMapDao.buildMap();
         DijkstraShortestPath<Integer, DefaultEdge> dijkstraShortestPath = new DijkstraShortestPath<>(map);
 
-        // get truck
-        TruckEntity truckEntity = Optional.ofNullable(truckDao.findByUniqueKey(truckUID))
-            .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+        // get the truck
+        TruckEntity truckEntity = Optional.ofNullable(truckDao.findByUniqueKey(truckId))
+            .orElseThrow(() -> new DAOException(getClass(), "findSuitableDrivers", "Entity with such UID does not exist"));
 
         // get shift size in seconds
-        int shiftSize = truckEntity.getTruckDriverShiftSize() * 3600;
+        int shiftSize = truckEntity.getShiftSize() * 3600;
 
-        // get start position
+        // find the city of the truck
+        CityEntity currentCity = truckEntity.getCity();
+
+        // find time that will be spent on this trip
         int totalTime = 0;
-        CityEntity currentCity = truckEntity.getTruckCity();
         for (WayPointDto wayPointDto : wayPointDtoList) {
-            CityEntity nextCity = Optional.ofNullable(cityDao.findByUniqueKey(wayPointDto.getWaypointCityUID()))
-                .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+            CityEntity nextCity = Optional.ofNullable(cityDao.findByUniqueKey(wayPointDto.getCityId()))
+                .orElseThrow(() -> new DAOException(getClass(), "findSuitableDrivers", "Entity with such UID does not exist"));
 
-            // find shortes path
+            // find shortest path
             List<Integer> citiesToVisit = dijkstraShortestPath
                 .getPath(currentCity.getId(), nextCity.getId())
                 .getVertexList();
@@ -185,51 +187,61 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
             if (!citiesToVisit.isEmpty()) {
                 Integer start = citiesToVisit.get(0);
                 for (int i = 1; i < citiesToVisit.size(); i++) {
+                    // get info about path
                     CityMapEntity cityMapEntity =
-                        Optional.ofNullable(cityMapDao.findDistanceBetween(start, citiesToVisit.get(i)))
+                        Optional.ofNullable(cityMapDao.findBetween(start, citiesToVisit.get(i)))
                         .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
 
                     double distance = cityMapEntity.getDistance();
                     double speed = cityMapEntity.getAverageSpeed();
                     totalTime += (int) (distance / speed * 3600);
+                    start = citiesToVisit.get(i);
                 }
             }
             currentCity = nextCity;
         }
 
-        // list with all trucks
-        List<DriverEntity> driverList = driverDao.findAll();
+        // find all drivers in the same city and with no order
+        List<DriverEntity> driverList = driverDao.findAll()
+            .stream()
+            .filter(entity -> entity.getCity().equals(truckEntity.getCity())
+                && entity.getOrder() == null)
+            .collect(Collectors.toList());
+
         // result list
         List<DriverDto> result = new ArrayList<>();
+
         // 176 hours in seconds
         final int MAX_SHIFT = 176 * 3600;
-        // choose drivers
-        for (DriverEntity driver : driverList) {
-            if (driver.getDriverCity().equals(truckEntity.getTruckCity())
-                && driver.getDriverOrder() == null) {
-                if (driver.getDriverWorkedHours() + totalTime <= MAX_SHIFT) {
-                    result.add(driverDtoMapper.map(driver));
-                } else {
-                    int workedHours = driver.getDriverWorkedHours();
-                    int orderHours = 0;
-                    boolean suits = true;
-                    Calendar calendar = Calendar.getInstance();
-                    int month = calendar.get(Calendar.MONTH);
-                    while (orderHours < totalTime) {
-                        orderHours += shiftSize;
-                        workedHours += shiftSize;
-                        calendar.add(Calendar.DATE, 1);
-                        if (calendar.get(Calendar.MONTH) != month) {
-                            workedHours = 0;
-                            month = calendar.get(Calendar.MONTH);
-                        } else if (workedHours > MAX_SHIFT) {
-                            suits = false;
-                        }
-                    }
 
-                    if (suits) {
-                        result.add(driverDtoMapper.map(driver));
+        // find suitable drivers
+        for (DriverEntity driver : driverList) {
+            // if it is obvious
+            if (driver.getWorkedHours() + totalTime <= MAX_SHIFT) {
+                result.add(driverDtoMapper.map(driver));
+            } else {
+                // else calculate estimate time
+                // and check if drivers worked hours will be set to 0
+                // due to the fact of new month
+                int workedHours = driver.getWorkedHours();  // current worked hours
+                int orderHours = 0;                         // number of hours spent in the trip
+                boolean suits = true;                       // flag
+                // current month
+                int month = Calendar.getInstance().get(Calendar.MONTH);
+                while (orderHours < totalTime) {
+                    orderHours += shiftSize;
+                    workedHours += shiftSize;
+                    Calendar.getInstance().add(Calendar.DATE, 1);
+                    if (Calendar.getInstance().get(Calendar.MONTH) != month) {
+                        workedHours = 0;
+                        month = Calendar.getInstance().get(Calendar.MONTH);
+                    } else if (workedHours > MAX_SHIFT) {
+                        suits = false;
                     }
+                }
+
+                if (suits) {
+                    result.add(driverDtoMapper.map(driver));
                 }
             }
         }
@@ -285,15 +297,14 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
     @Override
     public void delete(String key) {
         Optional<OrderEntity> orderEntity = Optional.ofNullable(
-            orderDao.findByUniqueKey(
-                Optional.ofNullable(key).orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null"))
-            )
+            orderDao.findByUniqueKey(Optional.ofNullable(key)
+                    .orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null")))
         );
 
         orderEntity.ifPresent(entity -> {
-            clearDriversSet(entity);
+            clearAssignedDrivers(entity);
             removeTruck(entity);
-            clearWaypointsSet(entity);
+            clearAssignedWaypoints(entity);
             orderDao.delete(entity);
         });
     }
@@ -313,35 +324,35 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
             entity.setLastUpdated(dto.getLastUpdated());
         }
 
-        if (!dto.getOrderStatus().equals(entity.getOrderStatus())) {
-            entity.setOrderStatus(dto.getOrderStatus());
+        if (!dto.getStatus().equals(entity.getStatus())) {
+            entity.setStatus(dto.getStatus());
         }
 
-        if (dto.getTruckUID() != null) {
-            updateTruck(dto.getTruckUID(), entity);
+        if (dto.getTruckId() != null) {
+            updateTruck(dto.getTruckId(), entity);
         } else {
             removeTruck(entity);
         }
 
-        Optional.ofNullable(dto.getDriversUIDSet()).ifPresent(driversSet -> {
+        Optional.ofNullable(dto.getAssignedDrivers()).ifPresent(driversSet -> {
             if (!driversSet.isEmpty()) {
-                updateDriversSet(driversSet
+                updateAssignedDrivers(driversSet
                     .stream()
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet()), entity);
             } else {
-                clearDriversSet(entity);
+                clearAssignedDrivers(entity);
             }
         });
 
-        Optional.ofNullable(dto.getWaypointsIDList()).ifPresent(waypointsSet -> {
+        Optional.ofNullable(dto.getAssignedWaypoints()).ifPresent(waypointsSet -> {
             if (!waypointsSet.isEmpty()) {
-                updateWaypointsSet(waypointsSet
+                updateAssignedWaypoints(waypointsSet
                     .stream()
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet()), entity);
             } else {
-                clearWaypointsSet(entity);
+                clearAssignedWaypoints(entity);
             }
         });
     }
@@ -349,29 +360,29 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
     /**
      * Updates the drivers set of the entity.
      *
-     * @param driversUIDSet set of UIDs of the drivers.
+     * @param assignedDrivers set of UIDs of the drivers.
      * @param entity        Entity object.
      */
-    private void updateDriversSet(Set<String> driversUIDSet, OrderEntity entity) {
+    private void updateAssignedDrivers(Set<String> assignedDrivers, OrderEntity entity) {
         Set<String> currentDriversUIDSet = entity.getAssignedDrivers()
             .stream()
             .filter(Objects::nonNull)
             .map(AbstractEntity::getUniqueIdentificator)
             .collect(Collectors.toSet());
 
-        if (!currentDriversUIDSet.equals(driversUIDSet)) {
+        if (!currentDriversUIDSet.equals(assignedDrivers)) {
             // clear the driver set
-            clearDriversSet(entity);
+            clearAssignedDrivers(entity);
             // for each uid in the set
-            driversUIDSet.forEach(uid -> {
+            assignedDrivers.forEach(uid -> {
                 // try get the driver entity from DB
                 DriverEntity driverEntity = Optional.ofNullable(driverDao.findByUniqueKey(uid))
                     .orElseThrow(
-                        () -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist")
+                        () -> new DAOException(getClass(), "updateAssignedDrivers", "Entity with such UID does not exist")
                     );
                 // if driver has already been assigned to a truck
                 // then remove him
-                Optional.ofNullable(driverEntity.getDriverOrder())
+                Optional.ofNullable(driverEntity.getOrder())
                     .ifPresent(e -> e.removeDriver(driverEntity));
                 // add driver to this truck
                 entity.addDriver(driverEntity);
@@ -384,7 +395,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      *
      * @param entity Entity object.
      */
-    private void clearDriversSet(OrderEntity entity) {
+    private void clearAssignedDrivers(OrderEntity entity) {
         Set<DriverEntity> driverEntitySet = entity.getAssignedDrivers()
             .stream()
             .filter(Objects::nonNull)
@@ -409,12 +420,12 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
                 .orElseThrow(() -> new DAOException(getClass(), "updateTruck", "Entity with such UID does not exist"));
 
             Optional.ofNullable(entity.getAssignedTruck()).ifPresent(e -> {
-                e.setTruckOrder(null);
+                e.setOrder(null);
                 entity.setAssignedTruck(null);
             });
 
             entity.setAssignedTruck(truckEntity);
-            truckEntity.setTruckOrder(entity);
+            truckEntity.setOrder(entity);
         }
     }
 
@@ -425,7 +436,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      */
     private void removeTruck(OrderEntity entity) {
         Optional.ofNullable(entity.getAssignedTruck()).ifPresent(e -> {
-            e.setTruckOrder(null);
+            e.setOrder(null);
             entity.setAssignedTruck(null);
         });
     }
@@ -433,29 +444,29 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
     /**
      * Updates the waypoints set of the entity.
      *
-     * @param waypointsIDSet set of UIDs of the drivers.
+     * @param assignedWaypoints set of UIDs of the drivers.
      * @param entity        Entity object.
      */
-    private void updateWaypointsSet(Set<Integer> waypointsIDSet, OrderEntity entity) {
+    private void updateAssignedWaypoints(Set<Integer> assignedWaypoints, OrderEntity entity) {
         Set<Integer> currentWaypointsIDSet = entity.getAssignedWaypoints()
             .stream()
             .filter(Objects::nonNull)
             .map(WayPointEntity::getId)
             .collect(Collectors.toSet());
 
-        if (!currentWaypointsIDSet.equals(waypointsIDSet)) {
+        if (!currentWaypointsIDSet.equals(assignedWaypoints)) {
             // clear the driver set
-            clearWaypointsSet(entity);
+            clearAssignedWaypoints(entity);
             // for each uid in the set
-            waypointsIDSet.forEach(uid -> {
+            assignedWaypoints.forEach(uid -> {
                 // try get the driver entity from DB
                 WayPointEntity wayPointEntity = Optional.ofNullable(wayPointDao.findById(uid))
                     .orElseThrow(
-                        () -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist")
+                        () -> new DAOException(getClass(), "updateAssignedWaypoints", "Entity with such UID does not exist")
                     );
                 // if driver has already been assigned to a truck
                 // then remove him
-                Optional.ofNullable(wayPointEntity.getWaypointOrder())
+                Optional.ofNullable(wayPointEntity.getOrder())
                     .ifPresent(e -> e.removeWayPoint(wayPointEntity));
                 // add driver to this truck
                 entity.addWayPoint(wayPointEntity);
@@ -468,7 +479,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      *
      * @param entity Entity object.
      */
-    private void clearWaypointsSet(OrderEntity entity) {
+    private void clearAssignedWaypoints(OrderEntity entity) {
         Set<WayPointEntity> waypointEntitySet = entity.getAssignedWaypoints()
             .stream()
             .filter(Objects::nonNull)
@@ -483,7 +494,7 @@ public class OrderServiceImpl extends AbstractService<String, OrderEntity, Order
      * @param dto DTO object.
      */
     private void validateRequiredFields(OrderDto dto) {
-        if (dto == null || dto.getUniqueIdentificator() == null || dto.getOrderStatus() == null
+        if (dto == null || dto.getUniqueIdentificator() == null || dto.getStatus() == null
             || dto.getLastUpdated() == null) {
             throw new ValidationException();
         }

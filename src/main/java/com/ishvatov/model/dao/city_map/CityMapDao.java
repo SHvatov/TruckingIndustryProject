@@ -20,12 +20,12 @@ public interface CityMapDao extends BaseDaoInterface<Integer, CityMapEntity> {
      * @return Distance between two cities, if
      * both of them exist in the table.
      */
-    CityMapEntity findDistanceBetween(Integer from, Integer to);
+    CityMapEntity findBetween(Integer from, Integer to);
 
     /**
      * Builds a graph which represents the map of the country.
      *
      * @return SimpleGraph object.
      */
-    Graph<Integer, DefaultEdge> buildCityMap();
+    Graph<Integer, DefaultEdge> buildMap();
 }

@@ -28,49 +28,49 @@ public class OrderEntity extends AbstractEntity {
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String STATUS = "order_status";
+    public static final String STATUS_FIELD = "status";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String LAST_UPDATED = "last_updated";
+    public static final String LAST_UPDATED_FIELD = "lastUpdated";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String END_DATE = "order_end";
+    public static final String END_DATE_FIELD = "orderEnd";
 
     /**
      * Status of the order.
      */
-    @Column(name = STATUS)
+    @Column(name = STATUS_FIELD)
     @Enumerated(EnumType.STRING)
-    private OrderStatusType orderStatus;
+    private OrderStatusType status;
 
     /**
      * Date - last time order was updated.
      */
-    @Column(name = LAST_UPDATED)
+    @Column(name = LAST_UPDATED_FIELD)
     private Timestamp lastUpdated;
 
     /**
      * Truck, that is assigned to this order.
      */
-    @OneToOne(mappedBy = "truckOrder", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
     private TruckEntity assignedTruck;
 
     /**
      * Set of drivers, who are assigned to this order.
      */
-    @OneToMany(mappedBy = "driverOrder", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private Set<DriverEntity> assignedDrivers = new HashSet<>();
 
     /**
      * Set of waypoints, that are located in the order.
      */
-    @OneToMany(mappedBy = "waypointOrder", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY)
     private List<WayPointEntity> assignedWaypoints = new ArrayList<>();
 
     /**
@@ -81,7 +81,7 @@ public class OrderEntity extends AbstractEntity {
     public void addDriver(DriverEntity driverEntity) {
         Optional.ofNullable(driverEntity).ifPresent(e -> {
             assignedDrivers.add(e);
-            e.setDriverOrder(this);
+            e.setOrder(this);
         });
     }
 
@@ -93,7 +93,7 @@ public class OrderEntity extends AbstractEntity {
     public void removeDriver(DriverEntity driverEntity) {
         Optional.ofNullable(driverEntity).ifPresent(e -> {
             assignedDrivers.remove(e);
-            e.setDriverOrder(null);
+            e.setOrder(null);
         });
     }
 
@@ -105,7 +105,7 @@ public class OrderEntity extends AbstractEntity {
     public void addWayPoint(WayPointEntity wayPointEntity) {
         Optional.ofNullable(wayPointEntity).ifPresent(e -> {
             assignedWaypoints.add(e);
-            e.setWaypointOrder(this);
+            e.setOrder(this);
         });
     }
 
@@ -117,7 +117,7 @@ public class OrderEntity extends AbstractEntity {
     public void removeWayPoint(WayPointEntity wayPointEntity) {
         Optional.ofNullable(wayPointEntity).ifPresent(e -> {
             assignedWaypoints.remove(e);
-            e.setWaypointOrder(null);
+            e.setOrder(null);
         });
     }
 }

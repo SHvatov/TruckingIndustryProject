@@ -43,34 +43,40 @@ public class CityMapServiceImpl implements CityMapService {
      * @return SimpleGraph object.
      */
     @Override
-    public Graph<Integer, DefaultEdge> buildCityMap() {
-        return cityMapDao.buildCityMap();
+    public Graph<Integer, DefaultEdge> buildMap() {
+        return cityMapDao.buildMap();
     }
 
     /**
      * Builds a graph which represents the map of the country.
      *
-     * @param path
+     * @param startCityId UID of the city, where truck is located.
+     * @param path         path to be checked.
      * @return SimpleGraph object.
      */
     @Override
-    public boolean checkIfPathExists(String startCityUID, List<WayPointDto> path) {
+    public boolean checkIfPathExists(String startCityId, List<WayPointDto> path) {
         // build graph
-        Graph<Integer, DefaultEdge> map = cityMapDao.buildCityMap();
+        Graph<Integer, DefaultEdge> map = cityMapDao.buildMap();
         DijkstraShortestPath<Integer, DefaultEdge> dijkstraShortestPath = new DijkstraShortestPath<>(map);
 
-        CityEntity currentCity = Optional.ofNullable(cityDao.findByUniqueKey(startCityUID))
-            .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+        CityEntity currentCity = Optional.ofNullable(cityDao.findByUniqueKey(startCityId)).
+            orElseThrow(() -> new DAOException(getClass(), "checkIfPathExists", "Entity with such UID does not exist"));
+
         for (WayPointDto wayPointDto : path) {
-            CityEntity nextCity = Optional.ofNullable(cityDao.findByUniqueKey(wayPointDto.getWaypointCityUID()))
-                .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+            CityEntity nextCity = Optional.ofNullable(cityDao.findByUniqueKey(wayPointDto.getCityId()))
+                .orElseThrow(() -> new DAOException(getClass(), "checkIfPathExists", "Entity with such UID does not exist"));
 
             // find shortest path
-            GraphPath<Integer, DefaultEdge> shortestPath
-                = dijkstraShortestPath.getPath(currentCity.getId(), nextCity.getId());
+            GraphPath<Integer, DefaultEdge> shortestPath =
+                dijkstraShortestPath.getPath(currentCity.getId(), nextCity.getId());
+
+            // check if it is null
             if (shortestPath == null) {
                 return false;
             }
+
+            // move to the next city
             currentCity = nextCity;
         }
         return true;
@@ -79,30 +85,36 @@ public class CityMapServiceImpl implements CityMapService {
     /**
      * Builds a graph which represents the map of the country.
      *
-     * @param path
+     * @param path to be checked.
      * @return SimpleGraph object.
      */
     @Override
     public boolean checkIfPathExists(List<WayPointDto> path) {
+        // no path from itself
         if (path.size() <= 1) {
             return false;
         }
 
-        Graph<Integer, DefaultEdge> map = cityMapDao.buildCityMap();
+        Graph<Integer, DefaultEdge> map = cityMapDao.buildMap();
         DijkstraShortestPath<Integer, DefaultEdge> dijkstraShortestPath = new DijkstraShortestPath<>(map);
 
-        CityEntity currentCity = Optional.ofNullable(cityDao.findByUniqueKey(path.get(0).getWaypointCityUID()))
-            .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+        CityEntity currentCity = Optional.ofNullable(cityDao.findByUniqueKey(path.get(0).getCityId()))
+            .orElseThrow(() -> new DAOException(getClass(), "checkIfPathExists", "Entity with such UID does not exist"));
+
         for (int i = 1; i < path.size(); i++) {
-            CityEntity nextCity = Optional.ofNullable(cityDao.findByUniqueKey(path.get(i).getWaypointCityUID()))
-                .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
+            CityEntity nextCity = Optional.ofNullable(cityDao.findByUniqueKey(path.get(i).getCityId()))
+                .orElseThrow(() -> new DAOException(getClass(), "checkIfPathExists", "Entity with such UID does not exist"));
 
             // find shortest path
-            GraphPath<Integer, DefaultEdge> shortestPath
-                = dijkstraShortestPath.getPath(currentCity.getId(), nextCity.getId());
+            GraphPath<Integer, DefaultEdge> shortestPath =
+                dijkstraShortestPath.getPath(currentCity.getId(), nextCity.getId());
+
+            // check if it is null
             if (shortestPath == null) {
                 return false;
             }
+
+            // move to the next city
             currentCity = nextCity;
         }
         return true;

@@ -1,13 +1,10 @@
 package com.ishvatov.controller.driver;
 
-import com.ishvatov.controller.response.ServerResponse;
-import com.ishvatov.controller.response.ServerResponseObject;
 import com.ishvatov.model.dto.DriverDto;
-import com.ishvatov.model.dto.UserDto;
-import com.ishvatov.model.entity.enum_types.UserRoleType;
-import com.ishvatov.service.inner.driver.DriverService;
-import com.ishvatov.service.inner.user.UserService;
-import com.ishvatov.validator.CustomValidator;
+import com.ishvatov.service.buisness.driver.BusinessDriverService;
+import com.ishvatov.service.buisness.response.ServerResponse;
+import com.ishvatov.service.buisness.response.ServerResponseObject;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -21,25 +18,14 @@ import java.util.List;
  */
 @Controller
 @RequestMapping(value = "/employee/driver")
+@Log4j
 public class RestDriverController {
 
     /**
      * Autowired service to access DAO layer.
      */
     @Autowired
-    private DriverService driverService;
-
-    /**
-     * Autowired service to access DAO layer.
-     */
-    @Autowired
-    private UserService userService;
-
-    /**
-     * Autowired validator.
-     */
-    @Autowired
-    private CustomValidator<DriverDto, String> driverValidator;
+    private BusinessDriverService driverService;
 
     /**
      * Gets all the drivers from the database.
@@ -47,9 +33,16 @@ public class RestDriverController {
      * @return list of drivers from database.
      */
     @GetMapping(value = "/list")
-    public @ResponseBody
-    List<DriverDto> loadAllDrivers() {
-        return driverService.findAll();
+    @ResponseBody
+    public List<DriverDto> loadAllDrivers() {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return driverService.loadAllDrivers();
     }
 
     /**
@@ -58,13 +51,16 @@ public class RestDriverController {
      * @return {@link ServerResponseObject} object.
      */
     @GetMapping(value = "/{uid}/load")
-    public @ResponseBody
-    ServerResponseObject<DriverDto> loadDriver(@PathVariable(name = "uid") String driverUID) {
-        ServerResponseObject<DriverDto> responseObject = new ServerResponseObject<>();
-        if (driverValidator.validateBeforeLoad(driverUID, responseObject)) {
-            responseObject.setObject(driverService.find(driverUID));
-        }
-        return responseObject;
+    @ResponseBody
+    public ServerResponseObject<DriverDto> loadDriver(@PathVariable(name = "uid") String driverId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return driverService.loadDriver(driverId);
     }
 
 
@@ -73,14 +69,17 @@ public class RestDriverController {
      *
      * @return {@link ServerResponse} object.
      */
+    @ResponseBody
     @PostMapping(value = "/{uid}/delete")
-    public @ResponseBody
-    ServerResponse deleteDriver(@PathVariable(name = "uid") String driverUID) {
-        ServerResponse response = new ServerResponse();
-        if (driverValidator.validateBeforeDelete(driverUID, response)) {
-            driverService.delete(driverUID);
-        }
-        return response;
+    public ServerResponse deleteDriver(@PathVariable(name = "uid") String driverId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return driverService.deleteDriver(driverId);
     }
 
     /**
@@ -88,19 +87,17 @@ public class RestDriverController {
      *
      * @return {@link ServerResponse} object.
      */
+    @ResponseBody
     @PostMapping(value = "/create")
-    public @ResponseBody
-    ServerResponse addDriver(@RequestBody DriverDto driverDto) {
-        ServerResponse response = new ServerResponse();
-        if (driverValidator.validateBeforeSave(driverDto, response)) {
-            // create new truck
-            driverService.save(driverDto);
+    public ServerResponse addDriver(@RequestBody DriverDto driverDto) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
 
-            // create new user
-            UserDto userDto = new UserDto(driverDto.getUniqueIdentificator(), driverDto.getDriverPassword(), UserRoleType.ROLE_DRIVER);
-            userService.save(userDto);
-        }
-        return response;
+        return driverService.addDriver(driverDto);
     }
 
     /**
@@ -108,19 +105,18 @@ public class RestDriverController {
      *
      * @return {@link ServerResponseObject} object.
      */
+    @ResponseBody
     @PostMapping(value = "/{uid}/update_name")
-    public @ResponseBody ServerResponse updateDriverName(@RequestBody DriverDto driverDto, @PathVariable(name = "uid") String truckUID) {
-        ServerResponse responseObject = new ServerResponseObject<>();
-        if (!driverValidator.validateBeforeLoad(driverDto.getUniqueIdentificator(), responseObject)) {
-            return responseObject;
-        } else {
-            DriverDto innerDriverDto = driverService.find(driverDto.getUniqueIdentificator());
-            innerDriverDto.setDriverName(driverDto.getDriverName());
-            if (driverValidator.validateBeforeUpdate(innerDriverDto, responseObject)) {
-                driverService.update(innerDriverDto);
-            }
-        }
-        return responseObject;
+    public ServerResponse updateDriverName(@RequestBody DriverDto driverDto,
+                                           @PathVariable(name = "uid") String driverId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return driverService.updateDriverName(driverDto);
     }
 
     /**
@@ -128,19 +124,18 @@ public class RestDriverController {
      *
      * @return {@link ServerResponseObject} object.
      */
+    @ResponseBody
     @PostMapping(value = "/{uid}/update_surname")
-    public @ResponseBody ServerResponse updateDriverSurname(@RequestBody DriverDto driverDto, @PathVariable(name = "uid") String truckUID) {
-        ServerResponse responseObject = new ServerResponseObject<>();
-        if (!driverValidator.validateBeforeLoad(driverDto.getUniqueIdentificator(), responseObject)) {
-            return responseObject;
-        } else {
-            DriverDto innerDriverDto = driverService.find(driverDto.getUniqueIdentificator());
-            innerDriverDto.setDriverSurname(driverDto.getDriverSurname());
-            if (driverValidator.validateBeforeUpdate(innerDriverDto, responseObject)) {
-                driverService.update(innerDriverDto);
-            }
-        }
-        return responseObject;
+    public ServerResponse updateDriverSurname(@RequestBody DriverDto driverDto,
+                                              @PathVariable(name = "uid") String driverId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return driverService.updateDriverSurname(driverDto);
     }
 
     /**
@@ -148,18 +143,17 @@ public class RestDriverController {
      *
      * @return {@link ServerResponseObject} object.
      */
+    @ResponseBody
     @PostMapping(value = "/{uid}/update_city")
-    public @ResponseBody ServerResponse updateDriverCity(@RequestBody DriverDto driverDto, @PathVariable(name = "uid") String truckUID) {
-        ServerResponse responseObject = new ServerResponseObject<>();
-        if (!driverValidator.validateBeforeLoad(driverDto.getUniqueIdentificator(), responseObject)) {
-            return responseObject;
-        } else {
-            DriverDto innerDriverDto = driverService.find(driverDto.getUniqueIdentificator());
-            innerDriverDto.setCurrentCityUID(driverDto.getCurrentCityUID());
-            if (driverValidator.validateBeforeUpdate(innerDriverDto, responseObject)) {
-                driverService.update(innerDriverDto);
-            }
-        }
-        return responseObject;
+    public ServerResponse updateDriverCity(@RequestBody DriverDto driverDto,
+                                           @PathVariable(name = "uid") String driverId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+        
+        return driverService.updateDriverCity(driverDto);
     }
 }

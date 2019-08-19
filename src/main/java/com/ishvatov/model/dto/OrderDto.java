@@ -29,12 +29,12 @@ public class OrderDto implements BaseDtoInterface<String> {
     /**
      * Status of the order.
      */
-    private OrderStatusType orderStatus;
+    private OrderStatusType status;
 
     /**
      * Truck, that is assigned to this order.
      */
-    private String truckUID;
+    private String truckId;
 
     /**
      * Date - start of the order.
@@ -44,10 +44,10 @@ public class OrderDto implements BaseDtoInterface<String> {
     /**
      * Set of drivers, who are assigned to this order.
      */
-    private Set<String> driversUIDSet = new HashSet<>();
+    private Set<String> assignedDrivers = new HashSet<>();
 
     /**
      * Set of waypoints, that are located in the city.
      */
-    private List<Integer> waypointsIDList = new ArrayList<>();
+    private List<Integer> assignedWaypoints = new ArrayList<>();
 }

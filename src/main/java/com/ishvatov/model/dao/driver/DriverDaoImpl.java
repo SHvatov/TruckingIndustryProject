@@ -11,4 +11,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository("driverDao")
 public class DriverDaoImpl extends AbstractDao<String, DriverEntity> implements DriverDao {
+    // empty
 }

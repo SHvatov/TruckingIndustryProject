@@ -75,9 +75,9 @@ function load_cargo_table(pageContext, elemId) {
                 // add data
                 tableInnerBlock += `<tr><td>${i}</td>`
                     + `<td>${temp["id"]}</td>`
-                    + `<td>${temp["cargoName"]}</td>`
-                    + `<td>${temp["cargoMass"]}</td>`;
-                switch (temp["cargoStatus"]) {
+                    + `<td>${temp["name"]}</td>`
+                    + `<td>${temp["mass"]}</td>`;
+                switch (temp["status"]) {
                     case 'READY':
                     default:
                         tableInnerBlock += "<td>Ready for delivery</td>";
@@ -193,21 +193,21 @@ function add_cargo(pageContext) {
         dataType: 'json',
         url: pageContext + '/employee/cargo/create',
         data: JSON.stringify({
-            "cargoName": $("#cargoNameInput").val(),
-            "cargoMass": $("#cargoMassInput").val(),
-            "cargoStatus": "READY"
+            "name": $("#cargoNameInput").val(),
+            "mass": $("#cargoMassInput").val(),
+            "status": "READY"
         }),
         success: function (data) {
             // redirect
             if (data["status"] === "success") {
                 window.location.href = pageContext + '/employee/homepage';
             } else {
-                if (data["messages"].hasOwnProperty("cargoName")) {
-                    $("#cargoNameError").text(data["messages"]["cargoName"]).show();
+                if (data["messages"].hasOwnProperty("name")) {
+                    $("#cargoNameError").text(data["messages"]["name"]).show();
                 }
 
-                if (data["messages"].hasOwnProperty("cargoMass")) {
-                    $("#cargoMassError").text(data["messages"]["cargoMass"]).show();
+                if (data["messages"].hasOwnProperty("mass")) {
+                    $("#cargoMassError").text(data["messages"]["mass"]).show();
                 }
             }
         },
@@ -234,11 +234,11 @@ function load_cargo(pageContext, cargoUID) {
                 let cargoDto = response["object"];
 
                 $("#cargoIdTd").text(cargoDto["id"]).show();
-                $("#cargoNameTd").text(cargoDto["cargoName"]).show();
-                $("#cargoMassTd").text(cargoDto["cargoMass"]).show();
+                $("#cargoNameTd").text(cargoDto["name"]).show();
+                $("#cargoMassTd").text(cargoDto["mass"]).show();
 
                 let statusTd = $("#cargoStatusTd");
-                switch (cargoDto["cargoStatus"]) {
+                switch (cargoDto["status"]) {
                     case 'READY':
                     default:
                         statusTd.text("Ready for delivery").show();
@@ -284,7 +284,7 @@ function update_cargo_name(pageContext, cargoUID) {
         contentType: 'application/json',
         data: JSON.stringify({
             "id": cargoUID,
-            "cargoName": $("#editCargoNameInput").val()
+            "name": $("#editCargoNameInput").val()
         }),
         success: function (response) {
             if (response["status"] === "success") {
@@ -293,8 +293,8 @@ function update_cargo_name(pageContext, cargoUID) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("id")) {
                     message = response["messages"]["id"]
-                } else if (response["messages"].hasOwnProperty("cargoName")) {
-                    message = response["messages"]["cargoName"]
+                } else if (response["messages"].hasOwnProperty("name")) {
+                    message = response["messages"]["name"]
                 } else if (response["messages"].hasOwnProperty("error")) {
                     message = response["messages"]["error"]
                 }
@@ -344,7 +344,7 @@ function update_cargo_mass(pageContext, cargoUID) {
         contentType: 'application/json',
         data: JSON.stringify({
             "id": cargoUID,
-            "cargoMass": $("#editCargoMassInput").val()
+            "mass": $("#editCargoMassInput").val()
         }),
         success: function (response) {
             if (response["status"] === "success") {
@@ -353,8 +353,8 @@ function update_cargo_mass(pageContext, cargoUID) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("id")) {
                     message = response["messages"]["id"]
-                } else if (response["messages"].hasOwnProperty("cargoMass")) {
-                    message = response["messages"]["cargoMass"]
+                } else if (response["messages"].hasOwnProperty("mass")) {
+                    message = response["messages"]["mass"]
                 } else if (response["messages"].hasOwnProperty("error")) {
                     message = response["messages"]["error"]
                 }

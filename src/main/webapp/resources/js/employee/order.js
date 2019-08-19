@@ -51,7 +51,7 @@ function load_order_list(pageContext, elemId) {
                 tableInnerBlock += `<tr><td>${i}</td>`
                     + `<td>${temp["uniqueIdentificator"]}</td>`;
 
-                switch (temp["orderStatus"]) {
+                switch (temp["status"]) {
                     case 'CANCELED':
                     default:
                         tableInnerBlock += "<td style='color: #880000'>Canceled</td>";
@@ -69,18 +69,18 @@ function load_order_list(pageContext, elemId) {
 
                 tableInnerBlock += `<td>${new Date(temp["lastUpdated"])}</td>`;
 
-                if (temp["truckUID"] == null) {
+                if (temp["truckId"] == null) {
                     tableInnerBlock += "<td>Not assigned</td>"
                 } else {
-                    tableInnerBlock += `<td>${temp["truckUID"]}</td>`
+                    tableInnerBlock += `<td>${temp["truckId"]}</td>`
                 }
 
-                if (is_empty(temp["driversUIDSet"])) {
+                if (is_empty(temp["assignedDrivers"])) {
                     tableInnerBlock += "<td>Not assigned</td>"
                 } else {
                     tableInnerBlock += "<td><ul>";
-                    for (let i = 0; i < temp["driversUIDSet"].length; i++) {
-                        let driver = temp["driversUIDSet"][i];
+                    for (let i = 0; i < temp["assignedDrivers"].length; i++) {
+                        let driver = temp["assignedDrivers"][i];
                         console.log(driver);
                         tableInnerBlock += "<li>" + driver + "</li>";
                     }
@@ -179,11 +179,11 @@ function fetch_truck_list(pageContext) {
 
     $('.addWayPointTr').each(function () {
         let data = {
-            'cargoAction': $(this).children('.wayPointAction').text(),
-            'wayPointStatus': 'NOT_COMPLETED',
-            'waypointOrderUID': $('#orderUniqueIdentificatorInput').val(),
-            'waypointCargoUID': $(this).children('.wayPointCargo').text(),
-            'waypointCityUID': $(this).children('.wayPointCity').text()
+            'action': $(this).children('.wayPointAction').text(),
+            'status': 'NOT_COMPLETED',
+            'orderId': $('#orderUniqueIdentificatorInput').val(),
+            'cargoId': $(this).children('.wayPointCargo').text(),
+            'cityId': $(this).children('.wayPointCity').text()
         };
         waypointArray.push(data);
     });
@@ -196,7 +196,7 @@ function fetch_truck_list(pageContext) {
         url: pageContext + '/employee/order/trucks',
         data: JSON.stringify({
             "uniqueIdentificator": $('#orderUniqueIdentificatorInput').val(),
-            "wayPointDtoArray": waypointArray
+            "waypoints": waypointArray
         }),
         success: function (response) {
             // redirect
@@ -211,9 +211,9 @@ function fetch_truck_list(pageContext) {
                     let temp = truckDtoList[i];
                     selectorHtml += `<option value="${temp["uniqueIdentificator"]}">`
                         + "<b>UID: </b>" + temp["uniqueIdentificator"]
-                        + " <b>Capacity: </b>: " + temp["truckCapacity"]
-                        + " <b>City: </b> " + temp["truckCityUID"]
-                        + " <b>Shift Size: </b>" + temp["truckDriverShiftSize"]
+                        + " <b>Capacity: </b>: " + temp["capacity"]
+                        + " <b>City: </b> " + temp["cityId"]
+                        + " <b>Shift Size: </b>" + temp["shiftSize"]
                         + "</option>";
                 }
                 $("#orderTruckSelect").html(selectorHtml);
@@ -222,8 +222,8 @@ function fetch_truck_list(pageContext) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
                     message = response["messages"]["uniqueIdentificator"];
-                } else if (response["messages"].hasOwnProperty("wayPointDtoArray")) {
-                    message = response["messages"]["wayPointDtoArray"];
+                } else if (response["messages"].hasOwnProperty("waypoints")) {
+                    message = response["messages"]["waypoints"];
                 }
 
                 $.confirm({
@@ -254,11 +254,11 @@ function fetch_driver_list(pageContext) {
 
     $('.addWayPointTr').each(function () {
         let data = {
-            'cargoAction': $(this).children('.wayPointAction').text(),
-            'wayPointStatus': 'NOT_COMPLETED',
-            'waypointOrderUID': $('#orderUniqueIdentificatorInput').val(),
-            'waypointCargoUID': $(this).children('.wayPointCargo').text(),
-            'waypointCityUID': $(this).children('.wayPointCity').text()
+            'action': $(this).children('.wayPointAction').text(),
+            'status': 'NOT_COMPLETED',
+            'orderId': $('#orderUniqueIdentificatorInput').val(),
+            'cargoId': $(this).children('.wayPointCargo').text(),
+            'cityId': $(this).children('.wayPointCity').text()
         };
         waypointArray.push(data);
     });
@@ -271,8 +271,8 @@ function fetch_driver_list(pageContext) {
         url: pageContext + '/employee/order/drivers',
         data: JSON.stringify({
             "uniqueIdentificator": $('#orderUniqueIdentificatorInput').val(),
-            "truckUID": $('#orderTruckSelect').val(),
-            "wayPointDtoArray": waypointArray
+            "truckId": $('#orderTruckSelect').val(),
+            "waypoints": waypointArray
         }),
         success: function (response) {
             // redirect
@@ -287,8 +287,8 @@ function fetch_driver_list(pageContext) {
                     let temp = driverDtoList[i];
                     selectorHtml += `<option value="${temp["uniqueIdentificator"]}">`
                         + "<b>UID: </b>" + temp["uniqueIdentificator"]
-                        + " <b>Name: </b>: " + temp["driverName"]
-                        + " <b>Surname: </b> " + temp["driverSurname"]
+                        + " <b>Name: </b>: " + temp["name"]
+                        + " <b>Surname: </b> " + temp["surname"]
                         + "</option>";
                 }
                 console.log(selectorHtml)
@@ -297,10 +297,10 @@ function fetch_driver_list(pageContext) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
                     message = response["messages"]["uniqueIdentificator"];
-                } else if (response["messages"].hasOwnProperty("wayPointDtoArray")) {
-                    message = response["messages"]["wayPointDtoArray"];
-                } else if (response["messages"].hasOwnProperty("truckUID")) {
-                    message = response["messages"]["truckUID"];
+                } else if (response["messages"].hasOwnProperty("waypoints")) {
+                    message = response["messages"]["waypoints"];
+                } else if (response["messages"].hasOwnProperty("truckId")) {
+                    message = response["messages"]["truckId"];
                 }
 
                 $.confirm({
@@ -330,11 +330,11 @@ function add_order(pageContext) {
 
     $('.addWayPointTr').each(function () {
         let data = {
-            'cargoAction': $(this).children('.wayPointAction').text(),
-            'wayPointStatus': 'NOT_COMPLETED',
-            'waypointOrderUID': $('#orderUniqueIdentificatorInput').val(),
-            'waypointCargoUID': $(this).children('.wayPointCargo').text(),
-            'waypointCityUID': $(this).children('.wayPointCity').text()
+            'action': $(this).children('.wayPointAction').text(),
+            'status': 'NOT_COMPLETED',
+            'orderId': $('#orderUniqueIdentificatorInput').val(),
+            'cargoId': $(this).children('.wayPointCargo').text(),
+            'cityId': $(this).children('.wayPointCity').text()
         };
         waypointArray.push(data);
     });
@@ -352,9 +352,9 @@ function add_order(pageContext) {
         url: pageContext + '/employee/order/create',
         data: JSON.stringify({
             "uniqueIdentificator": $('#orderUniqueIdentificatorInput').val(),
-            "truckUID": $('#orderTruckSelect').val(),
-            "driversUIDSet": driverArray,
-            "wayPointDtoArray": waypointArray
+            "truckId": $('#orderTruckSelect').val(),
+            "assignedDrivers": driverArray,
+            "waypoints": waypointArray
         }),
         success: function (response) {
             // redirect
@@ -364,12 +364,12 @@ function add_order(pageContext) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
                     message = response["messages"]["uniqueIdentificator"];
-                } else if (response["messages"].hasOwnProperty("wayPointDtoArray")) {
-                    message = response["messages"]["wayPointDtoArray"];
-                } else if (response["messages"].hasOwnProperty("truckUID")) {
-                    message = response["messages"]["truckUID"];
-                } else if (response["messages"].hasOwnProperty("driversUIDSet")) {
-                    message = response["messages"]["driversUIDSet"];
+                } else if (response["messages"].hasOwnProperty("waypoints")) {
+                    message = response["messages"]["waypoints"];
+                } else if (response["messages"].hasOwnProperty("truckId")) {
+                    message = response["messages"]["truckId"];
+                } else if (response["messages"].hasOwnProperty("assignedDrivers")) {
+                    message = response["messages"]["assignedDrivers"];
                 }
 
                 $.confirm({

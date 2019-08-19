@@ -1,7 +1,7 @@
 package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.AbstractEntity;
-import com.ishvatov.model.entity.enum_types.TruckConditionType;
+import com.ishvatov.model.entity.enum_types.TruckStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -28,68 +28,68 @@ public class TruckEntity extends AbstractEntity {
     /**
      * Name of the capacity column in the DB.
      */
-    public static final String CAPACITY = "capacity";
+    public static final String CAPACITY_FIELD = "capacity";
 
     /**
      * Name of the condition column in the DB.
      */
-    public static final String CONDITION = "truck_status";
+    public static final String STATUS_FIELD = "status";
 
     /**
      * Name of the driver shift size column in the DB.
      */
-    public static final String SHIFT = "shift_size";
+    public static final String SHIFT_FIELD = "shiftSize";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String CITY_ID = "city_id";
+    public static final String CITY_ID_FIELD = "cityId";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String ORDER_ID = "order_id";
+    public static final String ORDER_ID_FIELD = "orderId";
 
     /**
      * Truck's capacity in tons.
      */
-    @Column(name = CAPACITY)
-    private Double truckCapacity;
+    @Column(name = CAPACITY_FIELD)
+    private Double capacity;
 
     /**
      * DriverEntity shift size in hours.
      */
-    @Column(name = SHIFT)
-    private Integer truckDriverShiftSize;
+    @Column(name = SHIFT_FIELD)
+    private Integer shiftSize;
 
     /**
      * Truck status.
      */
-    @Column(name = CONDITION)
+    @Column(name = STATUS_FIELD)
     @Enumerated(EnumType.STRING)
-    private TruckConditionType truckCondition;
+    private TruckStatusType status;
 
     /**
      * Set of drivers, who are assigned to this truck.
      */
-    @OneToMany(mappedBy = "driverTruck", fetch = FetchType.LAZY)
-    private Set<DriverEntity> truckDriversSet = new HashSet<>();
+    @OneToMany(mappedBy = "truck", fetch = FetchType.LAZY)
+    private Set<DriverEntity> assignedDrivers = new HashSet<>();
 
     /**
      * City, where this truck is located.
      */
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = CITY_ID)
-    private CityEntity truckCity;
+    @JoinColumn(name = CITY_ID_FIELD)
+    private CityEntity city;
 
     /**
      * Order, assigned to this truck.
      */
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = ORDER_ID)
-    private OrderEntity truckOrder;
+    @JoinColumn(name = ORDER_ID_FIELD)
+    private OrderEntity order;
 
     /**
      * Adds driver to the set of the assigned to this truck ones.
@@ -98,8 +98,8 @@ public class TruckEntity extends AbstractEntity {
      */
     public void addDriver(DriverEntity driverEntity) {
         Optional.ofNullable(driverEntity).ifPresent(e -> {
-            truckDriversSet.add(e);
-            e.setDriverTruck(this);
+            assignedDrivers.add(e);
+            e.setTruck(this);
         });
     }
 
@@ -110,8 +110,8 @@ public class TruckEntity extends AbstractEntity {
      */
     public void removeDriver(DriverEntity driverEntity) {
         Optional.ofNullable(driverEntity).ifPresent(e -> {
-            truckDriversSet.remove(e);
-            e.setDriverTruck(null);
+            assignedDrivers.remove(e);
+            e.setTruck(null);
         });
     }
 }

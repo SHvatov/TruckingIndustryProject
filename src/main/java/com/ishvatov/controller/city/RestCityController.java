@@ -1,6 +1,7 @@
 package com.ishvatov.controller.city;
 
 import com.ishvatov.service.inner.city.CityService;
+import lombok.extern.log4j.Log4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,6 +17,7 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("employee/city")
+@Log4j
 public class RestCityController {
     /**
      * Autowired service to access DAO layer.
@@ -30,7 +32,14 @@ public class RestCityController {
      */
     @GetMapping(value = "/list")
     public @ResponseBody List<String> listAllTrucks() {
-        return cityService.getAllCityNames();
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return cityService.getAllCities();
     }
 
 }

@@ -124,10 +124,8 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
     @Override
     public void delete(String key) {
         Optional<DriverEntity> driverEntity = Optional.ofNullable(
-            driverDao.findByUniqueKey(
-                Optional.ofNullable(key).orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null"))
-            )
-        );
+            driverDao.findByUniqueKey(Optional.ofNullable(key)
+                    .orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null"))));
 
         driverEntity.ifPresent(entity -> {
             removeCity(entity);
@@ -143,7 +141,7 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
      * @return list with UID of all drivers in the DB.
      */
     @Override
-    public List<String> getAllDriversUID() {
+    public List<String> getAllDrivers() {
         return driverDao.findAll()
             .stream()
             .filter(Objects::nonNull)
@@ -162,40 +160,40 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
             entity.setUniqueIdentificator(dto.getUniqueIdentificator());
         }
 
-        if (!dto.getDriverWorkedHours().equals(entity.getDriverWorkedHours())) {
-            entity.setDriverWorkedHours(dto.getDriverWorkedHours());
+        if (!dto.getWorkedHours().equals(entity.getWorkedHours())) {
+            entity.setWorkedHours(dto.getWorkedHours());
         }
 
         if (!dto.getLastUpdated().equals(entity.getLastUpdated())) {
             entity.setLastUpdated(dto.getLastUpdated());
         }
 
-        if (!dto.getDriverStatus().equals(entity.getDriverStatus())) {
-            entity.setDriverStatus(dto.getDriverStatus());
+        if (!dto.getStatus().equals(entity.getStatus())) {
+            entity.setStatus(dto.getStatus());
         }
 
-        if (!dto.getDriverSurname().equals(entity.getDriverSurname())) {
-            entity.setDriverSurname(dto.getDriverSurname());
+        if (!dto.getSurname().equals(entity.getSurname())) {
+            entity.setSurname(dto.getSurname());
         }
 
-        if (!dto.getDriverName().equals(entity.getDriverName())) {
-            entity.setDriverName(dto.getDriverName());
+        if (!dto.getName().equals(entity.getName())) {
+            entity.setName(dto.getName());
         }
 
-        if (dto.getCurrentCityUID() != null) {
-            updateCity(dto.getCurrentCityUID(), entity);
+        if (dto.getCityId() != null) {
+            updateCity(dto.getCityId(), entity);
         } else {
             removeCity(entity);
         }
 
-        if (dto.getDriverTruckUID() != null) {
-            updateTruck(dto.getDriverTruckUID(), entity);
+        if (dto.getTruckId() != null) {
+            updateTruck(dto.getTruckId(), entity);
         } else {
             removeTruck(entity);
         }
 
-        if (dto.getDriverOrderUID() != null) {
-            updateOrder(dto.getDriverOrderUID(), entity);
+        if (dto.getOrderId() != null) {
+            updateOrder(dto.getOrderId(), entity);
         } else {
             removeOrder(entity);
         }
@@ -204,19 +202,19 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
     /**
      * Updates the city of the entity.
      *
-     * @param cityUID UID of the city.
+     * @param cityId UID of the city.
      * @param entity  Entity object.
      */
-    private void updateCity(String cityUID, DriverEntity entity) {
+    private void updateCity(String cityId, DriverEntity entity) {
         String currentCityUID = Optional
-            .ofNullable(entity.getDriverCity())
+            .ofNullable(entity.getCity())
             .map(AbstractEntity::getUniqueIdentificator)
             .orElse("");
-        if (!currentCityUID.equals(cityUID)) {
+        if (!currentCityUID.equals(cityId)) {
             CityEntity cityEntity = Optional
-                .ofNullable(cityDao.findByUniqueKey(cityUID))
+                .ofNullable(cityDao.findByUniqueKey(cityId))
                 .orElseThrow(() -> new DAOException(getClass(), "updateCity", "Entity with such UID does not exist"));
-            Optional.ofNullable(entity.getDriverCity()).ifPresent(e -> e.removeDriver(entity));
+            Optional.ofNullable(entity.getCity()).ifPresent(e -> e.removeDriver(entity));
             cityEntity.addDriver(entity);
         }
     }
@@ -227,25 +225,25 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
      * @param entity  Entity object.
      */
     private void removeCity(DriverEntity entity) {
-        Optional.ofNullable(entity.getDriverCity()).ifPresent(e -> e.removeDriver(entity));
+        Optional.ofNullable(entity.getCity()).ifPresent(e -> e.removeDriver(entity));
     }
 
     /**
      * Updates the order of the entity.
      *
-     * @param orderUID UID of the order.
+     * @param orderId UID of the order.
      * @param entity   Entity object.
      */
-    private void updateOrder(String orderUID, DriverEntity entity) {
+    private void updateOrder(String orderId, DriverEntity entity) {
         String currentOrderUID = Optional
-            .ofNullable(entity.getDriverOrder())
+            .ofNullable(entity.getOrder())
             .map(AbstractEntity::getUniqueIdentificator)
             .orElse("");
-        if (!currentOrderUID.equals(orderUID)) {
+        if (!currentOrderUID.equals(orderId)) {
             OrderEntity orderEntity = Optional
-                .ofNullable(orderDao.findByUniqueKey(orderUID))
+                .ofNullable(orderDao.findByUniqueKey(orderId))
                 .orElseThrow(() -> new DAOException(getClass(), "updateOrder", "Entity with such UID does not exist"));
-            Optional.ofNullable(entity.getDriverOrder()).ifPresent(e -> e.removeDriver(entity));
+            Optional.ofNullable(entity.getOrder()).ifPresent(e -> e.removeDriver(entity));
             orderEntity.addDriver(entity);
         }
     }
@@ -256,25 +254,25 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
      * @param entity   Entity object.
      */
     private void removeOrder(DriverEntity entity) {
-       Optional.ofNullable(entity.getDriverOrder()).ifPresent(e -> e.removeDriver(entity));
+       Optional.ofNullable(entity.getOrder()).ifPresent(e -> e.removeDriver(entity));
     }
 
     /**
      * Updates the truck of the entity.
      *
-     * @param truckUID UID of the truck.
+     * @param truckId UID of the truck.
      * @param entity   Entity object.
      */
-    private void updateTruck(String truckUID, DriverEntity entity) {
+    private void updateTruck(String truckId, DriverEntity entity) {
         String currentTruckUID = Optional
-            .ofNullable(entity.getDriverTruck())
+            .ofNullable(entity.getTruck())
             .map(AbstractEntity::getUniqueIdentificator)
             .orElse("");
-        if (!currentTruckUID.equals(truckUID)) {
+        if (!currentTruckUID.equals(truckId)) {
             TruckEntity truckEntity = Optional
-                .ofNullable(truckDao.findByUniqueKey(truckUID))
+                .ofNullable(truckDao.findByUniqueKey(truckId))
                 .orElseThrow(() -> new DAOException(getClass(), "updateTruck", "Entity with such UID does not exist"));
-            Optional.ofNullable(entity.getDriverTruck()).ifPresent(e -> e.removeDriver(entity));
+            Optional.ofNullable(entity.getTruck()).ifPresent(e -> e.removeDriver(entity));
             truckEntity.addDriver(entity);
         }
     }
@@ -285,7 +283,7 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
      * @param entity Entity object.
      */
     private void removeTruck(DriverEntity entity) {
-        Optional.ofNullable(entity.getDriverTruck()).ifPresent(e -> e.removeDriver(entity));
+        Optional.ofNullable(entity.getTruck()).ifPresent(e -> e.removeDriver(entity));
     }
 
 
@@ -297,8 +295,8 @@ public class DriverServiceImpl extends AbstractService<String, DriverEntity, Dri
      */
     private void validateRequiredFields(DriverDto dto) {
         if (dto == null || dto.getUniqueIdentificator() == null
-            || dto.getDriverWorkedHours() == null || dto.getDriverStatus() == null
-            || dto.getDriverName() == null || dto.getDriverSurname() == null
+            || dto.getWorkedHours() == null || dto.getStatus() == null
+            || dto.getName() == null || dto.getSurname() == null
             || dto.getLastUpdated() == null) {
             throw new NullPointerException();
         }

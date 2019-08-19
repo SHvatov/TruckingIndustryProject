@@ -2,7 +2,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Truck: [${truckUID}]</title>
+    <title>Truck: [${truckId}]</title>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/css/styles.css"/>"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/js/jquery-confirm/css/jquery-confirm.css"/>"/>
     <script src="<c:url value="/resources/js/jquery.min.js"/>" type="text/javascript"></script>
@@ -13,12 +13,12 @@
 <body>
     <script>
         $(document).ready(function () {
-            load_truck('${pageContext.request.contextPath}', '${truckUID}');
+            load_truck('${pageContext.request.contextPath}', '${truckId}');
         });
     </script>
     <table class="myTableStyle">
         <tr>
-            <th colspan='4'>Truck [${truckUID}] information</th>
+            <th colspan='4'>Truck [${truckId}] information</th>
         </tr>
         <tr>
             <td>Registration Number</td>
@@ -30,7 +30,7 @@
             <td hidden="hidden" id="editShiftSizeTd">
                 <label><input type="text" id="editShiftSizeInput"/></label>
                 <button class="tableEditButton"
-                        onclick="update_truck_shift_size('${pageContext.request.contextPath}', '${truckUID}')">
+                        onclick="update_truck_shift_size('${pageContext.request.contextPath}', '${truckId}')">
                     Update
                 </button>
                 <button class="tableEditButton"
@@ -52,7 +52,7 @@
             <td hidden="hidden" id="editCapacityTd">
                 <label><input type="text" id="editCapacityInput"/></label>
                 <button class="tableEditButton"
-                        onclick="update_truck_capacity('${pageContext.request.contextPath}', '${truckUID}')">
+                        onclick="update_truck_capacity('${pageContext.request.contextPath}', '${truckId}')">
                     Update
                 </button>
                 <button class="tableEditButton"
@@ -79,7 +79,7 @@
                     </select>
                 </label>
                 <button class="tableEditButton"
-                        onclick="update_truck_condition('${pageContext.request.contextPath}', '${truckUID}')">
+                        onclick="update_truck_condition('${pageContext.request.contextPath}', '${truckId}')">
                     Update
                 </button>
                 <button class="tableEditButton"
@@ -114,7 +114,7 @@
             Go back
         </button>
         <button class="myRegularButton"
-                onclick="load_truck('${pageContext.request.contextPath}', '${truckUID}');">
+                onclick="load_truck('${pageContext.request.contextPath}', '${truckId}');">
             Refresh
         </button>
     </div>

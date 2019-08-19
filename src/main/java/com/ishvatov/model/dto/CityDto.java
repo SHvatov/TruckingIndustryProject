@@ -18,11 +18,6 @@ import java.util.Set;
 public class CityDto implements BaseDtoInterface<String> {
 
     /**
-     * ID of the city in the database.
-     */
-    private Integer id;
-
-    /**
      * Unique id of the city <=> name of the city.
      */
     private String uniqueIdentificator;

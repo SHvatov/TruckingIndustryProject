@@ -49,7 +49,8 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      * @param wayPointDao autowired {@link WayPointDao} impl.
      */
     @Autowired
-    public CargoServiceImpl(CargoDao cargoDao, WayPointDao wayPointDao, Mapper<CargoEntity, CargoDto> mapper) {
+    public CargoServiceImpl(CargoDao cargoDao, WayPointDao wayPointDao,
+                            Mapper<CargoEntity, CargoDto> mapper) {
         super(cargoDao, mapper);
         this.cargoDao = cargoDao;
         this.wayPointDao = wayPointDao;
@@ -86,7 +87,9 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
     @Override
     public void update(CargoDto dtoObj) {
         validateRequiredFields(dtoObj, false);
-        CargoEntity cargoEntity = Optional.of(cargoDao.findByUniqueKey(dtoObj.getUniqueIdentificator())).orElseThrow(() -> new DAOException(getClass(), "update", "Entity with such UID does not exist"));
+        CargoEntity cargoEntity =
+            Optional.of(cargoDao.findByUniqueKey(dtoObj.getUniqueIdentificator()))
+            .orElseThrow(() -> new DAOException(getClass(), "update", "Entity with such UID does not exist"));
         updateImpl(dtoObj, cargoEntity);
     }
 
@@ -98,10 +101,17 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      */
     @Override
     public void delete(Integer key) {
-        Optional<CargoEntity> cargoEntity = Optional.ofNullable(cargoDao.findByUniqueKey(Optional.ofNullable(key).orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null"))));
+        Optional<CargoEntity> cargoEntity = Optional.ofNullable(
+            cargoDao.findByUniqueKey(Optional.ofNullable(key)
+                .orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null"))
+            )
+        );
 
         cargoEntity.ifPresent(entity -> {
-            Set<WayPointEntity> set = entity.getAssignedWaypoints().stream().filter(Objects::nonNull).collect(Collectors.toSet());
+            Set<WayPointEntity> set = entity.getAssignedWaypoints()
+                .stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
             set.forEach(entity::removeWayPoint);
             cargoDao.delete(entity);
         });
@@ -115,9 +125,8 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      */
     @Override
     public boolean hasOrder(Integer id) {
-        int cargoId = Optional.ofNullable(id).orElseThrow(
-            () -> new ValidationException(getClass(), "find", "Key is null")
-        );
+        int cargoId = Optional.ofNullable(id)
+            .orElseThrow(() -> new ValidationException(getClass(), "hasOrder", "Key is null"));
         return wayPointDao.isAssigned(cargoId);
     }
 
@@ -128,16 +137,16 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      * @param entity Entity object.
      */
     private void updateImpl(CargoDto dto, CargoEntity entity) {
-        if (!dto.getCargoStatus().equals(entity.getCargoStatus())) {
-            entity.setCargoStatus(dto.getCargoStatus());
+        if (!dto.getStatus().equals(entity.getStatus())) {
+            entity.setStatus(dto.getStatus());
         }
 
-        if (!dto.getCargoMass().equals(entity.getCargoMass())) {
-            entity.setCargoMass(dto.getCargoMass());
+        if (!dto.getMass().equals(entity.getMass())) {
+            entity.setMass(dto.getMass());
         }
 
-        if (!dto.getCargoName().equals(entity.getCargoName())) {
-            entity.setCargoName(dto.getCargoName());
+        if (!dto.getName().equals(entity.getName())) {
+            entity.setName(dto.getName());
         }
     }
 
@@ -150,7 +159,8 @@ public class CargoServiceImpl extends AbstractService<Integer, CargoEntity, Carg
      *               save method or not.
      */
     private void validateRequiredFields(CargoDto dto, boolean isSave) {
-        if (dto == null || dto.getCargoName() == null || dto.getCargoStatus() == null || dto.getCargoMass() == null) {
+        if (dto == null || dto.getName() == null
+            || dto.getStatus() == null || dto.getMass() == null) {
             throw new ValidationException();
         }
 

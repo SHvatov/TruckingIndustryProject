@@ -28,14 +28,18 @@ public class SuccessLoginHandler extends SimpleUrlAuthenticationSuccessHandler {
      * @param authentication      {@link Authentication} context instance.
      */
     @Override
-    public void handle(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
-                  Authentication authentication) throws
+    public void handle(HttpServletRequest httpServletRequest,
+                       HttpServletResponse httpServletResponse,
+                       Authentication authentication) throws
         IOException, ServletException {
         if (httpServletResponse.isCommitted()) {
             return;
         }
-        getRedirectStrategy()
-            .sendRedirect(httpServletRequest, httpServletResponse, determineRedirectUrl(authentication));
+        getRedirectStrategy().sendRedirect(
+            httpServletRequest,
+            httpServletResponse,
+            determineRedirectUrl(authentication)
+        );
     }
 
     /**
@@ -54,7 +58,6 @@ public class SuccessLoginHandler extends SimpleUrlAuthenticationSuccessHandler {
                 return "/driver/homepage";
             }
         }
-
         return "/error/error_page";
     }
 }

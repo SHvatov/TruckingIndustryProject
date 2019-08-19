@@ -39,7 +39,11 @@ public abstract class AbstractDao<U, T> implements BaseDaoInterface<U, T> {
      */
     @SuppressWarnings("unchecked")
     protected AbstractDao() {
-        this.persistentClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+        this.persistentClass =
+            (Class<T>) ((ParameterizedType) this
+                .getClass()
+                .getGenericSuperclass())
+                .getActualTypeArguments()[1];
     }
 
     /**

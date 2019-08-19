@@ -29,19 +29,19 @@ public class CargoEntity {
      * String representation of the 'mass'
      * column name in the table.
      */
-    public static final String MASS = "mass";
+    public static final String MASS_FIELD = "mass";
 
     /**
      * String representation of the 'cargo_status'
      * column name in the table.
      */
-    public static final String STATE = "cargo_status";
+    public static final String STATE_FIELD = "status";
 
     /**
      * String representation of the 'name'
      * column name in the table.
      */
-    public static final String NAME = "name";
+    public static final String NAME_FIELD = "name";
 
     /**
      * Unique id of the truck in the DB.
@@ -54,26 +54,26 @@ public class CargoEntity {
     /**
      * Name of the cargo.
      */
-    @Column(name = NAME)
-    private String cargoName;
+    @Column(name = NAME_FIELD)
+    private String name;
 
     /**
      * Mass of the cargo.
      */
-    @Column(name = MASS)
-    private Double cargoMass;
+    @Column(name = MASS_FIELD)
+    private Double mass;
 
     /**
      * Status of the cargo.
      */
-    @Column(name = STATE)
+    @Column(name = STATE_FIELD)
     @Enumerated(EnumType.STRING)
-    private CargoStatusType cargoStatus;
+    private CargoStatusType status;
 
     /**
      * Set of waypoints, that are located in the city.
      */
-    @OneToMany(mappedBy = "waypointCargo", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "cargo", fetch = FetchType.LAZY)
     private Set<WayPointEntity> assignedWaypoints = new HashSet<>();
 
     /**
@@ -84,7 +84,7 @@ public class CargoEntity {
     public void addWayPoint(WayPointEntity wayPointEntity) {
         Optional.ofNullable(wayPointEntity).ifPresent(e -> {
             assignedWaypoints.add(e);
-            e.setWaypointCargo(this);
+            e.setCargo(this);
         });
     }
 
@@ -96,7 +96,7 @@ public class CargoEntity {
     public void removeWayPoint(WayPointEntity wayPointEntity) {
         Optional.ofNullable(wayPointEntity).ifPresent(e -> {
             assignedWaypoints.remove(e);
-            e.setWaypointCargo(null);
+            e.setCargo(null);
         });
     }
 

@@ -1,21 +1,18 @@
 package com.ishvatov.controller.order;
 
-import com.ishvatov.controller.response.ServerResponse;
-import com.ishvatov.controller.response.ServerResponseObject;
-import com.ishvatov.model.dto.*;
-import com.ishvatov.model.entity.enum_types.CargoStatusType;
-import com.ishvatov.model.entity.enum_types.OrderStatusType;
-import com.ishvatov.service.inner.cargo.CargoService;
-import com.ishvatov.service.inner.driver.DriverService;
-import com.ishvatov.service.inner.order.OrderService;
-import com.ishvatov.service.inner.waypoint.WayPointService;
-import com.ishvatov.validator.OrderValidator;
+import com.ishvatov.model.dto.DriverDto;
+import com.ishvatov.model.dto.OrderDto;
+import com.ishvatov.model.dto.OrderWaypointDto;
+import com.ishvatov.model.dto.TruckDto;
+import com.ishvatov.service.buisness.order.BusinessOrderService;
+import com.ishvatov.service.buisness.response.ServerResponse;
+import com.ishvatov.service.buisness.response.ServerResponseObject;
+import lombok.extern.log4j.Log4j;
+import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,37 +22,14 @@ import java.util.List;
  */
 @Controller
 @RequestMapping("employee/order")
+@Log4j
 public class RestOrderController {
 
     /**
      * Autowired service to access DAO layer.
      */
     @Autowired
-    private OrderService orderService;
-
-    /**
-     * Autowired service to access DAO layer.
-     */
-    @Autowired
-    private DriverService driverService;
-
-    /**
-     * Autowired service to access DAO layer.
-     */
-    @Autowired
-    private CargoService cargoService;
-
-    /**
-     * Autowired service to access DAO layer.
-     */
-    @Autowired
-    private WayPointService wayPointService;
-
-    /**
-     * Autowired validator.
-     */
-    @Autowired
-    private OrderValidator orderValidator;
+    private BusinessOrderService orderService;
 
     /**
      * Gets all the orders from the database.
@@ -64,7 +38,14 @@ public class RestOrderController {
      */
     @GetMapping(value = "/list")
     public @ResponseBody List<OrderDto> loadAllOrders() {
-        return orderService.findAll();
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return orderService.loadAllOrders();
     }
 
     /**
@@ -74,11 +55,14 @@ public class RestOrderController {
      */
     @PostMapping(value = "/trucks")
     public @ResponseBody ServerResponseObject<List<TruckDto>> fetchTruckList(@RequestBody OrderWaypointDto orderDto) {
-        ServerResponseObject<List<TruckDto>> response = new ServerResponseObject<>();
-        if (orderValidator.validateBeforeTruckFetch(orderDto, response)) {
-            response.setObject(orderService.findSuitableTrucks(orderDto.getWayPointDtoArray()));
-        }
-        return response;
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return orderService.fetchTruckList(orderDto);
     }
 
     /**
@@ -88,13 +72,14 @@ public class RestOrderController {
      */
     @PostMapping(value = "/drivers")
     public @ResponseBody ServerResponseObject<List<DriverDto>> fetchDriverList(@RequestBody OrderWaypointDto orderDto) {
-        ServerResponseObject<List<DriverDto>> response = new ServerResponseObject<>();
-        if (orderValidator.validateBeforeDriverFetch(orderDto, response)) {
-            response.setObject(
-                orderService.findSuitableDrivers(orderDto.getTruckUID(), orderDto.getWayPointDtoArray())
-            );
-        }
-        return response;
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return orderService.fetchDriverList(orderDto);
     }
 
     /**
@@ -104,39 +89,13 @@ public class RestOrderController {
      */
     @PostMapping(value = "/create")
     public @ResponseBody ServerResponse createOrder(@RequestBody OrderWaypointDto orderDto) {
-        ServerResponse response = new ServerResponse();
-        if (orderValidator.validateBeforeSave(orderDto, response)) {
-            OrderDto innerOrderDto = new OrderDto();
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
 
-            // save order
-            innerOrderDto.setUniqueIdentificator(orderDto.getUniqueIdentificator());
-            innerOrderDto.setLastUpdated(new Timestamp(new Date().getTime()));
-            innerOrderDto.setOrderStatus(OrderStatusType.READY);
-            orderService.save(innerOrderDto);
-
-            // update order
-            innerOrderDto.setDriversUIDSet(orderDto.getDriversUIDSet());
-            innerOrderDto.setTruckUID(orderDto.getTruckUID());
-            orderService.update(innerOrderDto);
-
-            // save waypoints
-            for (WayPointDto wayPointDto : orderDto.getWayPointDtoArray()) {
-                // update cargo status
-                CargoDto cargoDto = cargoService.find(wayPointDto.getWaypointCargoUID());
-                cargoDto.setCargoStatus(CargoStatusType.SHIPPING);
-                cargoService.update(cargoDto);
-                // update waypoints
-                wayPointDto.setWaypointOrderUID(orderDto.getUniqueIdentificator());
-                wayPointService.save(wayPointDto);
-            }
-
-            // update drivers
-            for (String driverUID : orderDto.getDriversUIDSet()) {
-                DriverDto driverDto = driverService.find(driverUID);
-                driverDto.setDriverTruckUID(orderDto.getTruckUID());
-                driverService.update(driverDto);
-            }
-        }
-        return response;
+        return orderService.createOrder(orderDto);
     }
 }

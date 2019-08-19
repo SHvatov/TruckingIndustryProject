@@ -10,4 +10,5 @@ import com.ishvatov.service.inner.BaseService;
  * @author Sergey Khvatov
  */
 public interface TruckService extends BaseService<String, TruckDto> {
+    // empty
 }

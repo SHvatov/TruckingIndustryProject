@@ -9,4 +9,5 @@ import com.ishvatov.model.entity.buisness.DriverEntity;
  * @author Sergey Khvatov.
  */
 public interface DriverDao extends BaseDaoInterface<String, DriverEntity> {
+    // empty
 }

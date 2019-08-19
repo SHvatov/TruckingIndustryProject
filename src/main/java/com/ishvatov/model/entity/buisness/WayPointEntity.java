@@ -1,7 +1,7 @@
 package com.ishvatov.model.entity.buisness;
 
 import com.ishvatov.model.entity.enum_types.CargoActionType;
-import com.ishvatov.model.entity.enum_types.WayPointStatus;
+import com.ishvatov.model.entity.enum_types.WayPointStatusType;
 import lombok.*;
 
 import javax.persistence.*;
@@ -24,31 +24,31 @@ public class WayPointEntity {
      * String representation of the 'action'
      * column name in the table.
      */
-    public static final String ACTION = "action";
+    public static final String ACTION_FIELD = "action";
 
     /**
      * String representation of the 'action'
      * column name in the table.
      */
-    public static final String STATUS = "status";
+    public static final String STATUS_FIELD = "status";
 
     /**
      * String representation of the 'order_id'
      * column name in the table.
      */
-    public static final String ORDER_ID = "order_id";
+    public static final String ORDER_ID_FIELD = "orderId";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String CITY_ID = "city_id";
+    public static final String CITY_ID_FIELD = "cityId";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String CARGO_ID = "cargo_id";
+    public static final String CARGO_ID_FIELD = "cargoId";
 
     /**
      * Unique id of the truck in the DB.
@@ -62,35 +62,35 @@ public class WayPointEntity {
      * Defines whether cargo is being loaded or
      * unloaded in this city.
      */
-    @Column(name = ACTION)
-    private CargoActionType cargoAction;
+    @Column(name = ACTION_FIELD)
+    private CargoActionType action;
 
     /**
      * Defines the status of the waypoint (completed or not).
      */
-    @Column(name = STATUS)
-    private WayPointStatus wayPointStatus;
+    @Column(name = STATUS_FIELD)
+    private WayPointStatusType status;
 
     /**
      * Order, this waypoint is assigned to.
      */
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = ORDER_ID)
-    private OrderEntity waypointOrder;
+    @JoinColumn(name = ORDER_ID_FIELD)
+    private OrderEntity order;
 
     /**
      * Cargo, that is assigned to this waypoint.
      */
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = CARGO_ID)
-    private CargoEntity waypointCargo;
+    @JoinColumn(name = CARGO_ID_FIELD)
+    private CargoEntity cargo;
 
     /**
      * City, that is assigned to this waypoint.
      */
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = CITY_ID)
-    private CityEntity waypointCity;
+    @JoinColumn(name = CITY_ID_FIELD)
+    private CityEntity city;
 
     /**
      * Equals method override.

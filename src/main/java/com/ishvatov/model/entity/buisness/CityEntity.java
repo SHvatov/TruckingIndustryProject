@@ -30,19 +30,19 @@ public class CityEntity extends AbstractEntity {
     /**
      * Set of trucks, that are located in the city.
      */
-    @OneToMany(mappedBy = "truckCity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "city", fetch = FetchType.LAZY)
     private Set<TruckEntity> locatedTrucks = new HashSet<>();
 
     /**
      * Set of trucks, that are located in the city.
      */
-    @OneToMany(mappedBy = "driverCity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "city", fetch = FetchType.LAZY)
     private Set<DriverEntity> locatedDrivers = new HashSet<>();
 
     /**
      * Set of waypoints, that are located in the city.
      */
-    @OneToMany(mappedBy = "waypointCity", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "city", fetch = FetchType.LAZY)
     private Set<WayPointEntity> locatedWaypoints = new HashSet<>();
 
     /**
@@ -53,7 +53,7 @@ public class CityEntity extends AbstractEntity {
     public void addTruck(TruckEntity truckEntity) {
         Optional.ofNullable(truckEntity).ifPresent(e -> {
             locatedTrucks.add(e);
-            e.setTruckCity(this);
+            e.setCity(this);
         });
     }
 
@@ -65,7 +65,7 @@ public class CityEntity extends AbstractEntity {
     public void removeTruck(TruckEntity truckEntity) {
         Optional.ofNullable(truckEntity).ifPresent(e -> {
             locatedTrucks.remove(e);
-            e.setTruckCity(null);
+            e.setCity(null);
         });
     }
 
@@ -77,7 +77,7 @@ public class CityEntity extends AbstractEntity {
     public void addDriver(DriverEntity driverEntity) {
         Optional.ofNullable(driverEntity).ifPresent(e -> {
             locatedDrivers.add(e);
-            e.setDriverCity(this);
+            e.setCity(this);
         });
     }
 
@@ -89,7 +89,7 @@ public class CityEntity extends AbstractEntity {
     public void removeDriver(DriverEntity driverEntity) {
         Optional.ofNullable(driverEntity).ifPresent(e -> {
             locatedDrivers.remove(e);
-            e.setDriverCity(null);
+            e.setCity(null);
         });
     }
 
@@ -101,7 +101,7 @@ public class CityEntity extends AbstractEntity {
     public void addWayPoint(WayPointEntity wayPointEntity) {
         Optional.ofNullable(wayPointEntity).ifPresent(e -> {
             locatedWaypoints.add(e);
-            e.setWaypointCity(this);
+            e.setCity(this);
         });
     }
 
@@ -113,7 +113,7 @@ public class CityEntity extends AbstractEntity {
     public void removeWayPoint(WayPointEntity wayPointEntity) {
         Optional.ofNullable(wayPointEntity).ifPresent(e -> {
             locatedWaypoints.remove(e);
-            e.setWaypointCity(null);
+            e.setCity(null);
         });
     }
 }

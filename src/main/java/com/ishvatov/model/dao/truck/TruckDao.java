@@ -9,4 +9,5 @@ import com.ishvatov.model.entity.buisness.TruckEntity;
  * @author Sergey Khvatov.
  */
 public interface TruckDao extends BaseDaoInterface<String, TruckEntity> {
+    // empty
 }

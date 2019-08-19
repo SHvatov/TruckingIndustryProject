@@ -62,7 +62,9 @@ public class WayPointServiceImpl extends AbstractService<Integer, WayPointEntity
      * @param orderDao autowired {@link OrderDao} impl.
      */
     @Autowired
-    public WayPointServiceImpl(CityDao cityDao, WayPointDao wayPointDao, CargoDao cargoDao, OrderDao orderDao, Mapper<WayPointEntity, WayPointDto> mapper) {
+    public WayPointServiceImpl(CityDao cityDao, WayPointDao wayPointDao,
+                               CargoDao cargoDao, OrderDao orderDao,
+                               Mapper<WayPointEntity, WayPointDto> mapper) {
         super(wayPointDao, mapper);
         this.cityDao = cityDao;
         this.orderDao = orderDao;
@@ -82,18 +84,25 @@ public class WayPointServiceImpl extends AbstractService<Integer, WayPointEntity
     public void save(WayPointDto dtoObj) {
         validateRequiredFields(dtoObj);
 
-        CityEntity cityEntity = Optional.ofNullable(cityDao.findByUniqueKey(dtoObj.getWaypointCityUID())).orElseThrow(() -> new DAOException(getClass(), "save", "Entity with such UID does not exist"));
-        CargoEntity cargoEntity = Optional.ofNullable(cargoDao.findByUniqueKey(dtoObj.getWaypointCargoUID())).orElseThrow(() -> new DAOException(getClass(), "save", "Entity with such UID does not exist"));
-        OrderEntity orderEntity = Optional.ofNullable(orderDao.findByUniqueKey(dtoObj.getWaypointOrderUID())).orElseThrow(() -> new DAOException(getClass(), "save", "Entity with such UID does not exist"));
+        CityEntity cityEntity = Optional.ofNullable(cityDao.findByUniqueKey(dtoObj.getCityId()))
+            .orElseThrow(() -> new DAOException(getClass(), "save", "Entity with such UID does not exist"));
+        CargoEntity cargoEntity = Optional.ofNullable(cargoDao.findByUniqueKey(dtoObj.getCargoId()))
+            .orElseThrow(() -> new DAOException(getClass(), "save", "Entity with such UID does not exist"));
+        OrderEntity orderEntity = Optional.ofNullable(orderDao.findByUniqueKey(dtoObj.getOrderId()))
+            .orElseThrow(() -> new DAOException(getClass(), "save", "Entity with such UID does not exist"));
 
         if (exists(orderEntity.getUniqueIdentificator(), cargoEntity.getId(),
-            cityEntity.getUniqueIdentificator(), dtoObj.getCargoAction())) {
+            cityEntity.getUniqueIdentificator(), dtoObj.getAction())) {
             throw new DAOException(getClass(), "save", "Entity with such unique parameters already exists");
         } else {
             WayPointEntity wayPointEntity = new WayPointEntity();
-            wayPointEntity.setCargoAction(dtoObj.getCargoAction());
-            wayPointEntity.setWayPointStatus(dtoObj.getWayPointStatus());
+
+            // save entity
+            wayPointEntity.setAction(dtoObj.getAction());
+            wayPointEntity.setStatus(dtoObj.getStatus());
             wayPointDao.save(wayPointEntity);
+
+            // add it to the system
             cityEntity.addWayPoint(wayPointEntity);
             cargoEntity.addWayPoint(wayPointEntity);
             orderEntity.addWayPoint(wayPointEntity);
@@ -114,9 +123,9 @@ public class WayPointServiceImpl extends AbstractService<Integer, WayPointEntity
      */
     @Override
     public void update(WayPointDto dtoObj) {
-        WayPointEntity wayPointEntity =
-            Optional.ofNullable(wayPointDao.findById(dtoObj.getId())).orElseThrow(() -> new DAOException(getClass(), "save", "Entity with such unique parameters already exists"));
-        wayPointEntity.setWayPointStatus(dtoObj.getWayPointStatus());
+        WayPointEntity wayPointEntity = Optional.ofNullable(wayPointDao.findById(dtoObj.getId()))
+            .orElseThrow(() -> new DAOException(getClass(), "update", "Entity with such unique parameters already exists"));
+        wayPointEntity.setStatus(dtoObj.getStatus());
     }
 
     /**
@@ -126,12 +135,15 @@ public class WayPointServiceImpl extends AbstractService<Integer, WayPointEntity
      */
     @Override
     public void delete(Integer key) {
-        Optional<WayPointEntity> wayPointEntity = Optional.ofNullable(wayPointDao.findById(Optional.ofNullable(key).orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null"))));
+        Optional<WayPointEntity> wayPointEntity = Optional.ofNullable(
+            wayPointDao.findById(Optional.ofNullable(key)
+                .orElseThrow(() -> new ValidationException(getClass(), "find", "Key is null")))
+        );
 
         wayPointEntity.ifPresent(entity -> {
-            Optional.ofNullable(entity.getWaypointCargo()).ifPresent(e -> e.removeWayPoint(entity));
-            Optional.ofNullable(entity.getWaypointCity()).ifPresent(e -> e.removeWayPoint(entity));
-            Optional.ofNullable(entity.getWaypointOrder()).ifPresent(e -> e.removeWayPoint(entity));
+            Optional.ofNullable(entity.getCargo()).ifPresent(e -> e.removeWayPoint(entity));
+            Optional.ofNullable(entity.getCity()).ifPresent(e -> e.removeWayPoint(entity));
+            Optional.ofNullable(entity.getOrder()).ifPresent(e -> e.removeWayPoint(entity));
             wayPointDao.delete(entity);
         });
     }
@@ -143,11 +155,11 @@ public class WayPointServiceImpl extends AbstractService<Integer, WayPointEntity
      * @param dto DTO object.
      */
     private void validateRequiredFields(WayPointDto dto) {
-        if (dto == null || dto.getCargoAction() == null
-            || dto.getWaypointOrderUID() == null
-            || dto.getWaypointCityUID() == null
-            || dto.getWaypointCargoUID() == null
-            || dto.getWayPointStatus() == null) {
+        if (dto == null || dto.getAction() == null
+            || dto.getOrderId() == null
+            || dto.getCityId() == null
+            || dto.getCargoId() == null
+            || dto.getStatus() == null) {
             throw new ValidationException();
         }
     }
@@ -164,7 +176,10 @@ public class WayPointServiceImpl extends AbstractService<Integer, WayPointEntity
     private boolean exists(String orderUID, Integer cargoID, String cityUID, CargoActionType actionType) {
         List<WayPointDto> allWaypoints = findAll();
         for (WayPointDto wayPointDto : allWaypoints) {
-            if (cityUID.equals(wayPointDto.getWaypointCityUID()) && cargoID.equals(wayPointDto.getWaypointCargoUID()) && orderUID.equals(wayPointDto.getWaypointOrderUID()) && actionType.equals(wayPointDto.getCargoAction())) {
+            if (cityUID.equals(wayPointDto.getCityId())
+                && cargoID.equals(wayPointDto.getCargoId())
+                && orderUID.equals(wayPointDto.getOrderId())
+                && actionType.equals(wayPointDto.getAction())) {
                 return true;
             }
         }

@@ -50,16 +50,16 @@ function load_driver_table(pageContext, elemId) {
 
                 // add data
                 tableInnerBlock += `<tr><td>${i}</td>`
-                    + `<td>${temp["driverName"]}</td>`
-                    + `<td>${temp["driverSurname"]}</td>`
+                    + `<td>${temp["name"]}</td>`
+                    + `<td>${temp["surname"]}</td>`
                     + `<td>${temp["uniqueIdentificator"]}</td>`;
 
                 // convert seconds into hours
                 let date = new Date(null);
-                date.setSeconds(temp["driverWorkedHours"]);
+                date.setSeconds(temp["workedHours"]);
                 tableInnerBlock += "<td>" + date.toISOString().substr(11, 8) + "</td>";
 
-                switch (temp["driverStatus"]) {
+                switch (temp["status"]) {
                     case "IDLE":
                     default:
                         tableInnerBlock += "<td>Idle</td>";
@@ -75,12 +75,12 @@ function load_driver_table(pageContext, elemId) {
                         break;
                 }
 
-                tableInnerBlock += `<td>${temp["currentCityUID"]}</td>`;
+                tableInnerBlock += `<td>${temp["cityId"]}</td>`;
 
-                if (temp["driverTruckUID"] == null) {
+                if (temp["truckId"] == null) {
                     tableInnerBlock += `<td>Not assigned to a truck</td>`;
                 } else {
-                    tableInnerBlock += `<td>${temp["driverTruckUID"]}</td>`;
+                    tableInnerBlock += `<td>${temp["truckId"]}</td>`;
                 }
 
                 tableInnerBlock += `<td>${new Date(temp["lastUpdated"])}</td>`;
@@ -155,7 +155,7 @@ function delete_driver(pageContext, driverUID) {
                         if (response["status"] === "success") {
                             $.alert("Successfully deleted");
                         } else {
-                            $.alert("Error while deleting: " + response["messages"]["driverOrderUID"] + ".");
+                            $.alert("Error while deleting: " + response["messages"]["orderId"] + ".");
                         }
                     }
                 });
@@ -183,12 +183,12 @@ function add_driver(pageContext) {
         url: pageContext + '/employee/driver/create',
         data: JSON.stringify({
             "uniqueIdentificator": $("#driverUniqueIdentificatorInput").val(),
-            "driverName": $("#driverNameInput").val(),
-            "driverSurname": $("#driverSurnameInput").val(),
-            "currentCityUID": $("#driverCitySelect").val(),
-            "driverPassword": $("#driverPasswordInput").val(),
-            "driverWorkedHours": 0,
-            "driverStatus": "IDLE",
+            "name": $("#driverNameInput").val(),
+            "surname": $("#driverSurnameInput").val(),
+            "cityId": $("#driverCitySelect").val(),
+            "password": $("#driverPasswordInput").val(),
+            "workedHours": 0,
+            "status": "IDLE",
             "lastUpdated": new Date()
         }),
         success: function (data) {
@@ -201,20 +201,20 @@ function add_driver(pageContext) {
                     $("#driverUniqueIdentificatorError").text(data["messages"]["uniqueIdentificator"]).show();
                 }
 
-                if (data["messages"].hasOwnProperty("driverName")) {
-                    $("#driverNameError").text(data["messages"]["driverName"]).show();
+                if (data["messages"].hasOwnProperty("name")) {
+                    $("#driverNameError").text(data["messages"]["name"]).show();
                 }
 
-                if (data["messages"].hasOwnProperty("driverSurname")) {
-                    $("#driverSurnameError").text(data["messages"]["driverSurname"]).show();
+                if (data["messages"].hasOwnProperty("surname")) {
+                    $("#driverSurnameError").text(data["messages"]["surname"]).show();
                 }
 
-                if (data["messages"].hasOwnProperty("driverPassword")) {
-                    $("#driverPasswordError").text(data["messages"]["driverPassword"]).show();
+                if (data["messages"].hasOwnProperty("password")) {
+                    $("#driverPasswordError").text(data["messages"]["password"]).show();
                 }
 
-                if (data["messages"].hasOwnProperty("currentCityUID")) {
-                    $("#driverCityError").text(data["messages"]["currentCityUID"]).show();
+                if (data["messages"].hasOwnProperty("cityId")) {
+                    $("#driverCityError").text(data["messages"]["cityId"]).show();
                 }
             }
         },
@@ -241,25 +241,25 @@ function load_driver(pageContext, driverUID) {
                 let driverDto = response["object"];
 
                 $("#driverUniqueIdentificatorTd").text(driverDto["uniqueIdentificator"]).show();
-                $("#driverNameTd").text(driverDto["driverName"]).show();
-                $("#driverSurnameTd").text(driverDto["driverSurname"]).show();
-                $("#driverCurrentCityTd").text(driverDto["currentCityUID"]).show();
+                $("#driverNameTd").text(driverDto["name"]).show();
+                $("#driverSurnameTd").text(driverDto["surname"]).show();
+                $("#driverCurrentCityTd").text(driverDto["cityId"]).show();
                 $("#driverLastTimeUpdatedTd").text(new Date(driverDto["lastUpdated"])).show();
 
                 let workedHoursTd = $("#driverWorkedHoursTd");
                 let date = new Date(null);
-                date.setSeconds(driverDto["driverWorkedHours"]);
+                date.setSeconds(driverDto["workedHours"]);
                 workedHoursTd.text(date.toISOString().substr(11, 8)).show();
 
                 let truckTd = $("#driverCurrentTruckTd");
-                if (driverDto["driverTruckUID"] == null) {
+                if (driverDto["truckId"] == null) {
                     truckTd.text("Not assigned to a truck").show();
                 } else {
-                    truckTd.text(driverDto["driverTruckUID"]).show();
+                    truckTd.text(driverDto["truckId"]).show();
                 }
 
                 let statusTd = $("#driverStatusTd");
-                switch (driverDto["driverStatus"]) {
+                switch (driverDto["status"]) {
                     case "IDLE":
                     default:
                         statusTd.text("Idle").show();
@@ -308,7 +308,7 @@ function update_driver_name(pageContext, driverUID) {
         contentType: 'application/json',
         data: JSON.stringify({
             "uniqueIdentificator": driverUID,
-            "driverName": $("#editDriverNameInput").val()
+            "name": $("#editDriverNameInput").val()
         }),
         success: function (response) {
             if (response["status"] === "success") {
@@ -317,10 +317,10 @@ function update_driver_name(pageContext, driverUID) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
                     message = response["messages"]["uniqueIdentificator"]
-                } else if (response["messages"].hasOwnProperty("driverName")) {
-                    message = response["messages"]["driverName"]
-                } else if (response["messages"].hasOwnProperty("driverOrderUID")) {
-                    message = response["messages"]["driverOrderUID"]
+                } else if (response["messages"].hasOwnProperty("name")) {
+                    message = response["messages"]["name"]
+                } else if (response["messages"].hasOwnProperty("orderId")) {
+                    message = response["messages"]["orderId"]
                 }
 
                 $.confirm({
@@ -354,7 +354,7 @@ function update_driver_surname(pageContext, driverUID) {
         contentType: 'application/json',
         data: JSON.stringify({
             "uniqueIdentificator": driverUID,
-            "driverSurname": $("#editDriverSurnameInput").val()
+            "surname": $("#editDriverSurnameInput").val()
         }),
         success: function (response) {
             if (response["status"] === "success") {
@@ -363,10 +363,10 @@ function update_driver_surname(pageContext, driverUID) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
                     message = response["messages"]["uniqueIdentificator"]
-                } else if (response["messages"].hasOwnProperty("driverSurname")) {
-                    message = response["messages"]["driverSurname"]
-                } else if (response["messages"].hasOwnProperty("driverOrderUID")) {
-                    message = response["messages"]["driverOrderUID"]
+                } else if (response["messages"].hasOwnProperty("surname")) {
+                    message = response["messages"]["surname"]
+                } else if (response["messages"].hasOwnProperty("orderId")) {
+                    message = response["messages"]["orderId"]
                 }
 
                 $.confirm({
@@ -400,7 +400,7 @@ function update_driver_city(pageContext, driverUID) {
         contentType: 'application/json',
         data: JSON.stringify({
             "uniqueIdentificator": driverUID,
-            "currentCityUID": $("#editDriverCurrentCitySelect").val()
+            "cityId": $("#editDriverCurrentCitySelect").val()
         }),
         success: function (response) {
             if (response["status"] === "success") {
@@ -409,10 +409,10 @@ function update_driver_city(pageContext, driverUID) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
                     message = response["messages"]["uniqueIdentificator"]
-                } else if (response["messages"].hasOwnProperty("currentCityUID")) {
-                    message = response["messages"]["currentCityUID"]
-                } else if (response["messages"].hasOwnProperty("driverOrderUID")) {
-                    message = response["messages"]["driverOrderUID"]
+                } else if (response["messages"].hasOwnProperty("cityId")) {
+                    message = response["messages"]["cityId"]
+                } else if (response["messages"].hasOwnProperty("orderId")) {
+                    message = response["messages"]["orderId"]
                 }
 
                 $.confirm({

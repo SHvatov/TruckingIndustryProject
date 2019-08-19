@@ -30,16 +30,23 @@ public class DriverMapperImpl implements Mapper<DriverEntity, DriverDto> {
      */
     @Override
     public DriverDto map(DriverEntity src) {
-        DriverDto driverDto = mapper.map(src, DriverDto.class);
+        DriverDto driverDto = new DriverDto(src.getUniqueIdentificator(),
+            null,
+            src.getName(),
+            src.getSurname(),
+            src.getWorkedHours(),
+            src.getLastUpdated(),
+            src.getStatus(),
+            null, null, null);
 
-        Optional.ofNullable(src.getDriverTruck())
-            .ifPresent(entity -> driverDto.setDriverTruckUID(entity.getUniqueIdentificator()));
+        Optional.ofNullable(src.getTruck())
+            .ifPresent(entity -> driverDto.setTruckId(entity.getUniqueIdentificator()));
 
-        Optional.ofNullable(src.getDriverOrder())
-            .ifPresent(entity -> driverDto.setDriverOrderUID(entity.getUniqueIdentificator()));
+        Optional.ofNullable(src.getOrder())
+            .ifPresent(entity -> driverDto.setOrderId(entity.getUniqueIdentificator()));
 
-        Optional.ofNullable(src.getDriverCity())
-            .ifPresent(entity -> driverDto.setCurrentCityUID(entity.getUniqueIdentificator()));
+        Optional.ofNullable(src.getCity())
+            .ifPresent(entity -> driverDto.setCityId(entity.getUniqueIdentificator()));
 
         return driverDto;
     }

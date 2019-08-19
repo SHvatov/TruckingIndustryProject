@@ -34,6 +34,6 @@ public class WayPointDaoImpl extends AbstractDao<Integer, WayPointEntity> implem
     public boolean isAssigned(Integer cargoId) {
         return findAll()
             .stream()
-            .anyMatch(wayPointEntity -> cargoId.equals(wayPointEntity.getWaypointCargo().getId()));
+            .anyMatch(wayPointEntity -> cargoId.equals(wayPointEntity.getCargo().getId()));
     }
 }

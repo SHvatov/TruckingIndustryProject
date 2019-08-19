@@ -3,6 +3,7 @@
 <html>
     <head>
         <title>Login failed!</title>
+        <link type="text/css" rel="stylesheet" href="<c:url value="/resources/css/styles.css"/>"/>
     </head>
     <body>
         <table class="myTableStyle">

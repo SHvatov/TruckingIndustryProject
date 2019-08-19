@@ -18,5 +18,5 @@ public interface DriverService extends BaseService<String, DriverDto> {
      *
      * @return list with UID of all drivers in the DB.
      */
-    List<String> getAllDriversUID();
+    List<String> getAllDrivers();
 }

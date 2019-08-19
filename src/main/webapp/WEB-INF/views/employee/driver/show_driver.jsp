@@ -2,7 +2,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Driver: [${driverUID}]</title>
+    <title>Driver: [${driverId}]</title>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/css/styles.css"/>"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/js/jquery-confirm/css/jquery-confirm.css"/>"/>
     <script src="<c:url value="/resources/js/jquery.min.js"/>" type="text/javascript"></script>
@@ -13,13 +13,13 @@
 <body>
     <script>
         $(document).ready(function () {
-            load_driver('${pageContext.request.contextPath}', '${driverUID}');
+            load_driver('${pageContext.request.contextPath}', '${driverId}');
             load_city_list('${pageContext.request.contextPath}', 'editDriverCurrentCitySelect');
         });
     </script>
     <table class="myTableStyle">
         <tr>
-            <th colspan='4'>Driver [${driverUID}] information</th>
+            <th colspan='4'>Driver [${driverId}] information</th>
         </tr>
         <tr>
             <td>Unique Identificator</td>
@@ -31,7 +31,7 @@
             <td hidden="hidden" id="editDriverNameTd">
             <label><input type="text" id="editDriverNameInput"/></label>
             <button class="tableEditButton"
-                    onclick="update_driver_name('${pageContext.request.contextPath}', '${driverUID}')">
+                    onclick="update_driver_name('${pageContext.request.contextPath}', '${driverId}')">
                 Update
             </button>
             <button class="tableEditButton"
@@ -53,7 +53,7 @@
             <td hidden="hidden" id="editDriverSurnameTd">
                 <label><input type="text" id="editDriverSurnameInput"/></label>
                 <button class="tableEditButton"
-                        onclick="update_driver_surname('${pageContext.request.contextPath}', '${driverUID}')">
+                        onclick="update_driver_surname('${pageContext.request.contextPath}', '${driverId}')">
                     Update
                 </button>
                 <button class="tableEditButton"
@@ -86,7 +86,7 @@
                     </select>
                 </label>
                 <button class="tableEditButton"
-                        onclick="update_driver_city('${pageContext.request.contextPath}', '${driverUID}')">
+                        onclick="update_driver_city('${pageContext.request.contextPath}', '${driverId}')">
                     Update
                 </button>
                 <button class="tableEditButton"
@@ -117,7 +117,7 @@
             Go back
         </button>
         <button class="myRegularButton"
-                onclick="load_truck('${pageContext.request.contextPath}', '${driverUID}');">
+                onclick="load_truck('${pageContext.request.contextPath}', '${driverId}');">
             Refresh
         </button>
     </div>

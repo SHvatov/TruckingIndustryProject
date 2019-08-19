@@ -3,10 +3,9 @@ package com.ishvatov.mapper;
 import com.ishvatov.model.dto.TruckDto;
 import com.ishvatov.model.entity.AbstractEntity;
 import com.ishvatov.model.entity.buisness.TruckEntity;
-import org.dozer.DozerBeanMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -20,12 +19,6 @@ import java.util.stream.Collectors;
 public class TruckMapperImpl implements Mapper<TruckEntity, TruckDto> {
 
     /**
-     * Autowired {@link DozerBeanMapper} instance.
-     */
-    @Autowired
-    private DozerBeanMapper mapper;
-
-    /**
      * Maps existing entity object from DB to DTO.
      *
      * @param src entity object.
@@ -33,15 +26,21 @@ public class TruckMapperImpl implements Mapper<TruckEntity, TruckDto> {
      */
     @Override
     public TruckDto map(TruckEntity src) {
-        TruckDto truckDto = mapper.map(src, TruckDto.class);
+        TruckDto truckDto = new TruckDto(src.getUniqueIdentificator(),
+            src.getCapacity(),
+            src.getShiftSize(),
+            src.getStatus(),
+            null,
+            new HashSet<>(),
+            null);
 
-        Optional.ofNullable(src.getTruckCity())
-            .ifPresent(entity -> truckDto.setTruckCityUID(entity.getUniqueIdentificator()));
+        Optional.ofNullable(src.getCity())
+            .ifPresent(entity -> truckDto.setCityId(entity.getUniqueIdentificator()));
 
-        Optional.ofNullable(src.getTruckOrder())
-            .ifPresent(entity -> truckDto.setTruckOrderUID(entity.getUniqueIdentificator()));
+        Optional.ofNullable(src.getOrder())
+            .ifPresent(entity -> truckDto.setOrderId(entity.getUniqueIdentificator()));
 
-        truckDto.setTruckDriversUIDSet(src.getTruckDriversSet()
+        truckDto.setAssignedDrivers(src.getAssignedDrivers()
             .stream()
             .filter(Objects::nonNull)
             .map(AbstractEntity::getUniqueIdentificator)

@@ -2,7 +2,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Cargo: [${cargoUID}]</title>
+    <title>Cargo: [${cargoId}]</title>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/css/styles.css"/>"/>
     <link type="text/css" rel="stylesheet" href="<c:url value="/resources/js/jquery-confirm/css/jquery-confirm.css"/>"/>
     <script src="<c:url value="/resources/js/jquery.min.js"/>" type="text/javascript"></script>
@@ -13,12 +13,12 @@
 <body>
     <script>
         $(document).ready(function () {
-            load_cargo('${pageContext.request.contextPath}', '${cargoUID}');
+            load_cargo('${pageContext.request.contextPath}', '${cargoId}');
         });
     </script>
     <table class="myTableStyle">
         <tr>
-            <th colspan='4'>Cargo [${cargoUID}] information</th>
+            <th colspan='4'>Cargo [${cargoId}] information</th>
         </tr>
         <tr>
             <td>Unique Identificator</td>
@@ -30,7 +30,7 @@
             <td hidden="hidden" id="editCargoNameTd">
             <label><input type="text" id="editCargoNameInput"/></label>
             <button class="tableEditButton"
-                    onclick="update_cargo_name('${pageContext.request.contextPath}', '${cargoUID}')">
+                    onclick="update_cargo_name('${pageContext.request.contextPath}', '${cargoId}')">
                 Update
             </button>
             <button class="tableEditButton"
@@ -52,7 +52,7 @@
             <td hidden="hidden" id="editCargoMassTd">
                 <label><input type="text" id="editCargoMassInput"/></label>
                 <button class="tableEditButton"
-                        onclick="update_cargo_mass('${pageContext.request.contextPath}', '${cargoUID}')">
+                        onclick="update_cargo_mass('${pageContext.request.contextPath}', '${cargoId}')">
                     Update
                 </button>
                 <button class="tableEditButton"

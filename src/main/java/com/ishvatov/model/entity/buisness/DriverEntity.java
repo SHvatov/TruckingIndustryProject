@@ -24,100 +24,100 @@ public class DriverEntity extends AbstractEntity {
      * String representation of the 'name'
      * column name in the table.
      */
-    public static final String NAME = "name";
+    public static final String NAME_FIELD = "name";
 
     /**
      * String representation of the 'surname'
      * column name in the table.
      */
-    public static final String SURNAME = "surname";
+    public static final String SURNAME_FIELD = "surname";
 
     /**
      * String representation of the 'worked_hours'
      * column name in the table.
      */
-    public static final String WORKED_HOURS = "worked_hours";
+    public static final String WORKED_HOURS_FIELD = "workedHours";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String LAST_UPDATED = "last_updated";
+    public static final String LAST_UPDATED_FIELD = "lastUpdated";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String STATE = "driver_status";
+    public static final String STATE_FIELD = "status";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String TRUCK_ID = "truck_id";
+    public static final String TRUCK_ID_FIELD = "truckId";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String CITY_ID = "city_id";
+    public static final String CITY_ID_FIELD = "cityId";
 
     /**
      * String representation of the 'status'
      * column name in the table.
      */
-    public static final String ORDER_ID = "order_id";
+    public static final String ORDER_ID_FIELD = "orderId";
 
     /**
      * Name of the driver.
      */
-    @Column(name = NAME)
-    private String driverName;
+    @Column(name = NAME_FIELD)
+    private String name;
 
     /**
      * Surname of the driver.
      */
-    @Column(name = SURNAME)
-    private String driverSurname;
+    @Column(name = SURNAME_FIELD)
+    private String surname;
 
     /**
      * Number of hours driver has worked
      * in this month.
      */
-    @Column(name = WORKED_HOURS)
-    private Integer driverWorkedHours;
+    @Column(name = WORKED_HOURS_FIELD)
+    private Integer workedHours;
 
     /**
      * Date - last time order was updated.
      */
-    @Column(name = LAST_UPDATED)
+    @Column(name = LAST_UPDATED_FIELD)
     private Timestamp lastUpdated;
 
     /**
      * Status of the driver.
      */
-    @Column(name = STATE)
+    @Column(name = STATE_FIELD)
     @Enumerated(EnumType.STRING)
-    private DriverStatusType driverStatus;
+    private DriverStatusType status;
 
     /**
      * Truck, this driver is assigned to.
      */
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = TRUCK_ID)
-    private TruckEntity driverTruck;
+    @JoinColumn(name = TRUCK_ID_FIELD)
+    private TruckEntity truck;
 
     /**
      * City, where this driver is located.
      */
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = CITY_ID)
-    private CityEntity driverCity;
+    @JoinColumn(name = CITY_ID_FIELD)
+    private CityEntity city;
 
     /**
      * Order, this driver is assigned to.
      */
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = ORDER_ID)
-    private OrderEntity driverOrder;
+    @JoinColumn(name = ORDER_ID_FIELD)
+    private OrderEntity order;
 }

@@ -1,6 +1,6 @@
 package com.ishvatov.model.dto;
 
-import com.ishvatov.model.entity.enum_types.TruckConditionType;
+import com.ishvatov.model.entity.enum_types.TruckStatusType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,30 +26,30 @@ public class TruckDto implements BaseDtoInterface<String> {
     /**
      * Truck's capacity in tons.
      */
-    private Double truckCapacity;
+    private Double capacity;
 
     /**
      * DriverEntity shift size in hours.
      */
-    private Integer truckDriverShiftSize;
+    private Integer shiftSize;
 
     /**
      * Truck status.
      */
-    private TruckConditionType truckCondition;
+    private TruckStatusType status;
 
     /**
      * City, where truck is located.
      */
-    private String truckCityUID;
+    private String cityId;
 
     /**
      * Drivers, who are using this truck.
      */
-    private Set<String> truckDriversUIDSet = new HashSet<>();
+    private Set<String> assignedDrivers = new HashSet<>();
 
     /**
      * Orders, that is assigned to this truck.
      */
-    private String truckOrderUID;
+    private String orderId;
 }

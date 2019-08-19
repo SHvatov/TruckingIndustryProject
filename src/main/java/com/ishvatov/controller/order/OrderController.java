@@ -1,12 +1,10 @@
 package com.ishvatov.controller.order;
 
-import com.ishvatov.controller.response.ServerResponseObject;
-import com.ishvatov.model.dto.DriverDto;
+import lombok.extern.log4j.Log4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 /**
@@ -16,6 +14,7 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @Controller
 @RequestMapping("employee/order")
+@Log4j
 public class OrderController {
 
     /**
@@ -24,20 +23,34 @@ public class OrderController {
      * @return {@link ModelAndView} instance.
      */
     @GetMapping("add")
-    public ModelAndView showAddNewDriverPage() {
+    public ModelAndView showAddNewOrderPage() {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+        
         return new ModelAndView("employee/order/add_order");
     }
 
     /**
      * Redirects employee to the show order information page.
      *
-     * @param orderUID UID of the requested order.
+     * @param orderId UID of the requested order.
      * @return {@link ModelAndView} instance.
      */
     @GetMapping("{uid}/show")
-    public ModelAndView showTruckPage(@PathVariable(name = "uid") String orderUID) {
+    public ModelAndView showOrderPage(@PathVariable(name = "uid") String orderId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
         ModelAndView modelAndView = new ModelAndView("employee/order/show_order");
-        modelAndView.addObject("orderUID", orderUID);
+        modelAndView.addObject("orderId", orderId);
         return modelAndView;
     }
 }

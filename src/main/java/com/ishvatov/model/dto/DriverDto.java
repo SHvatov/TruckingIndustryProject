@@ -26,23 +26,23 @@ public class DriverDto implements BaseDtoInterface<String> {
      * Password of the driver. Used only
      * while adding new user.
      */
-    private String driverPassword;
+    private String password;
 
     /**
      * Name of the driver.
      */
-    private String driverName;
+    private String name;
 
     /**
      * Surname of the driver.
      */
-    private String driverSurname;
+    private String surname;
 
     /**
      * Number of hours driver has worked
      * in this month.
      */
-    private Integer driverWorkedHours;
+    private Integer workedHours;
 
     /**
      * Date - last time order was updated.
@@ -52,20 +52,20 @@ public class DriverDto implements BaseDtoInterface<String> {
     /**
      * Status of the driver.
      */
-    private DriverStatusType driverStatus;
+    private DriverStatusType status;
 
     /**
      * UID of the truck this driver is assigned to.
      */
-    private String driverTruckUID;
+    private String truckId;
 
     /**
      * UID of the current city.
      */
-    private String currentCityUID;
+    private String cityId;
 
     /**
      * UID of the order this driver is assigned to.
      */
-    private String driverOrderUID;
+    private String orderId;
 }

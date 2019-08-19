@@ -26,15 +26,15 @@ public class OrderWaypointDto {
     /**
      * Unique id of the truck.
      */
-    private String truckUID;
+    private String truckId;
 
     /**
      * Unique id of the drivers.
      */
-    private Set<String> driversUIDSet;
+    private Set<String> assignedDrivers;
 
     /**
      * Array of waypoint elements.
      */
-    private List<WayPointDto> wayPointDtoArray;
+    private List<WayPointDto> waypoints;
 }

@@ -85,7 +85,7 @@ public class CityServiceImpl extends AbstractService<String, CityEntity, CityDto
      * @return list with names of all cities in the DB.
      */
     @Override
-    public List<String> getAllCityNames() {
+    public List<String> getAllCities() {
         return cityDao.findAll()
             .stream()
             .filter(Objects::nonNull)

@@ -18,5 +18,5 @@ public interface CityService extends BaseService<String, CityDto> {
      *
      * @return list with names of all cities in the DB.
      */
-    List<String> getAllCityNames();
+    List<String> getAllCities();
 }

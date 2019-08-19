@@ -19,7 +19,7 @@ public interface CityMapService {
      *
      * @return SimpleGraph object.
      */
-    Graph<Integer, DefaultEdge> buildCityMap();
+    Graph<Integer, DefaultEdge> buildMap();
 
     /**
      * Checks if path exists.
@@ -33,7 +33,7 @@ public interface CityMapService {
     /**
      * Builds a graph which represents the map of the country.
      *
-     * @param path
+     * @param path path to be checked.
      * @return SimpleGraph object.
      */
     boolean checkIfPathExists(List<WayPointDto> path);

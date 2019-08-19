@@ -2,8 +2,6 @@ package com.ishvatov.mapper;
 
 import com.ishvatov.model.dto.WayPointDto;
 import com.ishvatov.model.entity.buisness.WayPointEntity;
-import org.dozer.DozerBeanMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
@@ -17,12 +15,6 @@ import java.util.Optional;
 public class WayPointMapperImpl implements Mapper<WayPointEntity, WayPointDto> {
 
     /**
-     * Autowired {@link DozerBeanMapper} instance.
-     */
-    @Autowired
-    private DozerBeanMapper mapper;
-
-    /**
      * Maps existing entity object from DB to DTO.
      *
      * @param src entity object.
@@ -30,16 +22,17 @@ public class WayPointMapperImpl implements Mapper<WayPointEntity, WayPointDto> {
      */
     @Override
     public WayPointDto map(WayPointEntity src) {
-        WayPointDto wayPointDto = mapper.map(src, WayPointDto.class);
+        WayPointDto wayPointDto = new WayPointDto(src.getId(),
+            src.getAction(), src.getStatus(), null, null, null);
 
-        Optional.ofNullable(src.getWaypointCargo())
-            .ifPresent(entity -> wayPointDto.setWaypointCargoUID(entity.getId()));
+        Optional.ofNullable(src.getCargo())
+            .ifPresent(entity -> wayPointDto.setCargoId(entity.getId()));
 
-        Optional.ofNullable(src.getWaypointOrder())
-            .ifPresent(entity -> wayPointDto.setWaypointOrderUID(entity.getUniqueIdentificator()));
+        Optional.ofNullable(src.getOrder())
+            .ifPresent(entity -> wayPointDto.setOrderId(entity.getUniqueIdentificator()));
 
-        Optional.ofNullable(src.getWaypointCity())
-            .ifPresent(entity -> wayPointDto.setWaypointCityUID(entity.getUniqueIdentificator()));
+        Optional.ofNullable(src.getCity())
+            .ifPresent(entity -> wayPointDto.setCityId(entity.getUniqueIdentificator()));
         
         return wayPointDto;
     }

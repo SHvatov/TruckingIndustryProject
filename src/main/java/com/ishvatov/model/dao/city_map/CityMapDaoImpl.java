@@ -1,12 +1,10 @@
 package com.ishvatov.model.dao.city_map;
 
 import com.ishvatov.model.dao.AbstractDao;
-import com.ishvatov.model.dao.city.CityDao;
 import com.ishvatov.model.entity.buisness.CityMapEntity;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -22,12 +20,6 @@ import java.util.List;
  */
 @Repository("cityMapDao")
 public class CityMapDaoImpl extends AbstractDao<Integer, CityMapEntity> implements CityMapDao {
-
-    /**
-     * Autowired DAO object.
-     */
-    @Autowired
-    private CityDao cityDao;
 
     /**
      * Finds entity by it's unique id.
@@ -49,7 +41,7 @@ public class CityMapDaoImpl extends AbstractDao<Integer, CityMapEntity> implemen
      * both of them exist in the table.
      */
     @Override
-    public CityMapEntity findDistanceBetween(Integer from, Integer to) {
+    public CityMapEntity findBetween(Integer from, Integer to) {
         // generate criteria
         CriteriaBuilder criteriaBuilder = getSession().getCriteriaBuilder();
         CriteriaQuery<CityMapEntity> criteriaQuery = criteriaBuilder.createQuery(CityMapEntity.class);
@@ -57,19 +49,15 @@ public class CityMapDaoImpl extends AbstractDao<Integer, CityMapEntity> implemen
 
         // form predicate and retrieve entities from data base
         Predicate predicate = criteriaBuilder.and(
-            criteriaBuilder.equal(root.get(CityMapEntity.FROM_CITY), from),
-            criteriaBuilder.equal(root.get(CityMapEntity.TO_CITY), to));
+            criteriaBuilder.equal(root.get(CityMapEntity.FROM_FIELD), from),
+            criteriaBuilder.equal(root.get(CityMapEntity.TO_FIELD), to));
 
         // create request
         criteriaQuery.select(root).where(predicate);
 
         // return the result
         List<CityMapEntity> resultList = getSession().createQuery(criteriaQuery).getResultList();
-        if (!resultList.isEmpty()) {
-            return resultList.get(0);
-        } else {
-            return null;
-        }
+        return resultList.isEmpty() ? null : resultList.get(0);
     }
 
     /**
@@ -78,7 +66,7 @@ public class CityMapDaoImpl extends AbstractDao<Integer, CityMapEntity> implemen
      * @return SimpleGraph object.
      */
     @Override
-    public Graph<Integer, DefaultEdge> buildCityMap() {
+    public Graph<Integer, DefaultEdge> buildMap() {
         List<CityMapEntity> cityMapEntityList = findAll();
         Graph<Integer, DefaultEdge> mapGraph = new DefaultDirectedGraph<>(DefaultEdge.class);
         for (CityMapEntity cityMap : cityMapEntityList) {

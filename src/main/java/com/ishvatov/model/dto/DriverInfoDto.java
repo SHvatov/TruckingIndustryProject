@@ -21,7 +21,7 @@ public class DriverInfoDto {
     /**
      * Info about this  driver.
      */
-    private DriverDto driverInformation;
+    private DriverDto driver;
 
     /**
      * Status of the order.
@@ -31,10 +31,10 @@ public class DriverInfoDto {
     /**
      * UID of the second driver.
      */
-    private String secondDriverUID;
+    private String secondDriverId;
 
     /**
      * Array of waypoint elements.
      */
-    private List<WayPointDto> wayPointDtoArray;
+    private List<WayPointDto> waypoints;
 }

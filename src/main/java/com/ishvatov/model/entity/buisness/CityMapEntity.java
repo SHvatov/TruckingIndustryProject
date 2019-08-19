@@ -22,13 +22,13 @@ public class CityMapEntity {
      * String representation of the 'from'
      * column name in the table.
      */
-    public static final String FROM_CITY = "from";
+    public static final String FROM_FIELD = "from";
 
     /**
      * String representation of the 'to'
      * column name in the table.
      */
-    public static final String TO_CITY = "to";
+    public static final String TO_FIELD = "to";
 
     /**
      * String representation of the 'distance'
@@ -40,7 +40,7 @@ public class CityMapEntity {
      * String representation of the 'distance'
      * column name in the table.
      */
-    public static final String AVERAGE_SPEED_FIELD = "average_speed";
+    public static final String AVERAGE_SPEED_FIELD = "averageSpeed";
 
     /**
      * Unique id of the truck in the DB.
@@ -53,13 +53,13 @@ public class CityMapEntity {
     /**
      * Id of th source city.
      */
-    @Column(name = FROM_CITY)
+    @Column(name = FROM_FIELD)
     private Integer from;
 
     /**
      * Id of the destination city.
      */
-    @Column(name = TO_CITY)
+    @Column(name = TO_FIELD)
     private Integer to;
 
     /**

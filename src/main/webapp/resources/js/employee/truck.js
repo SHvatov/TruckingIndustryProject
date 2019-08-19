@@ -48,14 +48,14 @@ function load_truck_table(pageContext, elemId) {
                 // add data
                 tableInnerBlock += `<tr><td>${i}</td>`
                     + `<td>${temp["uniqueIdentificator"]}</td>`
-                    + `<td>${temp["truckCapacity"]}</td>`
-                    + `<td>${temp["truckDriverShiftSize"]}</td>`;
-                if (temp["truckCondition"] === "IN_ORDER") {
+                    + `<td>${temp["capacity"]}</td>`
+                    + `<td>${temp["shiftSize"]}</td>`;
+                if (temp["status"] === "IN_ORDER") {
                     tableInnerBlock += "<td>In order</td>";
                 } else {
                     tableInnerBlock += "<td>Broken</td>";
                 }
-                tableInnerBlock += `<td>${temp["truckCityUID"]}</td>`;
+                tableInnerBlock += `<td>${temp["cityId"]}</td>`;
 
                 // add edit button
                 tableInnerBlock += `<td>` +
@@ -127,7 +127,7 @@ function delete_truck(pageContext, truckUID) {
                         if (response["status"] === "success") {
                             $.alert("Successfully deleted");
                         } else {
-                            $.alert("Error while deleting: " + response["messages"]["truckOrderUID"] + ".");
+                            $.alert("Error while deleting: " + response["messages"]["orderId"] + ".");
                         }
                     }
                 });
@@ -172,10 +172,10 @@ function add_truck(pageContext) {
         url: pageContext + '/employee/truck/create',
         data: JSON.stringify({
             "uniqueIdentificator": $("#uniqueIdentificatorInput").val(),
-            "truckCapacity": $("#capacityInput").val(),
-            "truckDriverShiftSize": $("#shiftInput").val(),
-            "truckCondition": $("#statusSelect").val(),
-            "truckCityUID": $("#citySelect").val(),
+            "capacity": $("#capacityInput").val(),
+            "shiftSize": $("#shiftInput").val(),
+            "status": $("#statusSelect").val(),
+            "cityId": $("#citySelect").val(),
         }),
         success: function (data) {
             // redirect
@@ -187,20 +187,20 @@ function add_truck(pageContext) {
                     $("#uniqueIdentificatorError").text(data["messages"]["uniqueIdentificator"]).show();
                 }
 
-                if (data["messages"].hasOwnProperty("truckCapacity")) {
-                    $("#capacityError").text(data["messages"]["truckCapacity"]).show();
+                if (data["messages"].hasOwnProperty("capacity")) {
+                    $("#capacityError").text(data["messages"]["capacity"]).show();
                 }
 
-                if (data["messages"].hasOwnProperty("truckDriverShiftSize")) {
-                    $("#shiftError").text(data["messages"]["truckDriverShiftSize"]).show();
+                if (data["messages"].hasOwnProperty("shiftSize")) {
+                    $("#shiftError").text(data["messages"]["shiftSize"]).show();
                 }
 
-                if (data["messages"].hasOwnProperty("truckCondition")) {
-                    $("#statusError").text(data["messages"]["truckCondition"]).show();
+                if (data["messages"].hasOwnProperty("status")) {
+                    $("#statusError").text(data["messages"]["status"]).show();
                 }
 
-                if (data["messages"].hasOwnProperty("truckCityUID")) {
-                    $("#cityError").text(data["messages"]["truckCityUID"]).show();
+                if (data["messages"].hasOwnProperty("cityId")) {
+                    $("#cityError").text(data["messages"]["cityId"]).show();
                 }
             }
         },
@@ -227,32 +227,32 @@ function load_truck(pageContext, truckUID) {
                 let truckDto = response["object"];
 
                 $("#uniqueIdentificatorTd").text(truckDto["uniqueIdentificator"]).show();
-                $("#shiftSizeTd").text(truckDto["truckDriverShiftSize"]).show();
-                $("#capacityTd").text(truckDto["truckCapacity"]).show();
+                $("#shiftSizeTd").text(truckDto["shiftSize"]).show();
+                $("#capacityTd").text(truckDto["capacity"]).show();
 
-                if (truckDto["truckCondition"] === "IN_ORDER") {
+                if (truckDto["status"] === "IN_ORDER") {
                     $("#conditionTd").text("In Order").show();
                 } else {
                     $("#conditionTd").text("Not in Order").show();
                 }
 
-                if (truckDto["truckCityUID"] === null) {
+                if (truckDto["cityId"] === null) {
                     $("#cityTd").text("No city").show();
                 } else {
-                    $("#cityTd").text(truckDto["truckCityUID"]).show();
+                    $("#cityTd").text(truckDto["cityId"]).show();
                 }
 
-                if (truckDto["truckOrderUID"] === null) {
+                if (truckDto["orderId"] === null) {
                     $("#orderTd").text("No order").show();
                 } else {
-                    $("#orderTd").text(truckDto["truckOrderUID"]).show();
+                    $("#orderTd").text(truckDto["orderId"]).show();
                 }
 
-                if (is_empty(truckDto["truckDriversUIDSet"])) {
+                if (is_empty(truckDto["assignedDrivers"])) {
                     $("#driversTd").text("No assigned drivers").show();
                 } else {
                     let driversList = "<ul>";
-                    for (let driver in truckDto["truckDriversUIDSet"]) {
+                    for (let driver in truckDto["assignedDrivers"]) {
                         driversList += "<li>" + driver + "</li>";
                     }
                     driversList += "</ul>";
@@ -307,7 +307,7 @@ function update_truck_capacity(pageContext, truckUID) {
         contentType: 'application/json',
         data: JSON.stringify({
             "uniqueIdentificator": truckUID,
-            "truckCapacity": $("#editCapacityInput").val()
+            "capacity": $("#editCapacityInput").val()
         }),
         success: function (response) {
             if (response["status"] === "success") {
@@ -316,10 +316,10 @@ function update_truck_capacity(pageContext, truckUID) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
                     message = response["messages"]["uniqueIdentificator"]
-                } else if (response["messages"].hasOwnProperty("truckCapacity")) {
-                    message = response["messages"]["truckCapacity"]
-                } else if (response["messages"].hasOwnProperty("truckOrderUID")) {
-                    message = response["messages"]["truckOrderUID"]
+                } else if (response["messages"].hasOwnProperty("capacity")) {
+                    message = response["messages"]["capacity"]
+                } else if (response["messages"].hasOwnProperty("orderId")) {
+                    message = response["messages"]["orderId"]
                 }
 
                 $.confirm({
@@ -368,7 +368,7 @@ function update_truck_shift_size(pageContext, truckUID) {
         contentType: 'application/json',
         data: JSON.stringify({
             "uniqueIdentificator": truckUID,
-            "truckDriverShiftSize": $("#editShiftSizeInput").val()
+            "shiftSize": $("#editShiftSizeInput").val()
         }),
         success: function (response) {
             if (response["status"] === "success") {
@@ -377,10 +377,10 @@ function update_truck_shift_size(pageContext, truckUID) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
                     message = response["messages"]["uniqueIdentificator"]
-                } else if (response["messages"].hasOwnProperty("truckDriverShiftSize")) {
-                    message = response["messages"]["truckDriverShiftSize"]
-                } else if (response["messages"].hasOwnProperty("truckOrderUID")) {
-                    message = response["messages"]["truckOrderUID"]
+                } else if (response["messages"].hasOwnProperty("shiftSize")) {
+                    message = response["messages"]["shiftSize"]
+                } else if (response["messages"].hasOwnProperty("orderId")) {
+                    message = response["messages"]["orderId"]
                 }
 
                 $.confirm({
@@ -429,7 +429,7 @@ function update_truck_condition(pageContext, truckUID) {
         contentType: 'application/json',
         data: JSON.stringify({
             "uniqueIdentificator": truckUID,
-            "truckCondition": $("#editConditionSelect").val()
+            "status": $("#editConditionSelect").val()
         }),
         success: function (response) {
             if (response["status"] === "success") {
@@ -438,8 +438,8 @@ function update_truck_condition(pageContext, truckUID) {
                 let message = "";
                 if (response["messages"].hasOwnProperty("uniqueIdentificator")) {
                     message = response["messages"]["uniqueIdentificator"]
-                } else if (response["messages"].hasOwnProperty("truckCondition")) {
-                    message = response["messages"]["truckCondition"]
+                } else if (response["messages"].hasOwnProperty("status")) {
+                    message = response["messages"]["status"]
                 }
 
                 $.confirm({

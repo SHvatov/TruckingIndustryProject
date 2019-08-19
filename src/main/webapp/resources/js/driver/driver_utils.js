@@ -14,34 +14,39 @@ function load_driver_info(pageContext, driverUID) {
         success: (driverInfo) => {
             if (driverInfo["status"] === "success") {
                 // set driver info
-                let driverDto = driverInfo["object"]["driverInformation"];
+                let driverDto = driverInfo["object"]["driver"];
                 console.log(driverDto);
-                let tableTrHtml = `<td>${driverDto["driverName"]} ` + `${driverDto["driverSurname"]}</td>`
-                    + `<td>${driverDto["driverStatus"]}</td>`
-                    + `<td>${driverDto["uniqueIdentificator"]}</td>`
-                    + `<td>${driverInfo["object"]["secondDriverUID"]}</td>`;
+                let tableTrHtml = `<td>${driverDto["name"]} ` + `${driverDto["surname"]}</td>`
+                    + `<td>${driverDto["status"]}</td>`
+                    + `<td>${driverDto["uniqueIdentificator"]}</td>`;
 
-                if (driverDto["driverTruckUID"] == null) {
-                    tableTrHtml += "<td>Truck is not assigned</td>"
+                if (driverInfo["object"]["secondDriverId"] == null) {
+                    tableTrHtml += "<td>None</td>"
                 } else {
-                    tableTrHtml += `<td>${driverDto["driverTruckUID"]}</td>`
+                    tableTrHtml += `<td>${driverInfo["object"]["secondDriverId"]}</td>`;
                 }
 
-                if (driverDto["driverOrderUID"] == null) {
-                    tableTrHtml += "<td>Order is not assigned</td>"
+                if (driverDto["truckId"] == null) {
+                    tableTrHtml += "<td>Truck is not assigned</td>";
                 } else {
-                    tableTrHtml += `<td>${driverDto["driverOrderUID"]}</td>`
+                    tableTrHtml += `<td>${driverDto["truckId"]}</td>`;
+                }
+
+                if (driverDto["orderId"] == null) {
+                    tableTrHtml += "<td>Order is not assigned</td>";
+                } else {
+                    tableTrHtml += `<td>${driverDto["orderId"]}</td>`;
                 }
 
                 if (driverInfo["object"]["orderStatus"] == null) {
-                    tableTrHtml += `<td>No status</td>`
+                    tableTrHtml += `<td>No status</td>`;
                 } else {
                     tableTrHtml += `<td>${driverInfo["object"]["orderStatus"]}</td>`;
                 }
                 $('#driverInfoTable').html(tableTrHtml);
 
                 // set order info
-                let waypointArray = driverInfo["object"]["wayPointDtoArray"];
+                let waypointArray = driverInfo["object"]["waypoints"];
                 let waypointTr = "<tr>" +
                     "        <th colspan='5'>" +
                     "            Order Details" +
@@ -66,10 +71,10 @@ function load_driver_info(pageContext, driverUID) {
                     "    </tr>";
                 for (let i = 0; i < waypointArray.length; i++) {
                     let waypoint = waypointArray[i];
-                    waypointTr += `<tr><td>${waypoint["waypointCityUID"]}</td>`
-                        + `<td>${waypoint["waypointCargoUID"]}</td>`
-                        + `<td>${waypoint["cargoAction"]}</td>`
-                        + `<td>${waypoint["wayPointStatus"]}</td>`;
+                    waypointTr += `<tr><td>${waypoint["cityId"]}</td>`
+                        + `<td>${waypoint["cargoId"]}</td>`
+                        + `<td>${waypoint["action"]}</td>`
+                        + `<td>${waypoint["status"]}</td>`;
 
                     waypointTr += "<td>"
                         + `<button class="myRegularButton"`
@@ -137,6 +142,18 @@ function complete_waypoint(pageContext, driverUID, waypointUID) {
                         },
                     }
                 });
+            } else {
+                $.confirm({
+                    title: 'Completed!',
+                    content: "Successfully completed the waypoint!",
+                    boxWidth: '350px',
+                    useBootstrap: false,
+                    buttons: {
+                        confirm: function () {
+                            load_driver_info(pageContext, driverUID);
+                        },
+                    }
+                });
             }
         }
     });
@@ -163,6 +180,18 @@ function start_order(pageContext, driverUID) {
                     useBootstrap: false,
                     buttons: {
                         confirm: function () {
+                        },
+                    }
+                });
+            } else {
+                $.confirm({
+                    title: 'Started!',
+                    content: "Your order has started!",
+                    boxWidth: '350px',
+                    useBootstrap: false,
+                    buttons: {
+                        confirm: function () {
+                            load_driver_info(pageContext, driverUID);
                         },
                     }
                 });
@@ -196,7 +225,18 @@ function complete_order(pageContext, driverUID) {
                     }
                 });
             } else {
-                $('#wayPointInfoTable').html("<tr><td>No order assigned.</td></tr>");
+                $.confirm({
+                    title: 'Completed!',
+                    content: "Order has been completed!",
+                    boxWidth: '350px',
+                    useBootstrap: false,
+                    buttons: {
+                        confirm: function () {
+                            load_driver_info(pageContext, driverUID);
+                            $('#wayPointInfoTable').html("<tr><td>No order assigned.</td></tr>");
+                        },
+                    }
+                });
             }
         }
     });
@@ -226,6 +266,18 @@ function change_status(pageContext, driverUID) {
                         },
                     }
                 });
+            } else {
+                $.confirm({
+                    title: 'Changed!',
+                    content: "Your status has been changed!",
+                    boxWidth: '350px',
+                    useBootstrap: false,
+                    buttons: {
+                        confirm: function () {
+                            load_driver_info(pageContext, driverUID);
+                        },
+                    }
+                });
             }
         }
     });
@@ -252,6 +304,7 @@ function change_session(pageContext, driverUID) {
                     useBootstrap: false,
                     buttons: {
                         confirm: function () {
+                            load_driver_info(pageContext, driverUID);
                         },
                     }
                 });

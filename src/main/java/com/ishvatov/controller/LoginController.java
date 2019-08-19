@@ -1,5 +1,6 @@
 package com.ishvatov.controller;
 
+import lombok.extern.log4j.Log4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -12,6 +13,7 @@ import org.springframework.web.servlet.ModelAndView;
  * @author Sergey Khvatov
  */
 @Controller
+@Log4j
 public class LoginController {
 
     /**
@@ -21,6 +23,13 @@ public class LoginController {
      */
     @RequestMapping("/login/login")
     public ModelAndView loginPage() {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
         return new ModelAndView("login/login_page");
     }
 
@@ -31,6 +40,13 @@ public class LoginController {
      */
     @RequestMapping("/login/login_failed")
     public ModelAndView loginFailure() {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
         return new ModelAndView("login/login_failed");
     }
 
@@ -41,6 +57,13 @@ public class LoginController {
      */
     @RequestMapping("/employee/homepage")
     public ModelAndView showEmployeeHomePage() {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
         return new ModelAndView("employee/homepage");
     }
 
@@ -51,6 +74,13 @@ public class LoginController {
      */
     @RequestMapping("/driver/homepage")
     public ModelAndView showDriverHomePage() {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
         ModelAndView modelAndView = new ModelAndView("driver/homepage");
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentPrincipalName = authentication.getName();

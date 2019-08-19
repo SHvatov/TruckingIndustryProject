@@ -32,7 +32,7 @@ public class CityMapperImpl implements Mapper<CityEntity, CityDto> {
      */
     @Override
     public CityDto map(CityEntity src) {
-        CityDto cityDto = mapper.map(src, CityDto.class);
+        CityDto cityDto = new CityDto(src.getUniqueIdentificator(), null, null);
 
         cityDto.setLocatedDrivers(src.getLocatedDrivers()
             .stream()

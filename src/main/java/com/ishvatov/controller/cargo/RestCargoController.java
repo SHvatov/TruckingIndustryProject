@@ -1,18 +1,16 @@
 package com.ishvatov.controller.cargo;
 
-import com.ishvatov.controller.response.ServerResponse;
-import com.ishvatov.controller.response.ServerResponseObject;
+import com.ishvatov.service.buisness.response.ServerResponse;
+import com.ishvatov.service.buisness.response.ServerResponseObject;
 import com.ishvatov.model.dto.CargoDto;
-import com.ishvatov.model.entity.enum_types.CargoStatusType;
-import com.ishvatov.service.inner.cargo.CargoService;
-import com.ishvatov.validator.CustomValidator;
+import com.ishvatov.service.buisness.cargo.BusinessCargoService;
+import lombok.extern.log4j.Log4j;
+import org.apache.logging.log4j.Level;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 /**
  * Basic rest controller.
@@ -21,19 +19,14 @@ import java.util.stream.Collectors;
  */
 @Controller
 @RequestMapping(value = "/employee/cargo")
+@Log4j
 public class RestCargoController {
 
     /**
      * Autowired service to access DAO layer.
      */
     @Autowired
-    private CargoService cargoService;
-
-    /**
-     * Autowired validator.
-     */
-    @Autowired
-    private CustomValidator<CargoDto, Integer> cargoValidator;
+    private BusinessCargoService cargoService;
 
     /**
      * Gets all the cargo from the database.
@@ -41,8 +34,16 @@ public class RestCargoController {
      * @return list of cargo from database.
      */
     @GetMapping(value = "/list")
-    public @ResponseBody List<CargoDto> loadAllCargo() {
-        return cargoService.findAll();
+    @ResponseBody
+    public List<CargoDto> loadAllCargo() {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return cargoService.loadAllCargo();
     }
 
     /**
@@ -51,13 +52,16 @@ public class RestCargoController {
      * @return list of cargo from database.
      */
     @GetMapping(value = "/list_id")
-    public @ResponseBody List<Integer> listAllCargoId() {
-        return cargoService.findAll()
-            .stream()
-            .filter(Objects::nonNull)
-            .filter(e -> e.getCargoStatus() == CargoStatusType.READY)
-            .map(CargoDto::getId)
-            .collect(Collectors.toList());
+    @ResponseBody
+    public List<Integer> listAllCargoId() {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return cargoService.listAllCargoId();
     }
 
     /**
@@ -66,13 +70,16 @@ public class RestCargoController {
      * @return {@link ServerResponseObject} object.
      */
     @GetMapping(value = "/{uid}/load")
-    public @ResponseBody
-    ServerResponseObject<CargoDto> loadCargo(@PathVariable(name = "uid") Integer cargoUID) {
-        ServerResponseObject<CargoDto> responseObject = new ServerResponseObject<>();
-        if (cargoValidator.validateBeforeLoad(cargoUID, responseObject)) {
-            responseObject.setObject(cargoService.find(cargoUID));
-        }
-        return responseObject;
+    @ResponseBody
+    public ServerResponseObject<CargoDto> loadCargo(@PathVariable(name = "uid") Integer cargoId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return cargoService.loadCargo(cargoId);
     }
 
 
@@ -82,13 +89,16 @@ public class RestCargoController {
      * @return {@link ServerResponse} object.
      */
     @PostMapping(value = "/{uid}/delete")
-    public @ResponseBody
-    ServerResponse deleteCargo(@PathVariable(name = "uid") Integer cargoUID) {
-        ServerResponse response = new ServerResponse();
-        if (cargoValidator.validateBeforeDelete(cargoUID, response)) {
-            cargoService.delete(cargoUID);
-        }
-        return response;
+    @ResponseBody
+    public ServerResponse deleteCargo(@PathVariable(name = "uid") Integer cargoId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return cargoService.deleteCargo(cargoId);
     }
 
     /**
@@ -97,13 +107,16 @@ public class RestCargoController {
      * @return {@link ServerResponse} object.
      */
     @PostMapping(value = "/create")
-    public @ResponseBody
-    ServerResponse addCargo(@RequestBody CargoDto cargoDto) {
-        ServerResponse response = new ServerResponse();
-        if (cargoValidator.validateBeforeSave(cargoDto, response)) {
-            cargoService.save(cargoDto);
-        }
-        return response;
+    @ResponseBody
+    public ServerResponse addCargo(@RequestBody CargoDto cargoDto) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return cargoService.addCargo(cargoDto);
     }
 
     /**
@@ -112,18 +125,17 @@ public class RestCargoController {
      * @return {@link ServerResponseObject} object.
      */
     @PostMapping(value = "/{uid}/update_name")
-    public @ResponseBody ServerResponse updateCargoName(@RequestBody CargoDto cargoDto, @PathVariable(name = "uid") Integer truckUID) {
-        ServerResponse responseObject = new ServerResponseObject<>();
-        if (!cargoValidator.validateBeforeLoad(cargoDto.getUniqueIdentificator(), responseObject)) {
-            return responseObject;
-        } else {
-            CargoDto innerCargoDto = cargoService.find(cargoDto.getUniqueIdentificator());
-            innerCargoDto.setCargoName(cargoDto.getCargoName());
-            if (cargoValidator.validateBeforeUpdate(innerCargoDto, responseObject)) {
-                cargoService.update(innerCargoDto);
-            }
-        }
-        return responseObject;
+    @ResponseBody
+    public ServerResponse updateCargoName(@RequestBody CargoDto cargoDto,
+                                          @PathVariable(name = "uid") Integer cargoId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return cargoService.updateCargoName(cargoDto);
     }
 
     /**
@@ -132,17 +144,16 @@ public class RestCargoController {
      * @return {@link ServerResponseObject} object.
      */
     @PostMapping(value = "/{uid}/update_mass")
-    public @ResponseBody ServerResponse updateCargoSurname(@RequestBody CargoDto cargoDto, @PathVariable(name = "uid") Integer truckUID) {
-        ServerResponse responseObject = new ServerResponseObject<>();
-        if (!cargoValidator.validateBeforeLoad(cargoDto.getUniqueIdentificator(), responseObject)) {
-            return responseObject;
-        } else {
-            CargoDto innerCargoDto = cargoService.find(cargoDto.getUniqueIdentificator());
-            innerCargoDto.setCargoMass(cargoDto.getCargoMass());
-            if (cargoValidator.validateBeforeUpdate(innerCargoDto, responseObject)) {
-                cargoService.update(innerCargoDto);
-            }
-        }
-        return responseObject;
+    @ResponseBody
+    public ServerResponse updateCargoSurname(@RequestBody CargoDto cargoDto,
+                                             @PathVariable(name = "uid") Integer cargoId) {
+        // logging
+        log.debug("Entering: "
+            + getClass() + "."
+            + Thread.currentThread()
+            .getStackTrace()[1]
+            .getMethodName());
+
+        return cargoService.updateCargoMass(cargoDto);
     }
 }

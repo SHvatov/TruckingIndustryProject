@@ -9,4 +9,5 @@ import com.ishvatov.model.entity.buisness.OrderEntity;
  * @author Sergey Khvatov.
  */
 public interface OrderDao extends BaseDaoInterface<String, OrderEntity> {
+    // empty
 }

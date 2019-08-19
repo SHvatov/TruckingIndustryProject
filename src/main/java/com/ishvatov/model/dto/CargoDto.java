@@ -23,17 +23,17 @@ public class CargoDto implements BaseDtoInterface<Integer> {
     /**
      * Name of the cargo.
      */
-    private String cargoName;
+    private String name;
 
     /**
      * Mass of the cargo.
      */
-    private Double cargoMass;
+    private Double mass;
 
     /**
      * Status of the cargo.
      */
-    private CargoStatusType cargoStatus;
+    private CargoStatusType status;
 
     /**
      * Get the unique identificator of the entity method.
