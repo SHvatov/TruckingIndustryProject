@@ -1,18 +1,14 @@
 package com.ishvatov.model.dao;
 
-import javax.persistence.criteria.CriteriaDelete;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import java.util.List;
 
 /**
  * Base DAO interface.
  *
- * @param <UK> type of the unique key.
- * @param <T>  type of the entity.
+ * @param <U> type of the unique key.
+ * @param <T> type of the entity.
  */
-public interface BaseDaoInterface<UK, T> {
+public interface BaseDaoInterface<U, T> {
 
     /**
      * Finds entity by it's id in the DB.
@@ -37,6 +33,13 @@ public interface BaseDaoInterface<UK, T> {
     void delete(T entity);
 
     /**
+     * Deletes entity by it's id.
+     *
+     * @param id id of the entity.
+     */
+    void deleteById(int id);
+
+    /**
      * Finds all the entities in the DB.
      *
      * @return list with all the entities.
@@ -49,26 +52,13 @@ public interface BaseDaoInterface<UK, T> {
      * @param key unique key of the id.
      * @return Unique entity with this id.
      */
-    T findByUniqueKey(UK key);
+    T findByUniqueKey(U key);
 
     /**
-     * Finds the entities that suit this predicate.
+     * Checks if entity with such key exists in teh database.
      *
-     * @param predicate     boolean conditional expression.
-     * @param criteriaQuery instance of the {@link CriteriaQuery} which is used
-     *                      to from the query.
-     * @param root          instance of the {@link Root}.
-     * @return entities that suit this predicate.
+     * @param key unique key of the id.
+     * @return true, if exists, false otherwise.
      */
-    List<T> findEntities(Predicate predicate, CriteriaQuery<T> criteriaQuery, Root<T> root);
-
-    /**
-     * Deletes the entities that suit this predicate.
-     *
-     * @param predicate      boolean conditional expression.
-     * @param criteriaDelete instance of the {@link CriteriaDelete} which is used
-     *                       to from the query.
-     * @param root           instance of the {@link Root}.
-     */
-    void deleteEntities(Predicate predicate, CriteriaDelete<T> criteriaDelete, Root<T> root);
+    boolean exists(U key);
 }

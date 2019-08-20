@@ -1,82 +1,55 @@
 package com.ishvatov.model.dto;
 
+import com.ishvatov.model.entity.enum_types.TruckStatusType;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.HashSet;
+import java.util.Set;
+
 /**
- * Defines a basic DTO, which represents a truck.
+ * Basic truck DTO implementation.
  *
  * @author Sergey Khvatov
  */
-public class TruckDto {
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class TruckDto implements BaseDtoInterface<String> {
 
     /**
-     * Unique registration number of the truck.
+     * Unique id of the truck.
      */
-    private String truckRegistrationNumber;
+    private String uniqueIdentificator;
 
     /**
      * Truck's capacity in tons.
      */
-    private double truckCapacity;
+    private Double capacity;
 
     /**
-     * Driver shift size in hours.
+     * DriverEntity shift size in hours.
      */
-    private int driverShiftSize;
+    private Integer shiftSize;
 
     /**
      * Truck status.
-     * Bit value: 0 - OK, 1 - NOT OK.
      */
-    private byte truckCondition;
+    private TruckStatusType status;
 
     /**
-     * Current location of the truck.
+     * City, where truck is located.
      */
-    private String truckCurrentCity;
+    private String cityId;
 
     /**
-     * Default class constructor.
+     * Drivers, who are using this truck.
      */
-    public TruckDto() {
-    }
+    private Set<String> assignedDrivers = new HashSet<>();
 
-    // default getter / setter methods implementation
-    public String getTruckRegistrationNumber() {
-        return truckRegistrationNumber;
-    }
-
-    public void setTruckRegistrationNumber(String truckRegistrationNumber) {
-        this.truckRegistrationNumber = truckRegistrationNumber;
-    }
-
-    public int getDriverShiftSize() {
-        return driverShiftSize;
-    }
-
-    public void setDriverShiftSize(int driverShiftSize) {
-        this.driverShiftSize = driverShiftSize;
-    }
-
-    public double getTruckCapacity() {
-        return truckCapacity;
-    }
-
-    public void setTruckCapacity(double truckCapacity) {
-        this.truckCapacity = truckCapacity;
-    }
-
-    public byte getTruckCondition() {
-        return truckCondition;
-    }
-
-    public void setTruckCondition(byte truckCondition) {
-        this.truckCondition = truckCondition;
-    }
-
-    public String getTruckCurrentCity() {
-        return truckCurrentCity;
-    }
-
-    public void setTruckCurrentCity(String truckCurrentCity) {
-        this.truckCurrentCity = truckCurrentCity;
-    }
+    /**
+     * Orders, that is assigned to this truck.
+     */
+    private String orderId;
 }

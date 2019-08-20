@@ -1,5 +1,6 @@
 package com.ishvatov.model.dao;
 
+import com.ishvatov.model.entity.AbstractEntity;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
@@ -12,10 +13,11 @@ import java.util.List;
 /**
  * Abstract DAO class with default methods implementations.
  *
- * @param <UK> type of the unique key.
- * @param <T>  entity type.
+ * @param <U> type of the unique key.
+ * @param <T> entity type.
+ * @author Sergey Khvatov
  */
-public abstract class AbstractDao<UK, T> implements BaseDaoInterface<UK, T> {
+public abstract class AbstractDao<U, T> implements BaseDaoInterface<U, T> {
 
     /**
      * Current session factory object
@@ -37,7 +39,32 @@ public abstract class AbstractDao<UK, T> implements BaseDaoInterface<UK, T> {
      */
     @SuppressWarnings("unchecked")
     protected AbstractDao() {
-        this.persistentClass = (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[1];
+        this.persistentClass =
+            (Class<T>) ((ParameterizedType) this
+                .getClass()
+                .getGenericSuperclass())
+                .getActualTypeArguments()[1];
+    }
+
+    /**
+     * Finds entity by it's unique id.
+     *
+     * @param key unique key of the id.
+     * @return Unique entity with this id.
+     */
+    @Override
+    public T findByUniqueKey(U key) {
+        // generate criteria
+        CriteriaBuilder criteriaBuilder = getSession().getCriteriaBuilder();
+        CriteriaQuery<T> criteriaQuery = criteriaBuilder.createQuery(persistentClass);
+        Root<T> root = criteriaQuery.from(persistentClass);
+
+        // form predicate and retrieve entities from data base
+        Predicate predicate = criteriaBuilder.equal(root.get(AbstractEntity.UNIQUE_KEY_COLUMN_NAME), key);
+        List<T> entities = findEntities(predicate, criteriaQuery, root);
+
+        // return result
+        return entities.isEmpty() ? null : entities.get(0);
     }
 
     /**
@@ -69,12 +96,33 @@ public abstract class AbstractDao<UK, T> implements BaseDaoInterface<UK, T> {
     }
 
     /**
+     * Deletes entity by it's id.
+     *
+     * @param id id of the entity.
+     */
+    public void deleteById(int id) {
+        T entity = getSession().load(persistentClass, id);
+        deleteEntity(entity);
+    }
+
+    /**
      * Finds all the entities in the DB.
      *
      * @return list with all the entities.
      */
     public List<T> findAll() {
         return findAllEntities();
+    }
+
+    /**
+     * Checks if entity with such key exists in teh database.
+     *
+     * @param key unique key of the id.
+     * @return true, if exists, false otherwise.
+     */
+    @Override
+    public boolean exists(U key) {
+        return findByUniqueKey(key) != null;
     }
 
     /**
@@ -86,7 +134,7 @@ public abstract class AbstractDao<UK, T> implements BaseDaoInterface<UK, T> {
      * @param root          instance of the {@link Root}.
      * @return entities that suit this predicate.
      */
-    public List<T> findEntities(Predicate predicate, CriteriaQuery<T> criteriaQuery, Root<T> root) {
+    protected List<T> findEntities(Predicate predicate, CriteriaQuery<T> criteriaQuery, Root<T> root) {
         // create request
         criteriaQuery.select(root).where(predicate);
 
@@ -102,7 +150,7 @@ public abstract class AbstractDao<UK, T> implements BaseDaoInterface<UK, T> {
      *                       to from the query.
      * @param root           instance of the {@link Root}.
      */
-    public void deleteEntities(Predicate predicate, CriteriaDelete<T> criteriaDelete, Root<T> root) {
+    protected void deleteEntities(Predicate predicate, CriteriaDelete<T> criteriaDelete, Root<T> root) {
         // process the request
         criteriaDelete.where(predicate);
 

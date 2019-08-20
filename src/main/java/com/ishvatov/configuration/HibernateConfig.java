@@ -38,9 +38,9 @@ public class HibernateConfig {
      * @return singleton instance of the {@link LocalSessionFactoryBean}.
      */
     @Bean
-    public LocalSessionFactoryBean setupSessionFactory() {
+    public LocalSessionFactoryBean sessionFactory() {
         LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-        sessionFactory.setDataSource(setupDataSource());
+        sessionFactory.setDataSource(dataSource());
         sessionFactory.setPackagesToScan("com.ishvatov.model");
         sessionFactory.setHibernateProperties(getHibernateProperties());
         return sessionFactory;
@@ -53,7 +53,7 @@ public class HibernateConfig {
      * @return configured instance of the {@link DataSource}.
      */
     @Bean
-    public DataSource setupDataSource() {
+    public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(environment.getRequiredProperty("jdbc.driverClassName"));
         dataSource.setUrl(environment.getRequiredProperty("jdbc.url"));
@@ -69,9 +69,9 @@ public class HibernateConfig {
      * @return configured instance of the {@link HibernateTransactionManager}.
      */
     @Bean
-    public HibernateTransactionManager setupTransactionManager() {
+    public HibernateTransactionManager transactionManager() {
         HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-        transactionManager.setSessionFactory(setupSessionFactory().getObject());
+        transactionManager.setSessionFactory(sessionFactory().getObject());
         return transactionManager;
     }
 

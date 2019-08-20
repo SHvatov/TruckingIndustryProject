@@ -8,6 +8,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
@@ -19,7 +22,7 @@ import org.springframework.web.servlet.view.JstlView;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = {"com.ishvatov"})
-public class WebAppConfig {
+public class WebAppConfig implements WebMvcConfigurer {
 
     /**
      * Configures an instance of a class that implements
@@ -29,12 +32,33 @@ public class WebAppConfig {
      * @return configured instance of {@link InternalResourceViewResolver}.
      */
     @Bean
-    public ViewResolver setupViewResolver() {
+    public ViewResolver viewResolver() {
         InternalResourceViewResolver viewResolver = new InternalResourceViewResolver();
         viewResolver.setViewClass(JstlView.class);
         viewResolver.setPrefix("/WEB-INF/views/");
         viewResolver.setSuffix(".jsp");
         return viewResolver;
+    }
+
+    /**
+     * Configures where resources are stored.
+     *
+     * @param registry {@link ResourceHandlerRegistry} instance.
+     */
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/resources/**")
+            .addResourceLocations("/resources/");
+    }
+
+    /**
+     * Adds view to the registry.
+     *
+     * @param registry {@link ViewControllerRegistry} instance.
+     */
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/login").setViewName("login/login_page");
     }
 
     /**
@@ -44,20 +68,20 @@ public class WebAppConfig {
      * @return configured {@link ResourceBundleMessageSource} object.
      */
     @Bean
-    public MessageSource setupMessageSource() {
+    public MessageSource messageSource() {
         ResourceBundleMessageSource messageSource = new ResourceBundleMessageSource();
-        messageSource.setBasename("error_messages");
+        messageSource.setBasename("validation");
         return messageSource;
     }
 
     /**
-     * Configures and returns an instance of the DozerBeanMapper class used
+     * Configures and returns an instance of the {@link DozerBeanMapper} class used
      * for the mapping.
      *
      * @return singleton {@link DozerBeanMapper} instance.
      */
     @Bean
-    public DozerBeanMapper getMapper() {
+    public DozerBeanMapper dozerBeanMapper() {
         return new DozerBeanMapper();
     }
 }

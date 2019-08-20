@@ -1,0 +1,145 @@
+/* BODY */
+body {
+    background: whitesmoke;
+    padding: 20px;
+    font-family: Helvetica, serif;
+    font-size: 18px;
+}
+
+/* TABLE */
+.myTableStyle {
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 16px;
+    text-align: center;
+}
+
+.myTableStyle td, .myTableStyle th {
+    border: 1px solid #ddd;
+    padding: 20px 20px;
+}
+
+.myTableStyle tr:nth-child(even){
+    background-color: #f2f2f2;
+}
+
+.myTableStyle tr:hover {
+    background-color: #ddd;
+}
+
+.myTableStyle th {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    font-size: 17px;
+    text-align: center;
+    background-color: #006bb3;
+    color: white;
+}
+
+/* HEADER */
+.myHeader {
+    overflow: hidden;
+    width: 100%;
+    padding: 10px 0;
+}
+
+/* DIVS */
+.topButtonDiv {
+    padding: 10px 0;
+}
+
+/* BUTTONS */
+.myHeaderButton {
+    background: #334d4d;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    padding: 15px 15px;
+    font-size: 18px;
+    width: 15%;
+}
+
+.myHeaderButton:hover {
+    background-color: #293d3d;
+}
+
+.chosenHeaderButton {
+    background-color: #006bb3;
+    border: 2px solid #527a7a;
+    border-radius: 5px;
+    color: #fff;
+    padding: 15px 15px;
+    font-size: 18px;
+    width: 30%;
+}
+
+.tableEditButton {
+    background: #334d4d;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    width: auto;
+}
+
+.tableDeleteButton {
+    background: #ff4d4d;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    font-size: 16px;
+    width: auto;
+}
+
+.myRegularButton {
+    background: #334d4d;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    padding: 15px 15px;
+    font-size: 16px;
+    width: auto;
+}
+
+.myRegularButton:hover {
+    background-color: #293d3d;
+}
+
+.myCancelButton {
+    background: #ff8080;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    padding: 15px 15px;
+    font-size: 16px;
+    width: auto;
+}
+
+.myCancelButton:hover {
+    background-color: #800000;
+}
+
+.errorMessage {
+    color: #ff4d4d;
+}
+
+/* INPUT */
+input {
+    font-size: 16px;
+    text-align: center;
+}
+
+input:focus {
+    border: 2px solid #555;
+}
+
+/* SELECT */
+select {
+    font-size: 16px;
+    width: 90%;
+}
+
+select:focus {
+    border: 2px solid #555;
+}
+
